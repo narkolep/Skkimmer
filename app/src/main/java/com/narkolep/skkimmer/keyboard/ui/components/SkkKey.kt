@@ -1,0 +1,161 @@
+package com.narkolep.skkimmer.keyboard.ui.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Icon
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.window.Popup
+
+@Composable
+fun SkkKey(
+    mainText: String,
+    modifier: Modifier = Modifier,
+    iconResId: Int? = null,
+    flickText: String = "",
+    textSize: Float = 22f,
+    keyboardHeight: Float,
+    keyColor: Color = Color.DarkGray,
+    textColor: Color = Color.White,
+    flickColor: Color = Color.DarkGray,
+    onFlick: () -> Unit = {},
+    onClick: () -> Unit
+) {
+    var isPressed by remember { mutableStateOf(false) }
+    var currentPopupText by remember { mutableStateOf(mainText) }
+
+    val density = LocalDensity.current
+    val flickHeightPx = with(density) { (keyboardHeight*0.8).dp.roundToPx() }
+
+    Box(
+        modifier = modifier
+            .padding(2.dp)
+            .fillMaxSize()
+            .background(
+                color = if (isPressed) keyColor.copy(alpha = 0.6f) else keyColor,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .pointerInput(mainText, flickText) {
+                val flickThreshold = 30.dp.toPx()
+
+                awaitEachGesture {
+                    val downEvent = awaitFirstDown(requireUnconsumed = false)
+
+                    downEvent.consume()
+                    isPressed = true
+
+                    try {
+                        if (flickText.isEmpty()) {
+                            // 押した瞬間に確定
+                            onClick()
+                            // 確定させた後も、指が画面から完全に離れるまでは空回りさせて待機する
+                            do {
+                                val event = awaitPointerEvent()
+                                event.changes.forEach { it.consume() }
+                            } while (event.changes.any { it.pressed })
+                        } else {
+                            currentPopupText = mainText
+                            var isFlick = false
+
+                            do {
+                                val event = awaitPointerEvent()
+                                val change = event.changes.firstOrNull()
+
+                                if (change != null) {
+                                    change.consume()
+                                    val distance = (change.position - downEvent.position).getDistance()
+
+                                    if (distance > flickThreshold) {
+                                        isFlick = true
+                                        currentPopupText = flickText
+                                    } else {
+                                        isFlick = false
+                                        currentPopupText = mainText
+                                    }
+                                }
+                            } while (event.changes.any { it.pressed })
+
+                            if (isFlick) {
+                                onFlick()
+                            } else {
+                                onClick()
+                            }
+                        }
+                    } finally {
+                        // 指が離れたら色を戻す
+                        isPressed = false
+                    }
+                }
+            }
+    ) {
+        if (iconResId != null) {
+            // アイコンがある場合は表示
+            Icon(
+                painter = painterResource(id = iconResId),
+                contentDescription = mainText,
+                modifier = Modifier
+                    .size(26.dp)
+                    .align(Alignment.Center),
+                tint = textColor
+            )
+        } else {
+            if (flickText.isNotEmpty()) {
+                Text(
+                    text = flickText,
+                    color = textColor.copy(alpha = 0.6f),
+                    fontSize = 10.sp,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                )
+            }
+
+            Text(
+                text = mainText,
+                color = textColor,
+                fontSize = textSize.sp,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        // ポップアップの表示
+        if (isPressed && flickText.isNotEmpty()) {
+            Popup(
+                alignment = Alignment.Center,
+                offset = IntOffset(x = 0, y = -flickHeightPx)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 40.dp, height = (keyboardHeight * 0.9).dp)
+                        .background(flickColor, RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = currentPopupText,
+                        color = textColor,
+                        fontSize = 28.sp
+                    )
+                }
+            }
+        }
+    }
+}
