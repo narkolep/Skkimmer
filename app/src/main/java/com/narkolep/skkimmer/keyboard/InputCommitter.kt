@@ -3,7 +3,6 @@ package com.narkolep.skkimmer.keyboard
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 
 /**
  * AndroidのInputConnectionを分離したclass
@@ -44,7 +43,7 @@ class InputCommitter(
     }
 
     fun isSelected(): Boolean {
-        return connectionProvider()?.getSelectedText(0).isNullOrEmpty()
+        return !connectionProvider()?.getSelectedText(0).isNullOrEmpty()
     }
 
     fun delete() {

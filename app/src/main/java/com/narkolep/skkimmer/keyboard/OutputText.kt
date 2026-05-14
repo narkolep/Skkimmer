@@ -107,11 +107,14 @@ class OutputText(
                         } else {
                             /* 候補が無ければ、辞書登録モードに移行 */
                             stateFlow.update { it.copy(
+                                skkState = SkkState.NORMAL,
+                                composingText = "",
+                                midashiText = "",
+                                okuriganaText = "",
                                 oldOkuriganaTrigger = flag,
                                 tourokuText = keyText,
                                 tourokuFlag = "[登録]$keyText:"
                             ) }
-                            stateFlow.update { it.clear() }
                         }
                     }
                 }

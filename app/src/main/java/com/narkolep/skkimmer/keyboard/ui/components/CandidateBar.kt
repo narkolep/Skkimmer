@@ -94,10 +94,6 @@ fun CandidateBar(
                     .padding(horizontal = 10.dp)
                     .wrapContentHeight(Alignment.CenterVertically)
             )
-            VerticalDivider(
-                modifier = Modifier.padding(horizontal = 1.dp, vertical = 1.dp),
-                color = textColor.copy(alpha = 0.8f)
-            )
         }
     }
 }

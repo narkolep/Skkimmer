@@ -1,7 +1,6 @@
 package com.narkolep.skkimmer.keyboard
 
 import android.view.inputmethod.EditorInfo
-import androidx.compose.foundation.text.KeyboardActions
 import com.narkolep.skkimmer.data.SkkDictionaryManager
 import com.narkolep.skkimmer.keyboard.handlers.BackspaceHandler
 import com.narkolep.skkimmer.keyboard.handlers.CursorHandler
