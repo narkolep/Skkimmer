@@ -1,8 +1,5 @@
 package com.narkolep.skkimmer.keyboard
 
-/**
- * キーボードの表示に必要な全ての状態を保持するクラス
- */
 enum class ShiftState {
     LOWERCASE,
     SHIFTED,
@@ -56,3 +53,16 @@ data class SkkUIState(
     val firstChar: String = "",
     val secondChar: String = ""
 )
+
+fun SkkUIState.clear(): SkkUIState {
+    return copy(
+        skkState = SkkState.NORMAL,
+        midashiText = "",
+        composingText = "",
+        okuriganaText = "",
+        okuriganaTrigger = "",
+        candidates = emptyList(),
+        selectedIndex = -1,
+        secondChar = ""
+    )
+}

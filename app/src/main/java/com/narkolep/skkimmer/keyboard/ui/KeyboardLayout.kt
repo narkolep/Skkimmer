@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.map
 import android.content.res.Configuration
 import com.narkolep.skkimmer.R
 import com.narkolep.skkimmer.keyboard.InputMode
+import com.narkolep.skkimmer.keyboard.KeyboardAction
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
@@ -43,7 +44,7 @@ fun KeyboardLayout(
     uiState: SkkUIState,
     categories: List<EmojiManager.Category>,
     onKeyClick: (String) -> Unit,
-    onActionClick: (String) -> Unit
+    onActionClick: (KeyboardAction) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -109,7 +110,7 @@ fun KeyboardLayout(
                     actionTextColor = keyboardActionTextColor,
                     height = (keyboardHeight * 4.8f),
                     categories = categories,
-                    onBackToKeyboard = { onActionClick("TOGGLE_EMOJI") },
+                    onBackToKeyboard = { onActionClick(KeyboardAction.ToggleEmoji) },
                     onEmojiSelected = { emoji -> onKeyClick(emoji) }
                 )
             }
@@ -150,7 +151,7 @@ fun KeyboardLayout(
                                 selectedTextColor = keyboardTextColor,
                                 candidates = uiState.candidates,
                                 selectedIndex = uiState.selectedIndex,
-                                onCandidateClick = { index -> onActionClick("CANDIDATE_INDEX:$index") }
+                                onCandidateClick = { index -> onActionClick(KeyboardAction.CandidateIndex(index)) }
                             )
                         }
                     }
@@ -165,15 +166,15 @@ fun KeyboardLayout(
                                     if (config.action != null) {
                                         /* 機能キー (actionがある場合) */
                                         val actionColor = when (config.action) {
-                                            "CTRL" -> if (uiState.isCtrlPressed) keyboardActionColor else keyboardBackgroundColor
-                                            "SHIFT" -> if (isShifted) keyboardActionColor else keyboardBackgroundColor
-                                            "ENTER" -> keyboardActionColor
-                                            "DAKUTEN" -> keyboardButtonColor
+                                            KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) keyboardActionColor else keyboardBackgroundColor
+                                            KeyboardAction.Shift -> if (isShifted) keyboardActionColor else keyboardBackgroundColor
+                                            KeyboardAction.Enter -> keyboardActionColor
+                                            KeyboardAction.Dakuten -> keyboardButtonColor
                                             else -> keyboardBackgroundColor
                                         }
                                         var actionIcon = config.iconResId
                                         var actionText = config.label
-                                        if (config.action == "SPACE") {
+                                        if (config.action == KeyboardAction.Space) {
                                             actionIcon = when (uiState.inputMode) {
                                                 InputMode.HIRAGANA -> when (uiState.skkState) {
                                                     SkkState.NORMAL -> R.drawable.lucide_space
@@ -193,7 +194,7 @@ fun KeyboardLayout(
                                                 else -> "Space"
                                             }
                                         }
-                                        if (config.action == "DAKUTEN" && uiState.secondChar.isEmpty() && uiState.firstChar.isEmpty()) {
+                                        if (config.action == KeyboardAction.Dakuten && uiState.secondChar.isEmpty() && uiState.firstChar.isEmpty()) {
                                             actionText = "_A"
                                         }
 
@@ -298,7 +299,7 @@ fun KeyboardLayout(
                                 keyColor = if (uiState.shiftState == ShiftState.LOWERCASE) keyboardBackgroundColor else keyboardActionColor,
                                 textColor = if (uiState.shiftState == ShiftState.LOWERCASE) keyboardTextColor else keyboardActionTextColor,
                                 keyboardHeight = keyboardHeight,
-                            ) { onActionClick("SHIFT") }
+                            ) { onActionClick(KeyboardAction.Shift) }
 
                             // z, x, c...
                             KeyboardMap.rows[3].forEach { keyId ->
@@ -326,7 +327,7 @@ fun KeyboardLayout(
                                 keyColor = keyboardBackgroundColor,
                                 textColor = keyboardTextColor,
                                 keyboardHeight = keyboardHeight,
-                            ) { onActionClick("BACKSPACE") }
+                            ) { onActionClick(KeyboardAction.Backspace) }
                         }
 
                         /**
@@ -343,7 +344,7 @@ fun KeyboardLayout(
                                 keyColor = if (!uiState.isCtrlPressed) keyboardBackgroundColor else keyboardActionColor,
                                 textColor = if (!uiState.isCtrlPressed) keyboardTextColor else keyboardActionTextColor,
                                 keyboardHeight = keyboardHeight,
-                            ) { onActionClick("CTRL") }
+                            ) { onActionClick(KeyboardAction.Ctrl) }
 
                             // スペースキー (現在の入力モードを表示)
                             val jisyoKey =
@@ -368,7 +369,7 @@ fun KeyboardLayout(
                                 keyColor = keyboardButtonColor,
                                 textColor = keyboardActionColor,
                                 keyboardHeight = keyboardHeight,
-                            ) { onActionClick("SPACE") }
+                            ) { onActionClick(KeyboardAction.Space) }
 
                             // Enterキー
                             SkkKey(
@@ -377,7 +378,7 @@ fun KeyboardLayout(
                                 keyColor = keyboardActionColor,
                                 textColor = keyboardActionTextColor,
                                 keyboardHeight = keyboardHeight,
-                            ) { onActionClick("ENTER") }
+                            ) { onActionClick(KeyboardAction.Enter) }
                         }
                     }
                 }

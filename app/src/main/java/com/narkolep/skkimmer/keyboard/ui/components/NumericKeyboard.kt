@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.narkolep.skkimmer.keyboard.KeyboardAction
 import com.narkolep.skkimmer.keyboard.mappings.NumericMap
 
 @Composable
@@ -18,7 +19,7 @@ fun NumericKeyboard(
     buttonColor: Color,
     textColor: Color,
     onInput: (String) -> Unit,
-    onActionInput: (String) -> Unit
+    onActionInput: (KeyboardAction) -> Unit
 ) {
     Column(
         modifier = Modifier.padding(horizontal = 2.dp)

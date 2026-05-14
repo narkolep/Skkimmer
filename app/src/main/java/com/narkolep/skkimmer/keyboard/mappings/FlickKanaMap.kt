@@ -1,6 +1,7 @@
 package com.narkolep.skkimmer.keyboard.mappings
 
 import com.narkolep.skkimmer.R
+import com.narkolep.skkimmer.keyboard.KeyboardAction
 
 object FlickKanaMap {
     data class FlickKeyConfig(
@@ -11,7 +12,7 @@ object FlickKanaMap {
         val up: String = "",        // 離した時：上 (u など)
         val right: String = "",     // 離した時：右 (e など)
         val down: String = "",      // 離した時：下 (o など)
-        val action: String? = null, // 機能キー
+        val action: KeyboardAction? = null, // 機能キー
         val iconResId: Int? = null, // アイコン
     )
 
@@ -22,31 +23,31 @@ object FlickKanaMap {
             FlickKeyConfig("あ", "", "a", "i", "u", "e", "o"),
             FlickKeyConfig("か", "k", "a", "i", "u", "e", "o"),
             FlickKeyConfig("さ", "s", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("BS", action = "BACKSPACE", iconResId = R.drawable.lucide_delete)
+            FlickKeyConfig("BS", action = KeyboardAction.Backspace, iconResId = R.drawable.lucide_delete)
         ),
         // 2段目
         listOf(
-            FlickKeyConfig("LA", action = "LEFT", iconResId = R.drawable.lucide_chevron_left),
+            FlickKeyConfig("LA", action = KeyboardAction.Left, iconResId = R.drawable.lucide_chevron_left),
             FlickKeyConfig("た", "t", "a", "i", "u", "e", "o"),
             FlickKeyConfig("な", "n", "a", "i", "u", "e", "o"),
             FlickKeyConfig("は", "h", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("RA", action = "RIGHT", iconResId = R.drawable.lucide_chevron_right)
+            FlickKeyConfig("RA", action = KeyboardAction.Right, iconResId = R.drawable.lucide_chevron_right)
         ),
         // 3段目
         listOf(
-            FlickKeyConfig("Shift", action = "SHIFT", iconResId = R.drawable.lucide_arrow_up),
+            FlickKeyConfig("Shift", action = KeyboardAction.Shift, iconResId = R.drawable.lucide_arrow_up),
             FlickKeyConfig("ま", "m", "a", "i", "u", "e", "o"),
             FlickKeyConfig("や", "y", "a", "「", "u", "」", "o"),
             FlickKeyConfig("ら", "r", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("Space", action = "SPACE")
+            FlickKeyConfig("Space", action = KeyboardAction.Space)
         ),
         // 4段目
         listOf(
-            FlickKeyConfig("Ctrl", action = "CTRL"),
-            FlickKeyConfig("ﾞﾟ", action = "DAKUTEN"),
+            FlickKeyConfig("Ctrl", action = KeyboardAction.Ctrl),
+            FlickKeyConfig("ﾞﾟ", action = KeyboardAction.Dakuten),
             FlickKeyConfig("わ", "w", "a", "o", "nn", "-", "~"),
             FlickKeyConfig("､｡", "", ",", ".", "?", "!", "…"),
-            FlickKeyConfig("Enter", action = "ENTER", iconResId = R.drawable.bootstrap_enter)
+            FlickKeyConfig("Enter", action = KeyboardAction.Enter, iconResId = R.drawable.bootstrap_enter)
         )
     )
 

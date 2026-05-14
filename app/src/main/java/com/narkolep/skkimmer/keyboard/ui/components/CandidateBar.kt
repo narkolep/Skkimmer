@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -92,6 +93,10 @@ fun CandidateBar(
                     .clickable { onCandidateClick(index) }
                     .padding(horizontal = 10.dp)
                     .wrapContentHeight(Alignment.CenterVertically)
+            )
+            VerticalDivider(
+                modifier = Modifier.padding(horizontal = 1.dp, vertical = 1.dp),
+                color = textColor.copy(alpha = 0.8f)
             )
         }
     }

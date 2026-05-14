@@ -1,7 +1,5 @@
 package com.narkolep.skkimmer.keyboard.mappings
 
-import com.narkolep.skkimmer.keyboard.InputMode
-
 object KanaMap {
     data class KanaDefinition(
         val hira: String,
@@ -247,21 +245,5 @@ object KanaMap {
     }
     val hiraToHalfMap by lazy {
         romajiToKana.values.associate { it.hira to it.halfkata }
-    }
-
-    fun convertString(text: String, map: Map<String, String>): String {
-        var result = text
-        map.forEach { (key, value) ->
-            result = result.replace(key, value)
-        }
-        return result
-    }
-
-    fun getOutputChar(definition: KanaDefinition, inputMode: InputMode): String {
-        return when (inputMode) {
-            InputMode.KATAKANA -> definition.kata
-            InputMode.HALF_KATAKANA -> definition.halfkata
-            else -> definition.hira
-        }
     }
 }
