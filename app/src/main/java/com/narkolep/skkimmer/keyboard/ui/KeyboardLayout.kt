@@ -16,7 +16,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap
 import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap.flickLayout
 import com.narkolep.skkimmer.keyboard.ui.components.CandidateBar
 import com.narkolep.skkimmer.keyboard.ui.components.SkkKey
@@ -37,8 +36,8 @@ import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
 import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.keyDefinitions
 import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.numericKeyDefinitions
+import com.narkolep.skkimmer.keyboard.mappings.NumericMap
 import com.narkolep.skkimmer.keyboard.ui.components.FlickKey
-import com.narkolep.skkimmer.keyboard.ui.components.NumericKeyboard
 
 @SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
@@ -105,6 +104,9 @@ fun KeyboardLayout(
     ) {
         when (uiState.inputMode) {
             InputMode.EMOJI -> {
+                /**
+                 * 絵文字入力画面
+                 **/
                 EmojiPicker(
                     backgroundColor = keyboardBackgroundColor,
                     textColor = keyboardTextColor,
@@ -117,20 +119,36 @@ fun KeyboardLayout(
                 )
             }
             InputMode.NUMERIC -> {
-                NumericKeyboard(
-                    height = keyboardHeight,
-                    backgroundColor = keyboardBackgroundColor,
-                    buttonColor = keyboardButtonColor,
-                    textColor = keyboardTextColor,
-                    onInput = { key -> onKeyClick(key) },
-                    onActionInput = { key -> onActionClick(key) }
-                )
+                /**
+                 * テンキー
+                 **/
+                Column(modifier = Modifier.padding(horizontal = 2.dp)) {
+                    NumericMap.numericLayout.forEach { rowKeys ->
+                        Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
+                            rowKeys.forEach { config ->
+                                SkkKey(
+                                    mainText = config.label,
+                                    modifier = Modifier.weight(1f),
+                                    keyColor = if (config.color) keyboardBackgroundColor else keyboardButtonColor,
+                                    textColor = keyboardTextColor,
+                                    iconResId = config.iconResId,
+                                    keyboardHeight = keyboardHeight,
+                                    keyRepeat = config.keyRepeat,
+                                    onClick = {
+                                        if (config.action != null) onActionClick(config.action)
+                                        else onKeyClick(config.label)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
             }
             else -> {
                 Column(modifier = Modifier.padding(horizontal = 4.dp)) {
                     /**
                      * 候補/数字バー
-                     * */
+                     **/
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .height((keyboardHeight * 0.8).dp)) {
@@ -164,7 +182,7 @@ fun KeyboardLayout(
                     if (uiState.isFlick) {
                         /**
                          * フリックキーボード
-                         * */
+                         **/
                         flickLayout.forEach { rowKeys ->
                             Row(modifier = Modifier
                                 .fillMaxWidth()
@@ -209,6 +227,7 @@ fun KeyboardLayout(
                                             textColor = if (actionColor == keyboardActionColor) keyboardActionTextColor else keyboardTextColor,
                                             iconResId = actionIcon,
                                             keyboardHeight = keyboardHeight,
+                                            keyRepeat = config.keyRepeat,
                                             onClick = { onActionClick(config.action) }
                                         )
                                     } else {
@@ -312,6 +331,7 @@ fun KeyboardLayout(
                                             keyColor = keyColor,
                                             textColor = textColor,
                                             keyboardHeight = keyboardHeight,
+                                            keyRepeat = config.keyRepeat
                                         ) { onActionClick(config.action) }
                                     } else {
                                         SkkKey(

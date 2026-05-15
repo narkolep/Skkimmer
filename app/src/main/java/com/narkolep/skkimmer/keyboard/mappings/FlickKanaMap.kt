@@ -13,7 +13,8 @@ object FlickKanaMap {
         val right: String = "",     // 離した時：右 (e など)
         val down: String = "",      // 離した時：下 (o など)
         val action: KeyboardAction? = null, // 機能キー
-        val iconResId: Int? = null, // アイコン
+        val keyRepeat: Boolean = false,     // 長押しした際のリピート
+        val iconResId: Int? = null,         // アイコン
     )
 
     val flickLayout = listOf(
@@ -23,15 +24,15 @@ object FlickKanaMap {
             FlickKeyConfig("あ", "", "a", "i", "u", "e", "o"),
             FlickKeyConfig("か", "k", "a", "i", "u", "e", "o"),
             FlickKeyConfig("さ", "s", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("BS", action = KeyboardAction.Backspace, iconResId = R.drawable.lucide_delete)
+            FlickKeyConfig("BS", action = KeyboardAction.Backspace, iconResId = R.drawable.lucide_delete, keyRepeat = true)
         ),
         // 2段目
         listOf(
-            FlickKeyConfig("LA", action = KeyboardAction.Left, iconResId = R.drawable.lucide_chevron_left),
+            FlickKeyConfig("LA", action = KeyboardAction.Left, iconResId = R.drawable.lucide_chevron_left, keyRepeat = true),
             FlickKeyConfig("た", "t", "a", "i", "u", "e", "o"),
             FlickKeyConfig("な", "n", "a", "i", "u", "e", "o"),
             FlickKeyConfig("は", "h", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("RA", action = KeyboardAction.Right, iconResId = R.drawable.lucide_chevron_right)
+            FlickKeyConfig("RA", action = KeyboardAction.Right, iconResId = R.drawable.lucide_chevron_right, keyRepeat = true)
         ),
         // 3段目
         listOf(

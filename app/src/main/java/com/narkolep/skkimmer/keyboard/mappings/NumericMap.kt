@@ -8,6 +8,7 @@ object NumericMap {
         val label: String,
         val color: Boolean = false, // 色を変える
         val action: KeyboardAction? = null,
+        val keyRepeat: Boolean = false,
         val iconResId: Int? = null
     )
 
@@ -17,15 +18,15 @@ object NumericMap {
             NumericConfig("1"),
             NumericConfig("2"),
             NumericConfig("3"),
-            NumericConfig("BS", color = true, action = KeyboardAction.Backspace, iconResId = R.drawable.lucide_delete)
+            NumericConfig("BS", color = true, action = KeyboardAction.Backspace, iconResId = R.drawable.lucide_delete, keyRepeat = true)
         ),
 
         listOf(
-            NumericConfig("LA", color = true, action = KeyboardAction.Left, iconResId = R.drawable.lucide_chevron_left),
+            NumericConfig("Left", color = true, action = KeyboardAction.Left, iconResId = R.drawable.lucide_chevron_left, keyRepeat = true),
             NumericConfig("4"),
             NumericConfig("5"),
             NumericConfig("6"),
-            NumericConfig("RA", color = true, action = KeyboardAction.Right, iconResId = R.drawable.lucide_chevron_right)
+            NumericConfig("Right", color = true, action = KeyboardAction.Right, iconResId = R.drawable.lucide_chevron_right, keyRepeat = true)
         ),
 
         listOf(

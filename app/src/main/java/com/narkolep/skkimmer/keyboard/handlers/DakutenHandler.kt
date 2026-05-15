@@ -5,7 +5,6 @@ import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.SkkUIState
 import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 
 class DakutenHandler(
     private val stateFlow: MutableStateFlow<SkkUIState>,

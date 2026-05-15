@@ -28,6 +28,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 @Composable
 fun SkkKey(
@@ -42,6 +47,7 @@ fun SkkKey(
     flickColor: Color = Color.DarkGray,
     spaceLeftRight: String = "",
     weight: Float = 1.5f,
+    keyRepeat: Boolean = false,
     onFlick: () -> Unit = {},
     onClick: () -> Unit
 ) {
@@ -53,11 +59,16 @@ fun SkkKey(
 
     var weight = weight
 
+    // バックグラウンドでタイマーを動かすためのスコープ
+    val scope = rememberCoroutineScope()
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .pointerInput(mainText, flickText) {
                 val flickThreshold = 30.dp.toPx()
+                val repeatInterval = 100L // 連続入力の間隔 (100ms)
+                val initialDelay = 500L   // 長押しと判定するまでの待機時間 (500ms)
 
                 awaitEachGesture {
                     val downEvent = awaitFirstDown(requireUnconsumed = false)
@@ -65,10 +76,24 @@ fun SkkKey(
                     downEvent.consume()
                     isPressed = true
 
+                    var repeatJob: Job? = null // タイマーを管理する変数
+
                     try {
                         if (flickText.isEmpty()) {
-                            // 押した瞬間に確定
+                            // 押した瞬間に確定（1回目の入力）
                             onClick()
+
+                            // リピート開始
+                            if (keyRepeat) {
+                                repeatJob = scope.launch {
+                                    delay(initialDelay) // 最初は500ms待つ
+                                    while (isActive) {
+                                        onClick() // アクションを実行
+                                        delay(repeatInterval) // 100ms待ってからループ
+                                    }
+                                }
+                            }
+
                             // 確定させた後も、指が画面から完全に離れるまでは空回りさせて待機する
                             do {
                                 val event = awaitPointerEvent()
@@ -103,6 +128,9 @@ fun SkkKey(
                             }
                         }
                     } finally {
+                        // 指が離れたらタイマー停止
+                        repeatJob?.cancel()
+
                         // 指が離れたら色を戻す
                         isPressed = false
                     }

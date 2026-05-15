@@ -8,6 +8,7 @@ object KeyboardMap {
         val flick: String = "",
         val shiftFlick: String = "",
         val action: KeyboardAction? = null,
+        val keyRepeat: Boolean = false,
         val weight: Float = 1f,
         val padding: String = "",
         val textSize: Float = 22f
@@ -65,7 +66,7 @@ object KeyboardMap {
             KeyDef("b", ",", ","),
             KeyDef("n", ".", "."),
             KeyDef("m", "/", """\"""),
-            KeyDef("BS", action = KeyboardAction.Backspace, weight = 1.5f, textSize = 20f)
+            KeyDef("BS", action = KeyboardAction.Backspace, weight = 1.5f, textSize = 20f, keyRepeat = true)
         ),
 
         // 5段目
