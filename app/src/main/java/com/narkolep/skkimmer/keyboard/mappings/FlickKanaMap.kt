@@ -19,7 +19,7 @@ object FlickKanaMap {
     val flickLayout = listOf(
         // 1段目
         listOf(
-            FlickKeyConfig("Q", "q", iconResId = R.drawable.lucide_refresh_cw),
+            FlickKeyConfig("Q", "", "q", "", "/", "l", "~", iconResId = R.drawable.lucide_refresh_cw),
             FlickKeyConfig("あ", "", "a", "i", "u", "e", "o"),
             FlickKeyConfig("か", "k", "a", "i", "u", "e", "o"),
             FlickKeyConfig("さ", "s", "a", "i", "u", "e", "o"),
@@ -45,8 +45,8 @@ object FlickKanaMap {
         listOf(
             FlickKeyConfig("Ctrl", action = KeyboardAction.Ctrl),
             FlickKeyConfig("ﾞﾟ", action = KeyboardAction.Dakuten),
-            FlickKeyConfig("わ", "w", "a", "o", "nn", "-", "~"),
-            FlickKeyConfig("､｡", "", ",", ".", "?", "!", "…"),
+            FlickKeyConfig("わ", "w", "a", "o", "nn", "-"),
+            FlickKeyConfig("､｡", "", ",", ".", "?", "!",),
             FlickKeyConfig("Enter", action = KeyboardAction.Enter, iconResId = R.drawable.bootstrap_enter)
         )
     )

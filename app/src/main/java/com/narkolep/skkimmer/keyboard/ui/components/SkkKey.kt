@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +40,8 @@ fun SkkKey(
     keyColor: Color = Color.DarkGray,
     textColor: Color = Color.White,
     flickColor: Color = Color.DarkGray,
+    spaceLeftRight: String = "",
+    weight: Float = 1.5f,
     onFlick: () -> Unit = {},
     onClick: () -> Unit
 ) {
@@ -46,14 +51,11 @@ fun SkkKey(
     val density = LocalDensity.current
     val flickHeightPx = with(density) { (keyboardHeight*0.8).dp.roundToPx() }
 
+    var weight = weight
+
     Box(
         modifier = modifier
-            .padding(2.dp)
             .fillMaxSize()
-            .background(
-                color = if (isPressed) keyColor.copy(alpha = 0.6f) else keyColor,
-                shape = RoundedCornerShape(8.dp)
-            )
             .pointerInput(mainText, flickText) {
                 val flickThreshold = 30.dp.toPx()
 
@@ -107,54 +109,75 @@ fun SkkKey(
                 }
             }
     ) {
-        if (iconResId != null) {
-            // アイコンがある場合は表示
-            Icon(
-                painter = painterResource(id = iconResId),
-                contentDescription = mainText,
-                modifier = Modifier
-                    .size(26.dp)
-                    .align(Alignment.Center),
-                tint = textColor
-            )
-        } else {
-            if (flickText.isNotEmpty()) {
-                Text(
-                    text = flickText,
-                    color = textColor.copy(alpha = 0.6f),
-                    fontSize = 10.sp,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                )
+        Row(modifier = Modifier.fillMaxSize()) {
+            if (spaceLeftRight.isNotEmpty()) weight -= 0.5f
+            if (spaceLeftRight == "Left") {
+                Spacer(modifier = Modifier.weight(0.5f))
             }
 
-            Text(
-                text = mainText,
-                color = textColor,
-                fontSize = textSize.sp,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-
-        // ポップアップの表示
-        if (isPressed && flickText.isNotEmpty()) {
-            Popup(
-                alignment = Alignment.Center,
-                offset = IntOffset(x = 0, y = -flickHeightPx)
+            Box(
+                modifier = Modifier
+                    .padding(2.dp)
+                    .weight(weight)
+                    .fillMaxHeight()
+                    .background(
+                        color = if (isPressed) keyColor.copy(alpha = 0.6f) else keyColor,
+                        shape = RoundedCornerShape(8.dp)
+                    )
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(width = 40.dp, height = (keyboardHeight * 0.9).dp)
-                        .background(flickColor, RoundedCornerShape(10.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
+                if (iconResId != null) {
+                    Icon(
+                        painter = painterResource(id = iconResId),
+                        contentDescription = mainText,
+                        modifier = Modifier
+                            .size(26.dp)
+                            .align(Alignment.Center),
+                        tint = textColor
+                    )
+                } else {
+                    if (flickText.isNotEmpty()) {
+                        Text(
+                            text = flickText,
+                            color = textColor.copy(alpha = 0.6f),
+                            fontSize = 10.sp,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(4.dp)
+                        )
+                    }
+
                     Text(
-                        text = currentPopupText,
+                        text = mainText,
                         color = textColor,
-                        fontSize = 28.sp
+                        fontSize = textSize.sp,
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
+
+                // ポップアップの表示
+                if (isPressed && flickText.isNotEmpty()) {
+                    Popup(
+                        alignment = Alignment.Center,
+                        offset = IntOffset(x = 0, y = -flickHeightPx)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 40.dp, height = (keyboardHeight * 0.9).dp)
+                                .background(flickColor, RoundedCornerShape(10.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = currentPopupText,
+                                color = textColor,
+                                fontSize = 28.sp
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (spaceLeftRight == "Right") {
+                Spacer(modifier = Modifier.weight(0.5f))
             }
         }
     }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -64,6 +65,11 @@ fun FlickKey(
     var keyHeight by remember { mutableStateOf(0.dp) }
 
     var keyHeightPx by remember { mutableIntStateOf(0) }
+    var keyWidthPx by remember { mutableIntStateOf(0) }
+
+    var yOffset by remember { mutableIntStateOf(0) }
+    var xOffset by remember { mutableIntStateOf(0) }
+
     val paddingPx = with(density) { 4.dp.roundToPx() }
 
     val currentIsCtrlActive by rememberUpdatedState(isCtrlPressed)
@@ -77,7 +83,15 @@ fun FlickKey(
             .onSizeChanged { size ->
                 keyWidth = with(density) { size.width.toDp() }
                 keyHeight = with(density) { size.height.toDp() }
+                keyWidthPx = size.width
                 keyHeightPx = size.height
+
+                yOffset = 0
+                xOffset = 0
+                if (config.up.isEmpty()) yOffset += ((keyHeightPx + paddingPx)*0.5).toInt()
+                if (config.down.isEmpty()) yOffset -= ((keyHeightPx + paddingPx)*0.5).toInt()
+                if (config.left.isEmpty()) xOffset += ((keyWidthPx + paddingPx)*0.5).toInt()
+                if (config.right.isEmpty()) xOffset -= ((keyWidthPx + paddingPx)*0.5).toInt()
             }
             .pointerInput(isFlickMode) {
                 if (!isFlickMode) return@pointerInput
@@ -126,7 +140,6 @@ fun FlickKey(
             }
     ) {
         if (iconResId != null) {
-            // アイコンがある場合は表示
             Icon(
                 painter = painterResource(id = iconResId),
                 contentDescription = displayText,
@@ -143,12 +156,9 @@ fun FlickKey(
 
         // ドラッグ中のみポップアップを表示
         if (isDragging) {
-            // val yOffset = if (config.label == "､｡" || config.label == "わ") -(keyHeightPx + paddingPx) else 0
-            val yOffset = 0
-
             Popup(
                 alignment = Alignment.Center,
-                offset = IntOffset(x = 0, y = yOffset)
+                offset = IntOffset(x = xOffset, y = yOffset)
             ) {
                 FlickPopup(
                     config = config,
@@ -205,25 +215,29 @@ fun FlickPopup(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = Modifier.padding(3.dp)
+        modifier = Modifier.padding(2.dp)
     ) {
         // 上段
         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            Spacer(modifier = Modifier.size(40.dp))
-            PopupChar(text = config.up, isActive = currentDir == FlickDirection.UP)
-            Spacer(modifier = Modifier.size(40.dp))
+            if (config.up.isNotEmpty()) {
+                if (config.left.isNotEmpty()) PopupChar("", false)
+                PopupChar(text = config.up, isActive = currentDir == FlickDirection.UP)
+                if (config.right.isNotEmpty()) PopupChar("", false)
+            }
         }
         // 中段
         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            PopupChar(text = config.left, isActive = currentDir == FlickDirection.LEFT)
+            if (config.left.isNotEmpty()) PopupChar(text = config.left, isActive = currentDir == FlickDirection.LEFT)
             PopupChar(text = config.center, isActive = currentDir == FlickDirection.CENTER)
-            PopupChar(text = config.right, isActive = currentDir == FlickDirection.RIGHT)
+            if (config.right.isNotEmpty()) PopupChar(text = config.right, isActive = currentDir == FlickDirection.RIGHT)
         }
         // 下段
         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            Spacer(modifier = Modifier.size(40.dp))
-            PopupChar(text = config.down, isActive = currentDir == FlickDirection.DOWN)
-            Spacer(modifier = Modifier.size(40.dp))
+            if (config.down.isNotEmpty()) {
+                if (config.left.isNotEmpty()) PopupChar("", false)
+                PopupChar(text = config.down, isActive = currentDir == FlickDirection.DOWN)
+                if (config.right.isNotEmpty()) PopupChar("", false)
+            }
         }
     }
 }

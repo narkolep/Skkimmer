@@ -20,7 +20,7 @@ class OutputText(
         key: String,
         state: SkkUIState
     ): Boolean {
-        val outChar = if (state.shiftState == ShiftState.LOWERCASE) key.uppercase() else key
+        val outChar = if (state.shiftState == ShiftState.LOWERCASE) key else key.uppercase()
 
         when (state.inputMode) {
             InputMode.HALF_ASCII, InputMode.NUMERIC -> {

@@ -22,7 +22,7 @@ private val DarkColors = darkColorScheme()
  * */
 @Composable
 fun AppTheme(
-    // 現在システムがダークモードかどうかを自動判定
+    // 現在システムがダークモードかどうかを判定
     useDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

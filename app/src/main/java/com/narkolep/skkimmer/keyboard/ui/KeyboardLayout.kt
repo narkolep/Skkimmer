@@ -35,6 +35,8 @@ import com.narkolep.skkimmer.keyboard.KeyboardAction
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
+import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.keyDefinitions
+import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.numericKeyDefinitions
 import com.narkolep.skkimmer.keyboard.ui.components.FlickKey
 import com.narkolep.skkimmer.keyboard.ui.components.NumericKeyboard
 
@@ -110,7 +112,7 @@ fun KeyboardLayout(
                     actionTextColor = keyboardActionTextColor,
                     height = (keyboardHeight * 4.8f),
                     categories = categories,
-                    onBackToKeyboard = { onActionClick(KeyboardAction.ToggleEmoji) },
+                    onBackToKeyboard = { onActionClick(KeyboardAction.ToggleKeyboard) },
                     onEmojiSelected = { emoji -> onKeyClick(emoji) }
                 )
             }
@@ -129,18 +131,21 @@ fun KeyboardLayout(
                     /**
                      * 候補/数字バー
                      * */
-                    Box(modifier = Modifier.fillMaxWidth().height((keyboardHeight * 0.8).dp)) {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height((keyboardHeight * 0.8).dp)) {
                         if (uiState.inputMode == InputMode.HALF_ASCII || uiState.inputMode == InputMode.FULL_ASCII) {
-                            Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-                                KeyboardMap.rows[0].forEach { keyId ->
-                                    val def = KeyboardMap.keyDefinitions[keyId] ?: KeyboardMap.KeyDef(keyId)
+                            Row(modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()) {
+                                numericKeyDefinitions.forEach { config ->
                                     SkkKey(
-                                        mainText = def.main,
+                                        mainText = config.main,
                                         modifier = Modifier.weight(1f),
                                         keyColor = keyboardBackgroundColor,
                                         textColor = keyboardTextColor,
                                         keyboardHeight = keyboardHeight,
-                                        onClick = { onKeyClick(keyId) }
+                                        onClick = { onKeyClick(config.main) }
                                     )
                                 }
                             }
@@ -161,7 +166,9 @@ fun KeyboardLayout(
                          * フリックキーボード
                          * */
                         flickLayout.forEach { rowKeys ->
-                            Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
+                            Row(modifier = Modifier
+                                .fillMaxWidth()
+                                .height(keyboardHeight.dp)) {
                                 rowKeys.forEach { config ->
                                     if (config.action != null) {
                                         /* 機能キー (actionがある場合) */
@@ -193,9 +200,6 @@ fun KeyboardLayout(
                                                 InputMode.FULL_ASCII -> "全角"
                                                 else -> "Space"
                                             }
-                                        }
-                                        if (config.action == KeyboardAction.Dakuten && uiState.secondChar.isEmpty() && uiState.firstChar.isEmpty()) {
-                                            actionText = "_A"
                                         }
 
                                         SkkKey(
@@ -235,150 +239,97 @@ fun KeyboardLayout(
                         }
                     } else {
                         /**
-                         * q,w,e,r,t,y,u,i,o,p
-                         * */
-                        Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
-                            KeyboardMap.rows[1].forEach { keyId ->
-                                val def =
-                                    KeyboardMap.keyDefinitions[keyId] ?: KeyboardMap.KeyDef(keyId)
+                         * qwertyキーボード
+                         **/
+                        keyDefinitions.forEach { rowKeys ->
+                            Row(modifier = Modifier
+                                .fillMaxWidth()
+                                .height(keyboardHeight.dp)) {
+                                rowKeys.forEach { config ->
+                                    if (config.action != null) {
+                                        var mainText = config.main
+                                        when(config.action) {
+                                            KeyboardAction.Shift -> {
+                                                mainText = when (uiState.shiftState) {
+                                                    ShiftState.LOWERCASE -> "Shift"
+                                                    ShiftState.SHIFTED -> "Shift"
+                                                    ShiftState.CAPS_LOCK -> "Caps\nLock"
+                                                }
+                                            }
+                                            KeyboardAction.Space -> {
+                                                val jisyoKey = if (uiState.tourokuFlag.isNotEmpty()) "辞書登録 / " else ""
+                                                mainText = when (uiState.inputMode) {
+                                                    InputMode.HALF_ASCII -> "SKK"
+                                                    InputMode.FULL_ASCII -> "全英"
+                                                    InputMode.HIRAGANA -> when (uiState.skkState) {
+                                                        SkkState.NORMAL -> jisyoKey + "NORMAL"
+                                                        SkkState.MIDASHI -> jisyoKey + "見出し語"
+                                                        SkkState.OKURIGANA -> jisyoKey + "送り仮名"
+                                                        SkkState.HENKAN -> jisyoKey + "変換"
+                                                        SkkState.ABBREV -> jisyoKey + "abbreviation"
+                                                    }
+                                                    InputMode.KATAKANA -> "カナ"
+                                                    InputMode.HALF_KATAKANA -> "__ｶﾅ"
+                                                }
+                                            }
+                                            else -> {}
+                                        }
 
-                                SkkKey(
-                                    mainText = if (isShifted) def.main.uppercase() else def.main,
-                                    flickText = if (isShifted) def.shiftFlick else def.flick,
-                                    modifier = Modifier.weight(1f),
-                                    keyColor = keyboardButtonColor,
-                                    textColor = keyboardTextColor,
-                                    flickColor = keyboardFlickColor,
-                                    keyboardHeight = keyboardHeight,
-                                    onFlick = { onKeyClick(if (isShifted) def.shiftFlick else def.flick) },
-                                    onClick = { onKeyClick(keyId) }
-                                )
-                            }
-                        }
+                                        val keyColor = when (config.action) {
+                                            KeyboardAction.Shift -> {
+                                                if (uiState.shiftState == ShiftState.LOWERCASE) keyboardBackgroundColor
+                                                else keyboardActionColor
+                                            }
+                                            KeyboardAction.Backspace -> keyboardBackgroundColor
+                                            KeyboardAction.Ctrl -> {
+                                                if (!uiState.isCtrlPressed) keyboardBackgroundColor
+                                                else keyboardActionColor
+                                            }
+                                            KeyboardAction.Space -> keyboardButtonColor
+                                            KeyboardAction.Enter -> keyboardActionColor
+                                            else -> keyboardButtonColor
+                                        }
 
-                        /**
-                         * a,s,d,f,g,h,j,k,l
-                         * */
-                        Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
-                            Spacer(modifier = Modifier.weight(0.5f)) // 端の余白
+                                        val textColor = when (config.action) {
+                                            KeyboardAction.Shift -> {
+                                                if (uiState.shiftState == ShiftState.LOWERCASE) keyboardTextColor
+                                                else keyboardActionTextColor
+                                            }
+                                            KeyboardAction.Backspace -> keyboardTextColor
+                                            KeyboardAction.Ctrl -> {
+                                                if (!uiState.isCtrlPressed) keyboardTextColor
+                                                else keyboardActionTextColor
+                                            }
+                                            KeyboardAction.Space -> keyboardActionColor
+                                            KeyboardAction.Enter -> keyboardActionTextColor
+                                            else -> keyboardTextColor
+                                        }
 
-                            KeyboardMap.rows[2].forEach { keyId ->
-                                val def =
-                                    KeyboardMap.keyDefinitions[keyId] ?: KeyboardMap.KeyDef(keyId)
-
-                                SkkKey(
-                                    mainText = if (isShifted) def.main.uppercase() else def.main,
-                                    flickText = if (isShifted) def.shiftFlick else def.flick,
-                                    modifier = Modifier.weight(1f),
-                                    keyColor = keyboardButtonColor,
-                                    textColor = keyboardTextColor,
-                                    flickColor = keyboardFlickColor,
-                                    keyboardHeight = keyboardHeight,
-                                    onFlick = { onKeyClick(if (isShifted) def.shiftFlick else def.flick) },
-                                    onClick = { onKeyClick(keyId) }
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.weight(0.5f)) // 端の余白
-                        }
-
-                        /**
-                         * shift, z,x,c,v,b,n,m, back space
-                         * */
-                        Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
-                            // Shiftキー
-                            val shiftText = when (uiState.shiftState) {
-                                ShiftState.LOWERCASE -> "Shift"
-                                ShiftState.SHIFTED -> "Shift"
-                                ShiftState.CAPS_LOCK -> "Caps\nLock"
-                            }
-                            SkkKey(
-                                mainText = shiftText,
-                                textSize = 18f,
-                                modifier = Modifier.weight(1.5f),
-                                keyColor = if (uiState.shiftState == ShiftState.LOWERCASE) keyboardBackgroundColor else keyboardActionColor,
-                                textColor = if (uiState.shiftState == ShiftState.LOWERCASE) keyboardTextColor else keyboardActionTextColor,
-                                keyboardHeight = keyboardHeight,
-                            ) { onActionClick(KeyboardAction.Shift) }
-
-                            // z, x, c...
-                            KeyboardMap.rows[3].forEach { keyId ->
-                                val def =
-                                    KeyboardMap.keyDefinitions[keyId] ?: KeyboardMap.KeyDef(keyId)
-
-                                SkkKey(
-                                    mainText = if (isShifted) def.main.uppercase() else def.main,
-                                    flickText = if (isShifted) def.shiftFlick else def.flick,
-                                    modifier = Modifier.weight(1f),
-                                    keyColor = keyboardButtonColor,
-                                    textColor = keyboardTextColor,
-                                    flickColor = keyboardFlickColor,
-                                    keyboardHeight = keyboardHeight,
-                                    onFlick = { onKeyClick(if (isShifted) def.shiftFlick else def.flick) },
-                                    onClick = { onKeyClick(keyId) }
-                                )
-                            }
-
-                            // Backspaceキー
-                            SkkKey(
-                                mainText = "BS",
-                                textSize = 20f,
-                                modifier = Modifier.weight(1.5f),
-                                keyColor = keyboardBackgroundColor,
-                                textColor = keyboardTextColor,
-                                keyboardHeight = keyboardHeight,
-                            ) { onActionClick(KeyboardAction.Backspace) }
-                        }
-
-                        /**
-                         * Ctrl, space, Enter
-                         * */
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth().height(keyboardHeight.dp)
-                        ) {
-                            // Ctrlキー
-                            SkkKey(
-                                mainText = "Ctrl",
-                                modifier = Modifier.weight(2.5f),
-                                keyColor = if (!uiState.isCtrlPressed) keyboardBackgroundColor else keyboardActionColor,
-                                textColor = if (!uiState.isCtrlPressed) keyboardTextColor else keyboardActionTextColor,
-                                keyboardHeight = keyboardHeight,
-                            ) { onActionClick(KeyboardAction.Ctrl) }
-
-                            // スペースキー (現在の入力モードを表示)
-                            val jisyoKey =
-                                if (uiState.tourokuFlag.isNotEmpty()) "辞書登録 / " else ""
-                            val spaceText = when (uiState.inputMode) {
-                                InputMode.HALF_ASCII -> "SKK"
-                                InputMode.FULL_ASCII -> "全英"
-                                InputMode.HIRAGANA -> when (uiState.skkState) {
-                                    SkkState.NORMAL -> jisyoKey + "NORMAL"
-                                    SkkState.MIDASHI -> jisyoKey + "見出し語"
-                                    SkkState.OKURIGANA -> jisyoKey + "送り仮名"
-                                    SkkState.HENKAN -> jisyoKey + "変換"
-                                    SkkState.ABBREV -> jisyoKey + "abbreviation"
+                                        SkkKey(
+                                            mainText = mainText,
+                                            modifier = Modifier.weight(config.weight),
+                                            textSize = config.textSize,
+                                            keyColor = keyColor,
+                                            textColor = textColor,
+                                            keyboardHeight = keyboardHeight,
+                                        ) { onActionClick(config.action) }
+                                    } else {
+                                        SkkKey(
+                                            mainText = if (isShifted) config.main.uppercase() else config.main,
+                                            flickText = if (isShifted) config.shiftFlick else config.flick,
+                                            modifier = Modifier.weight(config.weight),
+                                            keyColor = keyboardButtonColor,
+                                            textColor = keyboardTextColor,
+                                            flickColor = keyboardFlickColor,
+                                            keyboardHeight = keyboardHeight,
+                                            spaceLeftRight = config.padding,
+                                            weight = config.weight,
+                                            onFlick = { onKeyClick(if (isShifted) config.shiftFlick else config.flick) },
+                                            onClick = { onKeyClick(config.main) }
+                                        )
+                                    }
                                 }
-                                InputMode.KATAKANA -> "カナ"
-                                InputMode.HALF_KATAKANA -> "__ｶﾅ"
                             }
-                            SkkKey(
-                                mainText = spaceText,
-                                textSize = 18f,
-                                modifier = Modifier.weight(5f),
-                                keyColor = keyboardButtonColor,
-                                textColor = keyboardActionColor,
-                                keyboardHeight = keyboardHeight,
-                            ) { onActionClick(KeyboardAction.Space) }
-
-                            // Enterキー
-                            SkkKey(
-                                mainText = "Enter",
-                                modifier = Modifier.weight(2.5f),
-                                keyColor = keyboardActionColor,
-                                textColor = keyboardActionTextColor,
-                                keyboardHeight = keyboardHeight,
-                            ) { onActionClick(KeyboardAction.Enter) }
                         }
                     }
                 }

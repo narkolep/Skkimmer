@@ -97,7 +97,7 @@ class ShortcutHandler(
                 val afterConvert: String
 
                 if (state.isCtrlPressed) {
-                    if (state.skkState == SkkState.MIDASHI) {
+                    if (state.skkState != SkkState.NORMAL) {
                         afterConvert = convertString(beforeConvert, KanaMap.hiraToHalfMap)
                         stateFlow.update { it.copy(
                             midashiText = afterConvert,
@@ -111,7 +111,7 @@ class ShortcutHandler(
                         }
                     }
                 } else {
-                    if (state.skkState == SkkState.MIDASHI) {
+                    if (state.skkState != SkkState.NORMAL) {
                         afterConvert = if (state.inputMode == InputMode.KATAKANA) {
                             convertString(beforeConvert, KanaMap.kataToHiraMap)
                         } else {
@@ -134,19 +134,32 @@ class ShortcutHandler(
             }
             'l' -> {
                 if (state.shiftState != ShiftState.LOWERCASE) {
-                    stateFlow.update { it.copy(inputMode = InputMode.FULL_ASCII) }
+                    stateFlow.update {
+                        it.copy(
+                            inputMode = InputMode.FULL_ASCII,
+                            isFlick = false
+                        )
+                    }
                 } else {
-                    stateFlow.update { it.copy(inputMode = InputMode.HALF_ASCII) }
+                    stateFlow.update {
+                        it.copy(
+                            inputMode = InputMode.HALF_ASCII,
+                            isFlick = false
+                        )
+                    }
                 }
                 composingManager.commit()
                 return true
             }
             '/' -> {
                 if (state.skkState == SkkState.NORMAL) {
-                    stateFlow.update { it.copy(
-                        skkState = SkkState.ABBREV,
-                        composingText = " "
-                    ) }
+                    stateFlow.update {
+                        it.copy(
+                            skkState = SkkState.ABBREV,
+                            isFlick = false,
+                            composingText = " "
+                        )
+                    }
                     return true
                 }
             }

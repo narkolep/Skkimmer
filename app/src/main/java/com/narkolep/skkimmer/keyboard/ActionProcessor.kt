@@ -17,8 +17,7 @@ sealed class KeyboardAction {
     object Space : KeyboardAction()
     object Backspace : KeyboardAction()
     object Enter : KeyboardAction()
-    object ToggleEmoji : KeyboardAction()
-    object ToggleNumeric : KeyboardAction()
+    object ToggleKeyboard : KeyboardAction()
     object Left : KeyboardAction()
     object Right : KeyboardAction()
     object Dakuten : KeyboardAction()
@@ -65,10 +64,7 @@ class ActionProcessor(
             KeyboardAction.Enter -> {
                 enterHandler.handle()
             }
-            KeyboardAction.ToggleEmoji -> {
-                stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
-            }
-            KeyboardAction.ToggleNumeric -> {
+            KeyboardAction.ToggleKeyboard -> {
                 stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
             }
             KeyboardAction.Left -> {

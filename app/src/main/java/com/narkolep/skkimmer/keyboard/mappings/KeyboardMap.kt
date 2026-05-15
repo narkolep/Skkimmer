@@ -1,60 +1,78 @@
 package com.narkolep.skkimmer.keyboard.mappings
 
+import com.narkolep.skkimmer.keyboard.KeyboardAction
+
 object KeyboardMap {
     data class KeyDef(
         val main: String,
         val flick: String = "",
-        val shiftFlick: String = ""
+        val shiftFlick: String = "",
+        val action: KeyboardAction? = null,
+        val weight: Float = 1f,
+        val padding: String = "",
+        val textSize: Float = 22f
     )
 
-    val keyDefinitions = mapOf(
+    val numericKeyDefinitions = listOf(
         // 1段目
-        "1" to KeyDef("1"),
-        "2" to KeyDef("2"),
-        "3" to KeyDef("3"),
-        "4" to KeyDef("4"),
-        "5" to KeyDef("5"),
-        "6" to KeyDef("6"),
-        "7" to KeyDef("7"),
-        "8" to KeyDef("8"),
-        "9" to KeyDef("9"),
-        "0" to KeyDef("0"),
-        // 2段目
-        "q" to KeyDef("q", "'", "'"),
-        "w" to KeyDef("w", """"""", """""""),
-        "e" to KeyDef("e", "「", "『"),
-        "r" to KeyDef("r", "」", "』"),
-        "t" to KeyDef("t", "【", "《"),
-        "y" to KeyDef("y", "】", "》"),
-        "u" to KeyDef("u", "〔", "‘’"),
-        "i" to KeyDef("i", "〕", "°"),
-        "o" to KeyDef("o", "・", "‥"),
-        "p" to KeyDef("p", "…", "…"),
-        // 3段目
-        "a" to KeyDef("a", "!", "|"),
-        "s" to KeyDef("s", "?", "*"),
-        "d" to KeyDef("d", "#", "_"),
-        "f" to KeyDef("f", "$", "+"),
-        "g" to KeyDef("g", "%", "="),
-        "h" to KeyDef("h", "&", "^"),
-        "j" to KeyDef("j", "-", "~"),
-        "k" to KeyDef("k", ":", ";"),
-        "l" to KeyDef("l", "@", "@"),
-        // 4段目
-        "z" to KeyDef("z", "[", "{"),
-        "x" to KeyDef("x", "]", "}"),
-        "c" to KeyDef("c", "(", "<"),
-        "v" to KeyDef("v", ")", ">"),
-        "b" to KeyDef("b", ",", ","),
-        "n" to KeyDef("n", ".", "."),
-        "m" to KeyDef("m", "/", """\"""),
+        KeyDef("1"),
+        KeyDef("2"),
+        KeyDef("3"),
+        KeyDef("4"),
+        KeyDef("5"),
+        KeyDef("6"),
+        KeyDef("7"),
+        KeyDef("8"),
+        KeyDef("9"),
+        KeyDef("0")
     )
 
-    /* キーボードの各行の並び */
-    val rows = listOf(
-        listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"),
-        listOf("q", "w", "e", "r", "t", "y", "u", "i", "o", "p"),
-        listOf("a", "s", "d", "f", "g", "h", "j", "k", "l"),
-        listOf("z", "x", "c", "v", "b", "n", "m")
+    val keyDefinitions = listOf(
+        // 2段目
+        listOf(
+            KeyDef("q", "'", "'"),
+            KeyDef("w", """"""", """""""),
+            KeyDef("e", "「", "『"),
+            KeyDef("r", "」", "』"),
+            KeyDef("t", "【", "《"),
+            KeyDef("y", "】", "》"),
+            KeyDef("u", "〔", "‘’"),
+            KeyDef("i", "〕", "°"),
+            KeyDef("o", "・", "‥"),
+            KeyDef("p", "…", "…")
+        ),
+
+        // 3段目
+        listOf(
+            KeyDef("a", "!", "|", weight = 1.5f, padding = "Left"),
+            KeyDef("s", "?", "*"),
+            KeyDef("d", "#", "_"),
+            KeyDef("f", "$", "+"),
+            KeyDef("g", "%", "="),
+            KeyDef("h", "&", "^"),
+            KeyDef("j", "-", "~"),
+            KeyDef("k", ":", ";"),
+            KeyDef("l", "@", "@", weight = 1.5f, padding = "Right")
+        ),
+
+        // 4段目
+        listOf(
+            KeyDef("Shift", action = KeyboardAction.Shift, weight = 1.5f, textSize = 18f),
+            KeyDef("z", "[", "{"),
+            KeyDef("x", "]", "}"),
+            KeyDef("c", "(", "<"),
+            KeyDef("v", ")", ">"),
+            KeyDef("b", ",", ","),
+            KeyDef("n", ".", "."),
+            KeyDef("m", "/", """\"""),
+            KeyDef("BS", action = KeyboardAction.Backspace, weight = 1.5f, textSize = 20f)
+        ),
+
+        // 5段目
+        listOf(
+            KeyDef("Ctrl", action = KeyboardAction.Ctrl, weight = 2f),
+            KeyDef("Space", action = KeyboardAction.Space, weight = 5f, textSize = 18f),
+            KeyDef("Enter", action = KeyboardAction.Enter, weight = 2f)
+        )
     )
 }

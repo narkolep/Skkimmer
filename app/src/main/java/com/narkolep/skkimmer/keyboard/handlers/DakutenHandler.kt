@@ -51,15 +51,5 @@ class DakutenHandler(
                 return
             }
         }
-
-        /* 半角英数に遷移 */
-        if (state.firstChar.isEmpty()) {
-            stateFlow.update {
-                it.copy(
-                    inputMode = InputMode.HALF_ASCII,
-                    isFlick = false
-                )
-            }
-        }
     }
 }

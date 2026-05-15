@@ -13,7 +13,7 @@ object NumericMap {
 
     val numericLayout = listOf(
         listOf(
-            NumericConfig("%", color = true),
+            NumericConfig(":", color = true),
             NumericConfig("1"),
             NumericConfig("2"),
             NumericConfig("3"),
@@ -37,7 +37,7 @@ object NumericMap {
         ),
 
         listOf(
-            NumericConfig("ABC", color = true, action = KeyboardAction.ToggleNumeric),
+            NumericConfig("ABC", color = true, action = KeyboardAction.ToggleKeyboard),
             NumericConfig(".", color = true),
             NumericConfig("0"),
             NumericConfig(",", color = true),
