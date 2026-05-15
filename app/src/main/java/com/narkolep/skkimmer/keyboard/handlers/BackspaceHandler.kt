@@ -68,12 +68,6 @@ class BackspaceHandler(
                 }
 
                 /* 未確定の文字列がないとき */
-                stateFlow.update {
-                    it.copy(
-                        firstChar = "",
-                        secondChar = ""
-                    )
-                }
                 inputCommitter.delete()
             }
 

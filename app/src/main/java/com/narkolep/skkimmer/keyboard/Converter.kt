@@ -8,9 +8,7 @@ data class ConvertResult(
     val composingNext: String,
     val output: String,
     val okuriganaFlag: String,
-    val isIgnore: Boolean,
-    val consonant: String?,
-    val vowel: String?
+    val isIgnore: Boolean
 )
 
 /**
@@ -43,9 +41,7 @@ class Converter {
                 composingNext = "",
                 output = kana,
                 okuriganaFlag = flag,
-                isIgnore = composingNow.firstOrNull() == 'x',
-                consonant = if (composing.isEmpty()) "" else null,
-                vowel = if (isAlphabet) key else ""
+                isIgnore = composingNow.firstOrNull() == 'x'
             )
         }
 
@@ -55,9 +51,7 @@ class Converter {
                 composingNext = composingNow,
                 output = "",
                 okuriganaFlag = composingNow.firstOrNull().toString(),
-                isIgnore = false,
-                consonant = key,
-                vowel = ""
+                isIgnore = false
             )
         }
 
@@ -72,9 +66,7 @@ class Converter {
                 composingNext = key,
                 output = kana,
                 okuriganaFlag = "t",
-                isIgnore = true,
-                consonant = null,
-                vowel = null
+                isIgnore = true
             )
         }
 
@@ -89,9 +81,7 @@ class Converter {
                 composingNext = key,
                 output = kana,
                 okuriganaFlag = "n",
-                isIgnore = true,
-                consonant = null,
-                vowel = null
+                isIgnore = true
             )
         }
 
@@ -106,9 +96,7 @@ class Converter {
                 composingNext = "",
                 output = kana,
                 okuriganaFlag = key,
-                isIgnore = false,
-                consonant = "",
-                vowel = if (isAlphabet) key else ""
+                isIgnore = false
             )
         }
 
@@ -118,9 +106,7 @@ class Converter {
                 composingNext = key,
                 output = "",
                 okuriganaFlag = key,
-                isIgnore = false,
-                consonant = key,
-                vowel = ""
+                isIgnore = false
             )
         }
 
@@ -129,9 +115,7 @@ class Converter {
             composingNext = "",
             output = composingNow,
             okuriganaFlag = "",
-            isIgnore = false,
-            consonant = "",
-            vowel = ""
+            isIgnore = false
         )
     }
 

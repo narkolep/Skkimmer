@@ -56,9 +56,7 @@ class OutputText(
     ) {
         stateFlow.update { it.copy(
             composingText = result.composingNext,
-            oldOkuriganaTrigger = result.okuriganaFlag,
-            firstChar = result.consonant ?: it.firstChar,
-            secondChar = result.vowel ?: it.secondChar
+            oldOkuriganaTrigger = result.okuriganaFlag
         ) }
 
         when (newState.skkState) {

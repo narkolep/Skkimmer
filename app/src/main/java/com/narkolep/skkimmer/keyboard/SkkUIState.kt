@@ -48,10 +48,7 @@ data class SkkUIState(
     val composingText: String = "",
     val midashiText: String = "",
     val okuriganaText: String = "",
-    val okuriganaTrigger: String = "",
-    /* 濁音、半濁音変換用 */
-    val firstChar: String = "",
-    val secondChar: String = ""
+    val okuriganaTrigger: String = ""
 )
 
 fun SkkUIState.clear(): SkkUIState {
@@ -62,7 +59,6 @@ fun SkkUIState.clear(): SkkUIState {
         okuriganaText = "",
         okuriganaTrigger = "",
         candidates = emptyList(),
-        selectedIndex = -1,
-        secondChar = ""
+        selectedIndex = -1
     )
 }

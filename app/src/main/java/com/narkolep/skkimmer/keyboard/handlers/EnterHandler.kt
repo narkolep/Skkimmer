@@ -24,13 +24,6 @@ class EnterHandler(
     fun handle() {
         val state = stateFlow.value
 
-        stateFlow.update {
-            it.copy(
-                firstChar = "",
-                secondChar = ""
-            )
-        }
-
         if (state.skkState == SkkState.NORMAL) {
             if (state.tourokuFlag.isNotEmpty()) {
                 val textToCommit = state.tourokuFlag.split(":")[1]

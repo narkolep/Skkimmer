@@ -40,7 +40,7 @@ class ActionProcessor(
     private val backspaceHandler = BackspaceHandler(stateFlow, inputCommitter)
     private val enterHandler =
         EnterHandler(stateFlow, editorInfo, inputCommitter, dictionaryManager, composingManager)
-    private val cursorHandler = CursorHandler(stateFlow, inputCommitter)
+    private val cursorHandler = CursorHandler(inputCommitter)
     private val dakutenHandler = DakutenHandler(stateFlow, backspaceHandler, keyProcessor, inputCommitter)
 
     /**
