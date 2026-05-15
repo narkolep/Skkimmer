@@ -1,16 +1,38 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
 import com.narkolep.skkimmer.keyboard.InputCommitter
+import com.narkolep.skkimmer.keyboard.SkkState
+import com.narkolep.skkimmer.keyboard.SkkUIState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 class CursorHandler(
+    private val stateFlow: MutableStateFlow<SkkUIState>,
     private val inputCommitter: InputCommitter,
+    private val spaceHandler: SpaceHandler,
 ) {
     fun handleLeft() {
-        moveCursor(-1)
+        val state = stateFlow.value
+
+        if (state.skkState == SkkState.HENKAN) {
+            var index = state.selectedIndex
+            if (index > 0) {
+                index -= 1
+                stateFlow.update { it.copy(selectedIndex = index) }
+            }
+        } else {
+            moveCursor(-1)
+        }
     }
 
     fun handleRight() {
-        moveCursor(1)
+        val state = stateFlow.value
+
+        if (state.skkState == SkkState.HENKAN) {
+            spaceHandler.handle()
+        } else {
+            moveCursor(1)
+        }
     }
 
     private fun moveCursor(offset: Int) {
