@@ -58,7 +58,19 @@ class InputCommitter(
         return connectionProvider()?.getExtractedText(ExtractedTextRequest(), 0)
     }
 
-    fun setSelection(position: Int) {
-        connectionProvider()?.setSelection(position, position)
+    fun setSelection(start: Int, end: Int) {
+        connectionProvider()?.setSelection(start, end)
+    }
+
+    fun getText(position: Int): CharSequence? {
+        return connectionProvider()?.getTextBeforeCursor(position, 0)?.toString()
+    }
+
+    fun beginBatch() {
+        connectionProvider()?.beginBatchEdit()
+    }
+
+    fun endBatch() {
+        connectionProvider()?.endBatchEdit()
     }
 }

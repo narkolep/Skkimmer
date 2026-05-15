@@ -246,4 +246,11 @@ object KanaMap {
     val hiraToHalfMap by lazy {
         romajiToKana.values.associate { it.hira to it.halfkata }
     }
+    val kanaToRomaji: Map<String, String> = buildMap {
+        romajiToKana.forEach { (romaji, kanaDef) ->
+            put(kanaDef.hira, romaji)
+            put(kanaDef.kata, romaji)
+            put(kanaDef.halfkata, romaji)
+        }
+    }
 }

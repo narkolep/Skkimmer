@@ -35,6 +35,6 @@ class CursorHandler(
         val current = extracted.selectionStart
         val newPos = (current + offset).coerceIn(0, textLength)
 
-        inputCommitter.setSelection(newPos)
+        inputCommitter.setSelection(newPos, newPos)
     }
 }

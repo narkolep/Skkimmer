@@ -54,24 +54,23 @@ object FlickKanaMap {
 
     data class FlickConvertConfig(
         val consonantBefore: String,
-        val consonantAfter: String,
-        val backspace: Int = 1
+        val consonantAfter: String
     )
 
     val flickConvert = listOf(
         FlickConvertConfig("", "x"), // あ
         FlickConvertConfig("x", ""),
-        FlickConvertConfig("v", "", 2),
+        FlickConvertConfig("v", ""),
         FlickConvertConfig("k", "g"), // か
-        FlickConvertConfig("g", "k", 2),
+        FlickConvertConfig("g", "k"),
         FlickConvertConfig("s", "z"), // さ
-        FlickConvertConfig("z", "s", 2),
+        FlickConvertConfig("z", "s"),
         FlickConvertConfig("t", "d"), // た
         FlickConvertConfig("xt", "d"),
-        FlickConvertConfig("d", "t", 2),
+        FlickConvertConfig("d", "t"),
         FlickConvertConfig("h", "b"), // は
-        FlickConvertConfig("b", "p", 2),
-        FlickConvertConfig("p", "h", 2),
+        FlickConvertConfig("b", "p"),
+        FlickConvertConfig("p", "h"),
         FlickConvertConfig("y", "xy"), // や
         FlickConvertConfig("xy", "y")
     )
