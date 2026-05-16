@@ -58,25 +58,6 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             dictionaryManager
         )
 
-        keyProcessor = KeyProcessor(
-            stateFlow = uiStateFlow,
-            dictionaryManager = dictionaryManager,
-            connectionProvider = {
-                currentInputConnection
-            }
-        )
-
-        actionProcessor = ActionProcessor(
-            stateFlow = uiStateFlow,
-            composingManager = composingManager,
-            editorInfo = currentEditorInfo,
-            inputCommitter = InputCommitter {
-                currentInputConnection
-            },
-            keyProcessor = keyProcessor,
-            dictionaryManager = dictionaryManager
-        )
-
         lifecycleScope.launch {
             val parsedList = withContext(Dispatchers.IO) {
                 val jsonString =
@@ -86,6 +67,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             emojiCategories = parsedList
 
             uiStateFlow.collect {
+                /* stateFlowが変化したとき、表示を更新 */
                 composingManager.update()
             }
         }
@@ -128,15 +110,28 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         currentEditorInfo = attribute
-    }
 
-    override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
-        super.onStartInputView(editorInfo, restarting)
+        keyProcessor = KeyProcessor(
+            stateFlow = uiStateFlow,
+            dictionaryManager = dictionaryManager,
+            connectionProvider = {
+                currentInputConnection
+            }
+        )
 
-        // 自動判定したモードを取得
-        val autoMode = determineInputMode(editorInfo)
+        actionProcessor = ActionProcessor(
+            stateFlow = uiStateFlow,
+            composingManager = composingManager,
+            editorInfo = currentEditorInfo,
+            inputCommitter = InputCommitter {
+                currentInputConnection
+            },
+            keyProcessor = keyProcessor,
+            dictionaryManager = dictionaryManager
+        )
 
-        // 入力モードを更新
+        val autoMode = determineInputMode(currentEditorInfo)
+        /* 入力モードを更新 */
         uiStateFlow.update { current ->
             current.copy(
                 inputMode = autoMode,
@@ -158,17 +153,17 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         val variation = inputType and InputType.TYPE_MASK_VARIATION
 
         return when (classType) {
-            // --- 数字のみの入力欄（テンキーを出すべき状態） ---
+            /* 数字のみの入力欄 */
             InputType.TYPE_CLASS_NUMBER,
             InputType.TYPE_CLASS_PHONE,
             InputType.TYPE_CLASS_DATETIME -> {
-                InputMode.NUMERIC // テンキーモード
+                InputMode.NUMERIC
             }
 
-            // --- テキストの入力欄 ---
+            /* テキストの入力欄 */
             InputType.TYPE_CLASS_TEXT -> {
                 when (variation) {
-                    // パスワード、メールアドレス、URLなどは最初から半角英数にする
+                    /* パスワード、メールアドレス、URLなど */
                     InputType.TYPE_TEXT_VARIATION_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
@@ -177,14 +172,13 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
                     InputType.TYPE_TEXT_VARIATION_URI -> {
                         InputMode.HALF_ASCII
                     }
-                    // それ以外の通常のテキスト欄はひらがな（日本語入力）
+                    /* 日本語入力 */
                     else -> {
                         InputMode.HIRAGANA
                     }
                 }
             }
 
-            // --- （デフォルト） ---
             else -> InputMode.HIRAGANA
         }
     }
@@ -196,6 +190,8 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         uiStateFlow.update {
             it.copy(
                 oldMidashiText = "",
+                oldOkuriganaText = "",
+                oldOkuriganaTrigger = "",
                 tourokuFlag = ""
             )
         }
