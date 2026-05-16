@@ -34,13 +34,13 @@ class EnterHandler(
                 if (learnText.isNotEmpty()) {
                     CoroutineScope(Dispatchers.IO).launch {
                         dictionaryManager.learnWord(
-                            state.tourokuText,
+                            state.oldMidashiText,
                             learnText,
                             false
                         )
                         stateFlow.update {
                             it.copy(
-                                tourokuText = "",
+                                oldMidashiText = "",
                                 tourokuFlag = ""
                             )
                         }

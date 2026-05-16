@@ -54,69 +54,84 @@ class OutputText(
         oldState: SkkUIState,
         result: ConvertResult
     ) {
-        stateFlow.update { it.copy(
-            composingText = result.composingNext,
-            oldOkuriganaTrigger = result.okuriganaFlag
-        ) }
+        stateFlow.update {
+            it.copy(
+                composingText = result.composingNext,
+                oldOkuriganaTrigger = result.okuriganaFlag
+            )
+        }
 
         when (newState.skkState) {
             SkkState.NORMAL -> {
                 if (newState.tourokuFlag.isNotEmpty()) {
-                    stateFlow.update { it.copy(
-                        tourokuFlag = newState.tourokuFlag + result.output
-                    ) }
+                    stateFlow.update {
+                        it.copy(
+                            tourokuFlag = newState.tourokuFlag + result.output
+                        )
+                    }
                 } else {
                     inputCommitter.commit(result.output)
                 }
             }
+
             SkkState.MIDASHI -> {
                 stateFlow.update { it.copy(
                     midashiText = newState.midashiText + result.output,
                 ) }
             }
+
             SkkState.OKURIGANA -> {
                 if (result.output.isEmpty() || result.isIgnore) {
-                    /* outputText == "ん" もしくは 未確定 */
-                    stateFlow.update { it.copy(
-                        midashiText = newState.midashiText + if (oldState.skkState == SkkState.MIDASHI) result.output else "",
-                        okuriganaText = newState.okuriganaText + if (oldState.skkState == SkkState.OKURIGANA) result.output else "",
-                    ) }
+                    /* outputが"ん"、"っ"、もしくは未確定のとき */
+                    stateFlow.update {
+                        it.copy(
+                            midashiText = newState.midashiText + if (oldState.skkState == SkkState.MIDASHI) result.output else "",
+                            okuriganaText = newState.okuriganaText + if (oldState.skkState == SkkState.OKURIGANA) result.output else "",
+                        )
+                    }
                 } else {
-                    /* 仮名(ん,っ,以外)が出力されたとき、候補を検索する */
+                    /* 候補を検索する */
                     var flag = result.okuriganaFlag
                     if (oldState.okuriganaText.firstOrNull() == 'ん' || oldState.okuriganaText.firstOrNull() == 'ン') flag = "n"
                     if (oldState.okuriganaText.firstOrNull() == 'っ' || oldState.okuriganaText.firstOrNull() == 'ッ') flag = "t"
 
-                    stateFlow.update { it.copy(
-                        okuriganaText = newState.okuriganaText + result.output,
-                        okuriganaTrigger = flag
-                    ) }
+                    stateFlow.update {
+                        it.copy(
+                            okuriganaText = newState.okuriganaText + result.output,
+                            okuriganaTrigger = flag
+                        )
+                    }
 
                     val keyText = newState.midashiText + flag
 
                     CoroutineScope(Dispatchers.Main).launch {
                         val candidatesList = dictionaryManager.getCandidates(keyText)
+
                         if (candidatesList.isNotEmpty()) {
-                            stateFlow.update { it.copy(
-                                skkState = SkkState.HENKAN,
-                                candidates = candidatesList,
-                                selectedIndex = 0
-                            ) }
-                        } else {
+                            stateFlow.update {
+                                it.copy(
+                                    skkState = SkkState.HENKAN,
+                                    candidates = candidatesList,
+                                    selectedIndex = 0
+                                )
+                            }
+                        } else if (newState.tourokuFlag.isEmpty()) {
                             /* 候補が無ければ、辞書登録モードに移行 */
-                            stateFlow.update { it.copy(
-                                skkState = SkkState.NORMAL,
-                                composingText = "",
-                                midashiText = "",
-                                okuriganaText = "",
-                                oldOkuriganaTrigger = flag,
-                                tourokuText = keyText,
-                                tourokuFlag = "[登録]$keyText:"
-                            ) }
+                            stateFlow.update { it.clear() }
+
+                            stateFlow.update {
+                                it.copy(
+                                    oldMidashiText = newState.midashiText,
+                                    oldOkuriganaText = result.output,
+                                    oldOkuriganaTrigger = flag,
+                                    tourokuFlag = "[登録]$keyText:"
+                                )
+                            }
                         }
                     }
                 }
             }
+
             SkkState.HENKAN -> {
                 /* 変換中に文字入力があったら、確定する */
                 stateFlow.update { it.copy(okuriganaText = newState.okuriganaText + result.output) }

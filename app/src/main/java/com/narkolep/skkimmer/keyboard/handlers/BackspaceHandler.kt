@@ -40,15 +40,18 @@ class BackspaceHandler(
                         }
                         return
                     }
+
                     if (state.oldOkuriganaTrigger.isNotEmpty()) {
                         stateFlow.update {
                             it.copy(
-                                midashiText = state.tourokuText.removeSuffix(state.oldOkuriganaTrigger),
-                                composingText = state.oldOkuriganaTrigger,
-                                okuriganaTrigger = state.oldOkuriganaTrigger,
-                                oldOkuriganaTrigger = "",
                                 skkState = SkkState.OKURIGANA,
-                                tourokuText = "",
+                                composingText = "",
+                                midashiText = state.oldMidashiText,
+                                okuriganaText = state.oldOkuriganaText,
+                                okuriganaTrigger = state.oldOkuriganaTrigger,
+                                oldMidashiText = "",
+                                oldOkuriganaText = "",
+                                oldOkuriganaTrigger = "",
                                 tourokuFlag = ""
                             )
                         }
@@ -58,9 +61,14 @@ class BackspaceHandler(
                     /* 登録文字列も送り仮名もないとき、見出しモードに戻る */
                     stateFlow.update {
                         it.copy(
-                            midashiText = state.tourokuText,
                             skkState = SkkState.MIDASHI,
-                            tourokuText = "",
+                            composingText = "",
+                            midashiText = state.oldMidashiText,
+                            okuriganaText = state.oldOkuriganaText,
+                            okuriganaTrigger = state.oldOkuriganaTrigger,
+                            oldMidashiText = "",
+                            oldOkuriganaText = "",
+                            oldOkuriganaTrigger = "",
                             tourokuFlag = ""
                         )
                     }
@@ -91,9 +99,7 @@ class BackspaceHandler(
                 }
 
                 /* 見出し文字列がなければ NORMAL に戻す */
-                stateFlow.update {
-                    it.clear()
-                }
+                stateFlow.update { it.clear() }
             }
 
             SkkState.OKURIGANA -> {
@@ -158,9 +164,7 @@ class BackspaceHandler(
                     return
                 }
 
-                stateFlow.update {
-                    it.clear()
-                }
+                stateFlow.update { it.clear() }
             }
         }
     }

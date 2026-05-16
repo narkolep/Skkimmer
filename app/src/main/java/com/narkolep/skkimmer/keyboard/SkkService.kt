@@ -195,7 +195,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         composingManager.commit()
         uiStateFlow.update {
             it.copy(
-                tourokuText = "",
+                oldMidashiText = "",
                 tourokuFlag = ""
             )
         }

@@ -19,7 +19,7 @@ class DakutenHandler(
 
         inputCommitter.beginBatch()
 
-        if (state.tourokuFlag.isNotEmpty()) {
+        if (state.tourokuFlag.isNotEmpty() && state.tourokuFlag.substringAfter(":").isEmpty()) {
             /* 登録モードから抜ける */
             backspaceHandler.handle()
         }

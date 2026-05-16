@@ -37,8 +37,10 @@ class SpaceHandler(
                 /* 連結処理をしてから変換 */
                 keyProcessor.handle("")
 
+                val keyText = state.midashiText + state.okuriganaTrigger
+
                 CoroutineScope(Dispatchers.Main).launch {
-                    val candidatesList = dictionaryManager.getCandidates(state.midashiText)
+                    val candidatesList = dictionaryManager.getCandidates(keyText)
 
                     if (candidatesList.isNotEmpty()) {
                         stateFlow.update {
@@ -49,23 +51,26 @@ class SpaceHandler(
                             )
                         }
                     } else if (state.tourokuFlag.isEmpty()) {
+                        stateFlow.update { it.clear() }
+
                         stateFlow.update {
                             it.copy(
-                                tourokuText = state.midashiText,
-                                tourokuFlag = "[登録]" + state.midashiText + ":"
+                                oldMidashiText = state.midashiText,
+                                oldOkuriganaText = state.okuriganaText,
+                                oldOkuriganaTrigger = state.okuriganaTrigger,
+                                tourokuFlag = "[登録]$keyText:"
                             )
                         }
-                        stateFlow.update {
-                            it.clear()
-                        }
+
                     }
                 }
             }
 
             SkkState.OKURIGANA -> {
+                val keyText = state.midashiText + state.okuriganaTrigger
+
                 CoroutineScope(Dispatchers.Main).launch {
-                    val keyString = state.midashiText + state.okuriganaTrigger
-                    val candidatesList = dictionaryManager.getCandidates(keyString)
+                    val candidatesList = dictionaryManager.getCandidates(keyText)
 
                     if (candidatesList.isNotEmpty()) {
                         stateFlow.update {
@@ -76,18 +81,20 @@ class SpaceHandler(
                             )
                         }
                     } else if (state.tourokuFlag.isEmpty()) {
+                        stateFlow.update { it.clear() }
+
                         stateFlow.update {
                             it.copy(
-                                tourokuText = keyString,
-                                tourokuFlag = "[登録]$keyString:"
+                                oldMidashiText = state.midashiText,
+                                oldOkuriganaText = state.okuriganaText,
+                                oldOkuriganaTrigger = state.okuriganaTrigger,
+                                tourokuFlag = "[登録]$keyText:"
                             )
-                        }
-                        stateFlow.update {
-                            it.clear()
                         }
                     }
                 }
             }
+
             SkkState.HENKAN -> {
                 if (state.candidates.isNotEmpty()) {
                     if (state.selectedIndex < state.candidates.size - 1) {
@@ -100,18 +107,20 @@ class SpaceHandler(
                     }
 
                     if (state.tourokuFlag.isEmpty()) {
+                        stateFlow.update { it.clear() }
+
                         stateFlow.update {
                             it.copy(
-                                tourokuText = state.midashiText + state.okuriganaTrigger,
+                                oldMidashiText = state.midashiText,
+                                oldOkuriganaText = state.okuriganaText,
+                                oldOkuriganaTrigger = state.okuriganaTrigger,
                                 tourokuFlag = "[登録]" + state.midashiText + state.okuriganaTrigger + ":"
                             )
-                        }
-                        stateFlow.update {
-                            it.clear()
                         }
                     }
                 }
             }
+
             SkkState.ABBREV -> {
                 CoroutineScope(Dispatchers.Main).launch {
                     val candidatesList = dictionaryManager.getCandidates(state.midashiText)
@@ -125,14 +134,15 @@ class SpaceHandler(
                             )
                         }
                     } else if (state.tourokuFlag.isEmpty()) {
+                        stateFlow.update { it.clear() }
+
                         stateFlow.update {
                             it.copy(
-                                tourokuText = state.midashiText,
+                                oldMidashiText = state.midashiText,
+                                oldOkuriganaText = "",
+                                oldOkuriganaTrigger = "",
                                 tourokuFlag = "[登録]" + state.midashiText + ":"
                             )
-                        }
-                        stateFlow.update {
-                            it.clear()
                         }
                     }
                 }

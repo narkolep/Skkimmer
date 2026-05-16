@@ -34,8 +34,10 @@ data class SkkUIState(
     /* Controlキーの状態 */
     val isCtrlPressed: Boolean = false,
     /* 辞書登録モードのトリガー */
-    val tourokuText: String = "",
     val tourokuFlag: String = "",
+    /* 辞書登録前の状態を保存する変数 */
+    val oldMidashiText: String = "",
+    val oldOkuriganaText: String = "",
     val oldOkuriganaTrigger: String ="",
     /* フリック入力のトリガー */
     val isFlick: Boolean = false,
