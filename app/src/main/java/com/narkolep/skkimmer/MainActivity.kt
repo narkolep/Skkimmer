@@ -41,7 +41,6 @@ import com.narkolep.skkimmer.data.AppDatabase
 import com.narkolep.skkimmer.ui.screens.DictionaryListScreen
 import com.narkolep.skkimmer.ui.screens.SettingsScreen
 import com.narkolep.skkimmer.ui.screens.UserDictionaryScreen
-import com.narkolep.skkimmer.ui.screens.VersionInfoScreen
 
 /* theme */
 import com.narkolep.skkimmer.ui.theme.AppTheme
@@ -149,10 +148,6 @@ fun App(dao: HistoryDao) {
 
                 composable("user_dict") {
                     UserDictionaryScreen(historyViewModel)
-                }
-
-                composable("version_info") {
-                    VersionInfoScreen()
                 }
             }
         }

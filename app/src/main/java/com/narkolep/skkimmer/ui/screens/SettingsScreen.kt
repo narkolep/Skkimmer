@@ -1,6 +1,7 @@
 package com.narkolep.skkimmer.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +28,7 @@ import com.narkolep.skkimmer.ui.components.SettingItem
 import com.narkolep.skkimmer.ui.components.ThemeSettingItem
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity
 
 @SuppressLint("FlowOperatorInvokedInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -139,8 +141,9 @@ fun SettingsScreen(
             item { Divider() }
             item { SectionHeader("このアプリについて") }
             item {
-                SettingItem("バージョン情報", "1.0.0") {
-                    navController.navigate("version_info")
+                SettingItem("Open source licenses", "サードパーティのライセンスを確認できます") {
+                    val intent = Intent(context, OssLicensesMenuActivity::class.java)
+                    context.startActivity(intent)
                 }
             }
         }
