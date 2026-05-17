@@ -62,10 +62,7 @@ fun SettingItem(
 ) {
     ListItem(
         headlineContent = { Text(title) },
-        supportingContent = { Text(
-            text = subtitle,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
-        ) },
+        supportingContent = { Text(subtitle) },
         modifier = Modifier.clickable { onClick() }
     )
 }
@@ -172,10 +169,7 @@ fun KeyboardHeightSliderItem(
     // --- 設定画面に表示されるリスト項目 ---
     ListItem(
         headlineContent = { Text(title) },
-        supportingContent = { Text(
-            text = "${currentHeight.roundToInt()} dp",
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
-        ) },
+        supportingContent = { Text("${currentHeight.roundToInt()} dp") },
         modifier = Modifier.clickable { showDialog = true }
     )
 
