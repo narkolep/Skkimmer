@@ -37,6 +37,9 @@ class SpaceHandler(
                 /* 連結処理をしてから変換 */
                 keyProcessor.handle("")
 
+                /* stateを再取得 */
+                val state = stateFlow.value
+
                 val keyText = state.midashiText + state.okuriganaTrigger
 
                 CoroutineScope(Dispatchers.Main).launch {

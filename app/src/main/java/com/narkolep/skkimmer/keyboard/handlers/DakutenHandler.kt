@@ -3,6 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyProcessor
+import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
 import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap.kanaToRomaji
@@ -19,7 +20,11 @@ class DakutenHandler(
 
         inputCommitter.beginBatch()
 
-        if (state.tourokuFlag.isNotEmpty() && state.tourokuFlag.substringAfter(":").isEmpty()) {
+        if (
+            state.tourokuFlag.isNotEmpty() &&
+            state.tourokuFlag.substringAfter(":").isEmpty() &&
+            state.skkState == SkkState.NORMAL
+        ) {
             /* 登録モードから抜ける */
             backspaceHandler.handle()
         }
