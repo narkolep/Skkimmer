@@ -1,5 +1,7 @@
 package com.narkolep.skkimmer.keyboard.ui
 
+import kotlinx.coroutines.flow.map
+import android.content.res.Configuration
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.compose.foundation.background
@@ -26,9 +28,6 @@ import com.narkolep.skkimmer.THEME_KEY
 import com.narkolep.skkimmer.KEYBOARD_HEIGHT_KEY
 import com.narkolep.skkimmer.KEYBOARD_HEIGHT_LANDSCAPE_KEY
 import com.narkolep.skkimmer.KEYBOARD_HEIGHT_BOTTOM_PADDING
-import kotlinx.coroutines.flow.map
-import android.content.res.Configuration
-import com.narkolep.skkimmer.R
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 import com.narkolep.skkimmer.keyboard.ShiftState
@@ -38,6 +37,10 @@ import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.keyDefinitions
 import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.numericKeyDefinitions
 import com.narkolep.skkimmer.keyboard.mappings.NumericMap
 import com.narkolep.skkimmer.keyboard.ui.components.FlickKey
+import com.composables.icons.lucide.R.drawable.lucide_ic_space
+import com.composables.icons.lucide.R.drawable.lucide_ic_square_asterisk
+import com.composables.icons.lucide.R.drawable.lucide_ic_square_dashed
+import com.composables.icons.lucide.R.drawable.lucide_ic_square_library
 
 @SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
@@ -131,7 +134,7 @@ fun KeyboardLayout(
                                     modifier = Modifier.weight(1f),
                                     keyColor = if (config.color) keyboardBackgroundColor else keyboardButtonColor,
                                     textColor = keyboardTextColor,
-                                    iconResId = config.iconResId,
+                                    iconResId = config.icon,
                                     keyboardHeight = keyboardHeight,
                                     keyRepeat = config.keyRepeat,
                                     onClick = {
@@ -202,11 +205,11 @@ fun KeyboardLayout(
                                         if (config.action == KeyboardAction.Space) {
                                             actionIcon = when (uiState.inputMode) {
                                                 InputMode.HIRAGANA -> when (uiState.skkState) {
-                                                    SkkState.NORMAL -> R.drawable.lucide_space
-                                                    SkkState.MIDASHI -> R.drawable.lucide_square_dashed
-                                                    SkkState.OKURIGANA -> R.drawable.lucide_square_asterisk
-                                                    SkkState.HENKAN -> R.drawable.lucide_square_library
-                                                    else -> R.drawable.lucide_space
+                                                    SkkState.NORMAL -> lucide_ic_space
+                                                    SkkState.MIDASHI -> lucide_ic_square_dashed
+                                                    SkkState.OKURIGANA -> lucide_ic_square_asterisk
+                                                    SkkState.HENKAN -> lucide_ic_square_library
+                                                    else -> lucide_ic_space
                                                 }
 
                                                 else -> null

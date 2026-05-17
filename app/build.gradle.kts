@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    id("com.google.android.gms.oss-licenses-plugin")
 }
 
 android {
@@ -66,4 +67,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.play.services.oss.licenses)
+    implementation(libs.icons.lucide.android)
 }
