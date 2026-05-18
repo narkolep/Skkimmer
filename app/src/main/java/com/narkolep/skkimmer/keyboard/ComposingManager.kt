@@ -59,8 +59,7 @@ class ComposingManager(
                 state.midashiText + state.composingText
             }
             SkkState.OKURIGANA -> {
-                if (state.tourokuFlag.isNotEmpty()) state.midashiText + "*" + state.composingText
-                else state.midashiText + state.composingText
+                state.midashiText + state.composingText
             }
             SkkState.HENKAN -> {
                 /* 履歴を記録 */
@@ -69,9 +68,8 @@ class ComposingManager(
                     dictionaryManager.learnWord(learnText, state.candidates[state.selectedIndex], true)
                 }
                 val word = state.candidates[state.selectedIndex].split(";")[0]
-                val okuri = if (state.tourokuFlag.isNotEmpty() && state.okuriganaText.isNotEmpty()) "*" + state.okuriganaText else state.okuriganaText
 
-                word + okuri
+                word + state.okuriganaText
             }
             SkkState.ABBREV -> {
                 state.midashiText

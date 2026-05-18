@@ -26,21 +26,23 @@ class EnterHandler(
 
         if (state.skkState == SkkState.NORMAL) {
             if (state.tourokuFlag.isNotEmpty()) {
-                val textToCommit = state.tourokuFlag.split(":")[1]
-                inputCommitter.commit(textToCommit.replace("*", ""))
+                val tourokuText = state.tourokuFlag.split(":")[1]
+                val commitText = tourokuText.split(";")[0] + state.oldOkuriganaText
+                inputCommitter.commit(commitText)
 
                 /* ユーザー辞書として登録 */
-                val learnText = textToCommit.split("*")[0]
-                if (learnText.isNotEmpty()) {
+                if (tourokuText.isNotEmpty()) {
                     CoroutineScope(Dispatchers.IO).launch {
                         dictionaryManager.learnWord(
-                            state.oldMidashiText,
-                            learnText,
+                            state.oldMidashiText + state.oldOkuriganaTrigger,
+                            tourokuText,
                             false
                         )
                         stateFlow.update {
                             it.copy(
                                 oldMidashiText = "",
+                                oldOkuriganaText = "",
+                                oldOkuriganaTrigger = "",
                                 tourokuFlag = ""
                             )
                         }
