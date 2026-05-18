@@ -1,7 +1,12 @@
 package com.narkolep.skkimmer.keyboard.mappings
 
-import com.narkolep.skkimmer.R
 import com.narkolep.skkimmer.keyboard.KeyboardAction
+import com.composables.icons.lucide.R.drawable.lucide_ic_chevron_left
+import com.composables.icons.lucide.R.drawable.lucide_ic_chevron_right
+import com.composables.icons.lucide.R.drawable.lucide_ic_delete
+import com.composables.icons.lucide.R.drawable.lucide_ic_corner_down_left
+import com.composables.icons.lucide.R.drawable.lucide_ic_refresh_cw
+import com.composables.icons.lucide.R.drawable.lucide_ic_arrow_big_up_dash
 
 object FlickKanaMap {
     data class FlickKeyConfig(
@@ -20,23 +25,23 @@ object FlickKanaMap {
     val flickLayout = listOf(
         // 1段目
         listOf(
-            FlickKeyConfig("Q", "", "q", "", "/", "l", "~", iconResId = R.drawable.lucide_refresh_cw),
+            FlickKeyConfig("Q", "", "q", "", "/", "l", "~", iconResId = lucide_ic_refresh_cw),
             FlickKeyConfig("あ", "", "a", "i", "u", "e", "o"),
             FlickKeyConfig("か", "k", "a", "i", "u", "e", "o"),
             FlickKeyConfig("さ", "s", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("BS", action = KeyboardAction.Backspace, iconResId = R.drawable.lucide_delete, keyRepeat = true)
+            FlickKeyConfig("BS", action = KeyboardAction.Backspace, iconResId = lucide_ic_delete, keyRepeat = true)
         ),
         // 2段目
         listOf(
-            FlickKeyConfig("LA", action = KeyboardAction.Left, iconResId = R.drawable.lucide_chevron_left, keyRepeat = true),
+            FlickKeyConfig("LA", action = KeyboardAction.Left, iconResId = lucide_ic_chevron_left, keyRepeat = true),
             FlickKeyConfig("た", "t", "a", "i", "u", "e", "o"),
             FlickKeyConfig("な", "n", "a", "i", "u", "e", "o"),
             FlickKeyConfig("は", "h", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("RA", action = KeyboardAction.Right, iconResId = R.drawable.lucide_chevron_right, keyRepeat = true)
+            FlickKeyConfig("RA", action = KeyboardAction.Right, iconResId = lucide_ic_chevron_right, keyRepeat = true)
         ),
         // 3段目
         listOf(
-            FlickKeyConfig("Shift", action = KeyboardAction.Shift, iconResId = R.drawable.lucide_arrow_up),
+            FlickKeyConfig("Shift", action = KeyboardAction.Shift, iconResId = lucide_ic_arrow_big_up_dash),
             FlickKeyConfig("ま", "m", "a", "i", "u", "e", "o"),
             FlickKeyConfig("や", "y", "a", "「", "u", "」", "o"),
             FlickKeyConfig("ら", "r", "a", "i", "u", "e", "o"),
@@ -48,7 +53,7 @@ object FlickKanaMap {
             FlickKeyConfig("ﾞﾟ", action = KeyboardAction.Dakuten),
             FlickKeyConfig("わ", "w", "a", "o", "nn", "-"),
             FlickKeyConfig("､｡", "", ",", ".", "?", "!",),
-            FlickKeyConfig("Enter", action = KeyboardAction.Enter, iconResId = R.drawable.bootstrap_enter)
+            FlickKeyConfig("Enter", action = KeyboardAction.Enter, iconResId = lucide_ic_corner_down_left)
         )
     )
 
