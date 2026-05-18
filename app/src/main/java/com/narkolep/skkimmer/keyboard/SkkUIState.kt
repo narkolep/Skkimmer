@@ -23,7 +23,7 @@ enum class SkkState {
 }
 
 data class SkkUIState(
-    /* STATE */
+    /* === STATE === */
     /* 入力モード */
     val inputMode: InputMode = InputMode.HIRAGANA,
     /* 日本語入力の状態 */
@@ -35,14 +35,14 @@ data class SkkUIState(
     val isCtrlPressed: Boolean = false,
     /* 辞書登録モードのトリガー */
     val tourokuFlag: String = "",
-    /* 辞書登録前の状態を保存する変数 */
+    /* 辞書登録前の状態を保存しておく */
     val oldMidashiText: String = "",
     val oldOkuriganaText: String = "",
     val oldOkuriganaTrigger: String ="",
-    /* フリック入力のトリガー */
+    /* フリック入力のON/OFF */
     val isFlick: Boolean = false,
 
-    /* BUFFER */
+    /* === BUFFER === */
     /* 変換候補 */
     val candidates: List<String> = emptyList(),
     val selectedIndex: Int = -1,

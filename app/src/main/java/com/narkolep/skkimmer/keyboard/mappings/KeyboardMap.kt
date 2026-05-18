@@ -59,10 +59,10 @@ object KeyboardMap {
         // 4段目
         listOf(
             KeyDef("Shift", action = KeyboardAction.Shift, weight = 1.5f, textSize = 18f),
-            KeyDef("z", "[", "{"),
-            KeyDef("x", "]", "}"),
-            KeyDef("c", "(", "<"),
-            KeyDef("v", ")", ">"),
+            KeyDef("z", "<", "{"),
+            KeyDef("x", ">", "}"),
+            KeyDef("c", "(", "["),
+            KeyDef("v", ")", "]"),
             KeyDef("b", ",", ","),
             KeyDef("n", ".", "."),
             KeyDef("m", "/", """\"""),

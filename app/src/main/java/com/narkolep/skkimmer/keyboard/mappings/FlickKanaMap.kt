@@ -25,7 +25,7 @@ object FlickKanaMap {
     val flickLayout = listOf(
         // 1段目
         listOf(
-            FlickKeyConfig("Q", "", "q", "", "/", "l", "~", iconResId = lucide_ic_refresh_cw),
+            FlickKeyConfig("Q", "", "q", "", "/", "l", "x", iconResId = lucide_ic_refresh_cw),
             FlickKeyConfig("あ", "", "a", "i", "u", "e", "o"),
             FlickKeyConfig("か", "k", "a", "i", "u", "e", "o"),
             FlickKeyConfig("さ", "s", "a", "i", "u", "e", "o"),

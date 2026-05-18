@@ -70,26 +70,23 @@ fun KeyboardLayout(
 
     val keyboardHeight = if (isLandscape) landscapeHeight else portraitHeight
 
-    /* DataStoreから現在のテーマ設定を読み込む（初期値は "システム"） */
     val themeMode by context.dataStore.data
         .map { preferences -> preferences[THEME_KEY] ?: "システム" }
         .collectAsState(initial = "システム")
 
-    /* 設定値に基づいて、最終的にダークモードにするかどうかを決定 */
     val isDarkTheme = when (themeMode) {
         "ダーク" -> true
         "ライト" -> false
         else -> isSystemInDarkTheme()
     }
 
-    /* Android 12 (API 31) 以上なら壁紙の色を取得、それ以外はデフォルトのテーマを使用 */
     val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         if (isDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else {
         if (isDarkTheme) darkColorScheme() else lightColorScheme()
     }
 
-    /* ボタンの色の設定 */
+    /* ボタンの色 */
     val keyboardBackgroundColor = colorScheme.surfaceDim
     val keyboardButtonColor = colorScheme.surfaceBright
     val keyboardFlickColor = colorScheme.onPrimary
@@ -103,7 +100,7 @@ fun KeyboardLayout(
         modifier = Modifier
             .fillMaxWidth()
             .background(keyboardBackgroundColor) // キーボード全体の背景色
-            .padding(bottom = bottomPadding.dp) // paddingBottom
+            .padding(bottom = bottomPadding.dp)
     ) {
         when (uiState.inputMode) {
             InputMode.EMOJI -> {
@@ -234,7 +231,7 @@ fun KeyboardLayout(
                                             onClick = { onActionClick(config.action) }
                                         )
                                     } else {
-                                        /* フリックキー (actionがnullの場合) */
+                                        /* フリックキー */
                                         val flickColor = when (config.label) {
                                             "Q" -> keyboardBackgroundColor
                                             else -> keyboardButtonColor

@@ -69,7 +69,7 @@ fun FlickKey(
     var yOffset by remember { mutableIntStateOf(0) }
     var xOffset by remember { mutableIntStateOf(0) }
 
-    val paddingPx = with(density) { 4.dp.roundToPx() }
+    val paddingPx = with(density) { 2.dp.roundToPx() }
 
     val currentIsCtrlActive by rememberUpdatedState(isCtrlPressed)
 

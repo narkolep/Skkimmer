@@ -29,7 +29,6 @@ import kotlin.math.roundToInt
 /**
  * SETTING SCREEN内のアイテム
  **/
-
 // 横線
 @Composable
 fun Divider() {
