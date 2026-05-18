@@ -69,7 +69,7 @@ fun CandidateBar(
                 if (comment != null) {
                     withStyle(
                         style = SpanStyle(
-                            color = textColor.copy(alpha = 0.7f), // 色を少し薄くする
+                            color = textColor.copy(alpha = 0.4f), // 色を少し薄くする
                             fontSize = 14.sp, // サイズを小さく
                         )
                     ) {

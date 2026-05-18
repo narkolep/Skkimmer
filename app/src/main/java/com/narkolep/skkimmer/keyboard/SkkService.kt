@@ -186,7 +186,6 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
 
-        composingManager.commit()
         uiStateFlow.update {
             it.copy(
                 oldMidashiText = "",
