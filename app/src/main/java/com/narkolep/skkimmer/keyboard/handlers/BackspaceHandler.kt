@@ -23,6 +23,7 @@ class BackspaceHandler(
         when (state.skkState) {
             SkkState.NORMAL -> {
                 if (state.composingText.isNotEmpty()) {
+                    /* composingTextを削除 */
                     stateFlow.update {
                         it.copy(
                             composingText = state.composingText.dropLast(1)
@@ -31,37 +32,27 @@ class BackspaceHandler(
                     return
                 }
 
-                if (state.tourokuFlag.isNotEmpty()) {
-                    if (state.tourokuFlag.substringAfter(":").isNotEmpty()) {
-                        stateFlow.update {
-                            it.copy(
-                                tourokuFlag = state.tourokuFlag.dropLast(1)
-                            )
-                        }
-                        return
-                    }
+                if (state.tourokuFlag.isEmpty()) {
+                    /* 未確定の文字列がないとき */
+                    inputCommitter.delete()
+                    return
+                }
 
-                    if (state.oldOkuriganaTrigger.isNotEmpty()) {
-                        stateFlow.update {
-                            it.copy(
-                                skkState = SkkState.OKURIGANA,
-                                composingText = "",
-                                midashiText = state.oldMidashiText,
-                                okuriganaText = state.oldOkuriganaText,
-                                okuriganaTrigger = state.oldOkuriganaTrigger,
-                                oldMidashiText = "",
-                                oldOkuriganaText = "",
-                                oldOkuriganaTrigger = "",
-                                tourokuFlag = ""
-                            )
-                        }
-                        return
-                    }
-
-                    /* 登録文字列も送り仮名もないとき、見出しモードに戻る */
+                if (state.tourokuFlag.substringAfter(":").isNotEmpty()) {
+                    /* 登録モードの文字列を削除 */
                     stateFlow.update {
                         it.copy(
-                            skkState = SkkState.MIDASHI,
+                            tourokuFlag = state.tourokuFlag.dropLast(1)
+                        )
+                    }
+                    return
+                }
+
+                if (state.oldOkuriganaTrigger.isNotEmpty()) {
+                    /* 送り仮名があるとき */
+                    stateFlow.update {
+                        it.copy(
+                            skkState = SkkState.OKURIGANA,
                             composingText = "",
                             midashiText = state.oldMidashiText,
                             okuriganaText = state.oldOkuriganaText,
@@ -75,8 +66,38 @@ class BackspaceHandler(
                     return
                 }
 
-                /* 未確定の文字列がないとき */
-                inputCommitter.delete()
+                if (state.oldMidashiText.all { it.code in 0x21..0x7E }) {
+                    /* ABBREVモードから変換したとき */
+                    stateFlow.update {
+                        it.copy(
+                            skkState = SkkState.ABBREV,
+                            composingText = "",
+                            midashiText = state.oldMidashiText,
+                            okuriganaText = "",
+                            okuriganaTrigger = "",
+                            oldMidashiText = "",
+                            oldOkuriganaText = "",
+                            oldOkuriganaTrigger = "",
+                            tourokuFlag = ""
+                        )
+                    }
+                    return
+                }
+
+                /* 登録文字列も送り仮名もないとき、見出しモードに戻る */
+                stateFlow.update {
+                    it.copy(
+                        skkState = SkkState.MIDASHI,
+                        composingText = "",
+                        midashiText = state.oldMidashiText,
+                        okuriganaText = state.oldOkuriganaText,
+                        okuriganaTrigger = state.oldOkuriganaTrigger,
+                        oldMidashiText = "",
+                        oldOkuriganaText = "",
+                        oldOkuriganaTrigger = "",
+                        tourokuFlag = ""
+                    )
+                }
             }
 
             SkkState.MIDASHI -> {
