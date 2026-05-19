@@ -23,7 +23,7 @@ class BackspaceHandler(
         when (state.skkState) {
             SkkState.NORMAL -> {
                 if (state.composingText.isNotEmpty()) {
-                    /* composingTextを削除 */
+                    /* composingTextが存在するとき */
                     stateFlow.update {
                         it.copy(
                             composingText = state.composingText.dropLast(1)
@@ -39,7 +39,7 @@ class BackspaceHandler(
                 }
 
                 if (state.tourokuFlag.substringAfter(":").isNotEmpty()) {
-                    /* 登録モードの文字列を削除 */
+                    /* 登録する文字列が存在するとき */
                     stateFlow.update {
                         it.copy(
                             tourokuFlag = state.tourokuFlag.dropLast(1)
@@ -49,7 +49,7 @@ class BackspaceHandler(
                 }
 
                 if (state.oldOkuriganaTrigger.isNotEmpty()) {
-                    /* 送り仮名があるとき */
+                    /* 登録する文字列が空で、送り仮名があるとき */
                     stateFlow.update {
                         it.copy(
                             skkState = SkkState.OKURIGANA,
@@ -67,11 +67,11 @@ class BackspaceHandler(
                 }
 
                 if (state.oldMidashiText.all { it.code in 0x21..0x7E }) {
-                    /* ABBREVモードから変換したとき */
+                    /* 登録する文字列が空で、ABBREVモードから変換したとき */
                     stateFlow.update {
                         it.copy(
                             skkState = SkkState.ABBREV,
-                            composingText = "",
+                            composingText = " ", // 半角スペース
                             midashiText = state.oldMidashiText,
                             okuriganaText = "",
                             okuriganaTrigger = "",
@@ -84,7 +84,7 @@ class BackspaceHandler(
                     return
                 }
 
-                /* 登録文字列も送り仮名もないとき、見出しモードに戻る */
+                /* OKURIGANAでもABBREVでもないとき */
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.MIDASHI,
@@ -159,6 +159,18 @@ class BackspaceHandler(
                             skkState = SkkState.OKURIGANA,
                             okuriganaText = state.okuriganaText.dropLast(1),
                             composingText = "",
+                            candidates = emptyList(),
+                            selectedIndex = -1
+                        )
+                    }
+                    return
+                }
+
+                if (state.midashiText.all { it.code in 0x21..0x7E }) {
+                    stateFlow.update {
+                        it.copy(
+                            skkState = SkkState.ABBREV,
+                            composingText = " ", // 半角スペース
                             candidates = emptyList(),
                             selectedIndex = -1
                         )
