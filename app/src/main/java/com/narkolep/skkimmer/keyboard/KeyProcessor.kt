@@ -1,20 +1,20 @@
 package com.narkolep.skkimmer.keyboard
 
 import android.view.inputmethod.InputConnection
-import com.narkolep.skkimmer.data.SkkDictionaryManager
+import com.narkolep.skkimmer.data.DictionaryManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
 class KeyProcessor(
     private val stateFlow: MutableStateFlow<SkkUIState>,
-    dictionaryManager: SkkDictionaryManager,
+    dictionaryManager: DictionaryManager,
     connectionProvider: () -> InputConnection?
 ) {
     private val inputCommitter = InputCommitter(connectionProvider)
     private val composingManager = ComposingManager(stateFlow, inputCommitter, dictionaryManager)
     private val romajiConverter = Converter()
     private val shortcutHandler = ShortcutHandler(stateFlow, inputCommitter, composingManager)
-    private val output = OutputText(stateFlow, inputCommitter, composingManager, dictionaryManager)
+    private val output = OutputText(stateFlow, inputCommitter, composingManager)
     private val controlState = ControlState(stateFlow, composingManager)
 
     fun handle(key: String) {
@@ -30,7 +30,7 @@ class KeyProcessor(
                 isCtrlPressed = false
         ) }
 
-        // ショートカット その1
+        // ショートカット処理 その1
         if (shortcutHandler.handleCTRL(key, state)) return
 
         // 英数字(直接出力)
@@ -43,7 +43,7 @@ class KeyProcessor(
             inputMode = state.inputMode
         )
 
-        // ショートカット その2
+        // ショートカット処理 その2
         if (shortcutHandler.handleKey(state, result)) return
 
         // shiftキーによる状態遷移

@@ -2,7 +2,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
-import com.narkolep.skkimmer.data.SkkDictionaryManager
+import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.ComposingManager
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
@@ -18,7 +18,7 @@ class EnterHandler(
     private val stateFlow: MutableStateFlow<SkkUIState>,
     private val editorInfo: EditorInfo?,
     private val inputCommitter: InputCommitter,
-    private val dictionaryManager: SkkDictionaryManager,
+    private val dictionaryManager: DictionaryManager,
     private val composingManager: ComposingManager
 ) {
     fun handle() {

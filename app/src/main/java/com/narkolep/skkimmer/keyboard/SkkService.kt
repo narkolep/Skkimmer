@@ -19,8 +19,8 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.data.EmojiManager
-import com.narkolep.skkimmer.data.SkkDictionaryManager
 import com.narkolep.skkimmer.keyboard.ui.KeyboardLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +37,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
     override val viewModelStore: ViewModelStore get() = store
     private var emojiCategories: List<EmojiManager.Category> = emptyList()
-    private lateinit var dictionaryManager: SkkDictionaryManager
+    private lateinit var dictionaryManager: DictionaryManager
     private lateinit var composingManager: ComposingManager
     private lateinit var keyProcessor: KeyProcessor
     private lateinit var actionProcessor: ActionProcessor
@@ -48,7 +48,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         savedStateRegistryController.performRestore(null)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
 
-        dictionaryManager = SkkDictionaryManager(this)
+        dictionaryManager = DictionaryManager(this)
 
         composingManager = ComposingManager(
             stateFlow = uiStateFlow,

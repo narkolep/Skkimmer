@@ -36,7 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.narkolep.skkimmer.data.AppDatabase
-import com.narkolep.skkimmer.data.SkkDictionaryManager
+import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.ui.components.ConfirmDialog
 import com.narkolep.skkimmer.ui.components.Divider
 import kotlinx.coroutines.launch
@@ -69,7 +69,7 @@ fun DictionaryListScreen() {
             val fileName = getFileName(selectedUri)
             isLoading = true
             scope.launch {
-                val manager = SkkDictionaryManager(context)
+                val manager = DictionaryManager(context)
                 val result = manager.importDictionaryFromUri(selectedUri, fileName)
 
                 result.onSuccess {
@@ -149,7 +149,7 @@ fun DictionaryListScreen() {
                 isLoading = true
                 showResetDictDialog = false
                 scope.launch {
-                    val manager = SkkDictionaryManager(context)
+                    val manager = DictionaryManager(context)
                     // すべて削除
                     manager.clearAllDictionaries()
                     Toast.makeText(context, "辞書を削除しました", Toast.LENGTH_SHORT).show()
