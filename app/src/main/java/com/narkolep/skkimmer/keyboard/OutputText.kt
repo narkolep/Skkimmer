@@ -1,17 +1,12 @@
 package com.narkolep.skkimmer.keyboard
 
-import com.narkolep.skkimmer.data.SkkDictionaryManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class OutputText(
     private val stateFlow: MutableStateFlow<SkkUIState>,
     private val inputCommitter: InputCommitter,
-    private val composingManager: ComposingManager,
-    private val dictionaryManager: SkkDictionaryManager
+    private val composingManager: ComposingManager
 ) {
     /**
      * テンキー/英数/abbrevモード (直接入力)
@@ -28,9 +23,13 @@ class OutputText(
                 return true
             }
             InputMode.FULL_ASCII -> {
-                val fullChar =
-                    if (outChar.first().code in 0x21..0x7E) (outChar.first().code + 0xFEE0).toChar().toString()
-                    else outChar
+                val fullChar = when (outChar.first().code) {
+                    /* Space */
+                    0x20 -> "\u3000"
+                    /* !から~までの半角英数字 */
+                    in 0x21..0x7E -> (outChar.first().code + 0xFEE0).toChar().toString()
+                    else -> outChar
+                }
                 inputCommitter.commit(fullChar)
                 return true
             }
@@ -102,33 +101,8 @@ class OutputText(
                         )
                     }
 
-                    val keyText = newState.midashiText + flag
-
-                    CoroutineScope(Dispatchers.Main).launch {
-                        val candidatesList = dictionaryManager.getCandidates(keyText)
-
-                        if (candidatesList.isNotEmpty()) {
-                            stateFlow.update {
-                                it.copy(
-                                    skkState = SkkState.HENKAN,
-                                    candidates = candidatesList,
-                                    selectedIndex = 0
-                                )
-                            }
-                        } else if (newState.tourokuFlag.isEmpty()) {
-                            /* 候補が無ければ、辞書登録モードに移行 */
-                            stateFlow.update { it.clear() }
-
-                            stateFlow.update {
-                                it.copy(
-                                    oldMidashiText = newState.midashiText,
-                                    oldOkuriganaText = result.output,
-                                    oldOkuriganaTrigger = flag,
-                                    tourokuFlag = "[登録]$keyText:"
-                                )
-                            }
-                        }
-                    }
+                    val state = stateFlow.value
+                    composingManager.handleDictionaryManager(state)
                 }
             }
 

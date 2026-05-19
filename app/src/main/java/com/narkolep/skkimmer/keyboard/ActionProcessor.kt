@@ -1,7 +1,7 @@
 package com.narkolep.skkimmer.keyboard
 
 import android.view.inputmethod.EditorInfo
-import com.narkolep.skkimmer.data.SkkDictionaryManager
+import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.handlers.BackspaceHandler
 import com.narkolep.skkimmer.keyboard.handlers.CursorHandler
 import com.narkolep.skkimmer.keyboard.handlers.DakutenHandler
@@ -32,11 +32,11 @@ class ActionProcessor(
     editorInfo: EditorInfo?,
     inputCommitter: InputCommitter,
     keyProcessor: KeyProcessor,
-    dictionaryManager: SkkDictionaryManager,
+    dictionaryManager: DictionaryManager,
 ) {
     /* Handlers */
     private val modifierHandler = ModifierHandler(stateFlow)
-    private val spaceHandler = SpaceHandler(stateFlow, keyProcessor, dictionaryManager)
+    private val spaceHandler = SpaceHandler(stateFlow, keyProcessor, composingManager)
     private val backspaceHandler = BackspaceHandler(stateFlow, inputCommitter)
     private val enterHandler =
         EnterHandler(stateFlow, editorInfo, inputCommitter, dictionaryManager, composingManager)

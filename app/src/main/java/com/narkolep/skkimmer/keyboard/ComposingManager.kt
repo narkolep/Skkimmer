@@ -1,6 +1,6 @@
 package com.narkolep.skkimmer.keyboard
 
-import com.narkolep.skkimmer.data.SkkDictionaryManager
+import com.narkolep.skkimmer.data.DictionaryManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,11 +10,11 @@ import kotlinx.coroutines.launch
 class ComposingManager(
     private val stateFlow: MutableStateFlow<SkkUIState>,
     private val inputCommitter: InputCommitter,
-    private val dictionaryManager: SkkDictionaryManager
+    private val dictionaryManager: DictionaryManager
 ) {
     /**
      * 表示する文字列の更新
-     **/
+     */
     fun update() {
         val state = stateFlow.value
 
@@ -47,7 +47,7 @@ class ComposingManager(
 
     /**
      * 文字列の確定
-     **/
+     */
     fun commit() {
         val state = stateFlow.value
 
@@ -87,6 +87,38 @@ class ComposingManager(
             if (commitText.isNotEmpty()) inputCommitter.commit(commitText)
         } else {
             stateFlow.update { it.copy(tourokuFlag = state.tourokuFlag + commitText) }
+        }
+    }
+
+    /**
+     * 辞書の検索、モード切り換え
+     */
+    fun handleDictionaryManager(state: SkkUIState) {
+        val keyText = state.midashiText + state.okuriganaTrigger
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val candidatesList = dictionaryManager.getCandidates(keyText)
+
+            if (candidatesList.isNotEmpty()) {
+                stateFlow.update {
+                    it.copy(
+                        skkState = SkkState.HENKAN,
+                        candidates = candidatesList,
+                        selectedIndex = 0
+                    )
+                }
+            } else if (state.tourokuFlag.isEmpty()) {
+                stateFlow.update { it.clear() }
+
+                stateFlow.update {
+                    it.copy(
+                        oldMidashiText = state.midashiText,
+                        oldOkuriganaText = state.okuriganaText,
+                        oldOkuriganaTrigger = state.okuriganaTrigger,
+                        tourokuFlag = "[登録]$keyText:"
+                    )
+                }
+            }
         }
     }
 }
