@@ -56,7 +56,9 @@ class OutputText(
         stateFlow.update {
             it.copy(
                 composingText = result.composingNext,
-                oldOkuriganaTrigger = result.okuriganaFlag
+                oldOkuriganaTrigger =
+                    if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                    else it.oldOkuriganaTrigger
             )
         }
 

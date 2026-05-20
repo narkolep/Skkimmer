@@ -98,7 +98,7 @@ class ShortcutHandler(
 
                 if (state.isCtrlPressed) {
                     if (state.skkState != SkkState.NORMAL) {
-                        afterConvert = convertString(beforeConvert, KanaMap.hiraToHalfMap)
+                        afterConvert = composingManager.convertString(beforeConvert, KanaMap.hiraToHalfMap)
                         stateFlow.update { it.copy(
                             midashiText = afterConvert,
                             composingText = ""
@@ -113,9 +113,9 @@ class ShortcutHandler(
                 } else {
                     if (state.skkState != SkkState.NORMAL) {
                         afterConvert = if (state.inputMode == InputMode.KATAKANA) {
-                            convertString(beforeConvert, KanaMap.kataToHiraMap)
+                            composingManager.convertString(beforeConvert, KanaMap.kataToHiraMap)
                         } else {
-                            convertString(beforeConvert, KanaMap.hiraToKataMap)
+                            composingManager.convertString(beforeConvert, KanaMap.hiraToKataMap)
                         }
                         stateFlow.update { it.copy(
                             midashiText = afterConvert,
@@ -166,16 +166,5 @@ class ShortcutHandler(
         }
 
         return false
-    }
-
-    /**
-     * 仮名の変換
-     **/
-    private fun convertString(text: String, map: Map<String, String>): String {
-        var result = text
-        map.forEach { (key, value) ->
-            result = result.replace(key, value)
-        }
-        return result
     }
 }

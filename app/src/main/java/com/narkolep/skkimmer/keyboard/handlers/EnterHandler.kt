@@ -1,6 +1,7 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
 import android.text.InputType
+import android.util.Printer
 import android.view.inputmethod.EditorInfo
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.ComposingManager
@@ -19,39 +20,42 @@ class EnterHandler(
     private val editorInfo: EditorInfo?,
     private val inputCommitter: InputCommitter,
     private val dictionaryManager: DictionaryManager,
-    private val composingManager: ComposingManager
+    private val composingManager: ComposingManager,
+    private val backspaceHandler: BackspaceHandler
 ) {
     fun handle() {
         val state = stateFlow.value
 
         if (state.skkState == SkkState.NORMAL) {
             if (state.tourokuFlag.isNotEmpty()) {
-                val tourokuText = state.tourokuFlag.split(":")[1]
+                val tourokuText = state.tourokuFlag.substringAfter(":")
                 val commitText = tourokuText.split(";")[0] + state.oldOkuriganaText
                 inputCommitter.commit(commitText)
 
-                /* ユーザー辞書として登録 */
                 if (tourokuText.isNotEmpty()) {
+                    /* ユーザー辞書として登録 */
                     CoroutineScope(Dispatchers.IO).launch {
                         dictionaryManager.learnWord(
                             state.oldMidashiText + state.oldOkuriganaTrigger,
                             tourokuText,
                             false
                         )
-                        stateFlow.update {
-                            it.copy(
-                                oldMidashiText = "",
-                                oldOkuriganaText = "",
-                                oldOkuriganaTrigger = "",
-                                tourokuFlag = ""
-                            )
-                        }
                     }
+
+                    stateFlow.update {
+                        it.copy(
+                            oldMidashiText = "",
+                            oldOkuriganaText = "",
+                            oldOkuriganaTrigger = "",
+                            tourokuFlag = ""
+                        )
+                    }
+                    stateFlow.update { it.clear() }
+                } else {
+                    /* 登録モードから抜ける */
+                    backspaceHandler.handle()
                 }
 
-                stateFlow.update {
-                    it.clear()
-                }
                 return
             }
 

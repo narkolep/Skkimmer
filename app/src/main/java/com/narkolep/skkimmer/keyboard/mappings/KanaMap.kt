@@ -228,6 +228,14 @@ object KanaMap {
         "zj" to KanaDefinition("↓", "↓", "↓"),
         "zk" to KanaDefinition("↑", "↑", "↑"),
         "zl" to KanaDefinition("→", "→", "→"),
+        // Z + 記号
+        "z*" to KanaDefinition("※", "※", "※"),
+        "z," to KanaDefinition("‥", "‥", "‥"),
+        "z." to KanaDefinition("…", "…", "…"),
+        "z-" to KanaDefinition("～", "～", "～"),
+        "z/" to KanaDefinition("・", "・", "・"),
+        "z0" to KanaDefinition("○", "○", "○"),
+        "z@" to KanaDefinition("◎", "◎", "◎"),
         // 句読点など
         "." to KanaDefinition("。", "。", "｡"),
         "," to KanaDefinition("、", "、", "､"),

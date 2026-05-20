@@ -152,7 +152,7 @@ fun KeyboardLayout(
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .height((keyboardHeight * 0.8).dp)) {
-                        if (uiState.inputMode == InputMode.HALF_ASCII || uiState.inputMode == InputMode.FULL_ASCII) {
+                        if (!uiState.isFlick) {
                             Row(modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()) {

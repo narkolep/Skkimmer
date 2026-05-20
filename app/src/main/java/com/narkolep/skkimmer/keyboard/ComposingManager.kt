@@ -1,6 +1,7 @@
 package com.narkolep.skkimmer.keyboard
 
 import com.narkolep.skkimmer.data.DictionaryManager
+import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,7 +95,12 @@ class ComposingManager(
      * 辞書の検索、モード切り換え
      */
     fun handleDictionaryManager(state: SkkUIState) {
-        val keyText = state.midashiText + state.okuriganaTrigger
+        /* カタカナはひらがなに直す */
+        val convertedMidashiText =
+            if (state.inputMode == InputMode.KATAKANA) convertString(state.midashiText, KanaMap.kataToHiraMap)
+            else state.midashiText
+
+        val keyText = convertedMidashiText + state.okuriganaTrigger
 
         CoroutineScope(Dispatchers.Main).launch {
             val candidatesList = dictionaryManager.getCandidates(keyText)
@@ -102,6 +108,7 @@ class ComposingManager(
             if (candidatesList.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
+                        midashiText = convertedMidashiText,
                         skkState = SkkState.HENKAN,
                         candidates = candidatesList,
                         selectedIndex = 0
@@ -112,7 +119,8 @@ class ComposingManager(
 
                 stateFlow.update {
                     it.copy(
-                        oldMidashiText = state.midashiText,
+                        midashiText = convertedMidashiText,
+                        oldMidashiText = convertedMidashiText,
                         oldOkuriganaText = state.okuriganaText,
                         oldOkuriganaTrigger = state.okuriganaTrigger,
                         tourokuFlag = "[登録]$keyText:"
@@ -120,5 +128,16 @@ class ComposingManager(
                 }
             }
         }
+    }
+
+    /**
+     * 仮名の変換
+     **/
+    fun convertString(text: String, map: Map<String, String>): String {
+        var result = text
+        map.forEach { (key, value) ->
+            result = result.replace(key, value)
+        }
+        return result
     }
 }

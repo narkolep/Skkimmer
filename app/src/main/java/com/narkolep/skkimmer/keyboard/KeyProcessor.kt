@@ -22,11 +22,9 @@ class KeyProcessor(
 
         // ShiftとCtrlを元に戻す
         stateFlow.update { it.copy(
-                shiftState = if (it.shiftState == ShiftState.SHIFTED) {
-                    ShiftState.LOWERCASE
-                } else {
-                    it.shiftState
-                },
+                shiftState =
+                    if (it.shiftState == ShiftState.SHIFTED) ShiftState.LOWERCASE
+                    else it.shiftState,
                 isCtrlPressed = false
         ) }
 
