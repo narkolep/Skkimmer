@@ -245,6 +245,7 @@ object KanaMap {
         "」" to KanaDefinition("」", "」", "｣")
     )
 
+    /* 仮名を変換するマップ */
     val hiraToKataMap by lazy {
         romajiToKana.values.associate { it.hira to it.kata }
     }
@@ -254,11 +255,28 @@ object KanaMap {
     val hiraToHalfMap by lazy {
         romajiToKana.values.associate { it.hira to it.halfkata }
     }
-    val kanaToRomaji: Map<String, String> = buildMap {
-        romajiToKana.forEach { (romaji, kanaDef) ->
-            put(kanaDef.hira, romaji)
-            put(kanaDef.kata, romaji)
-            put(kanaDef.halfkata, romaji)
+
+    enum class KanaType {
+        HIRAGANA,    // ひらがな
+        KATAKANA,    // カタカナ
+        HALF_KATAKANA // 半角カタカナ
+    }
+
+    data class RomajiAndType(
+        val romaji: String,
+        val type: KanaType
+    )
+
+    val kanaToRomaji: Map<String, RomajiAndType> by lazy {
+        buildMap {
+            romajiToKana.forEach { (romaji, kanaDef) ->
+                // ひらがなを登録
+                put(kanaDef.hira, RomajiAndType(romaji, KanaType.HIRAGANA))
+                // カタカナを登録
+                put(kanaDef.kata, RomajiAndType(romaji, KanaType.KATAKANA))
+                // 半角カタカナを登録
+                put(kanaDef.halfkata, RomajiAndType(romaji, KanaType.HALF_KATAKANA))
+            }
         }
     }
 }

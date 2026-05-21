@@ -6,8 +6,10 @@ import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
 import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap
+import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap.kanaToRomaji
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 class DakutenHandler(
     private val stateFlow: MutableStateFlow<SkkUIState>,
@@ -29,22 +31,36 @@ class DakutenHandler(
             backspaceHandler.handle()
         }
 
+        /* 文字の取得 */
         var text = inputCommitter.getText(1)
         if (text == "ﾞ" || text == "ﾟ") {
             text = inputCommitter.getText(2)
             backspaceHandler.handle()
         }
 
-        val romaji = kanaToRomaji[text]
+        /* ローマ字に変換 */
+        val info = kanaToRomaji[text]
+        val temporalInputMode = when (info?.type) {
+            KanaMap.KanaType.HIRAGANA -> InputMode.HIRAGANA
+            KanaMap.KanaType.KATAKANA -> InputMode.KATAKANA
+            KanaMap.KanaType.HALF_KATAKANA -> InputMode.HALF_KATAKANA
+            else -> return
+        }
+        stateFlow.update {
+            it.copy(
+                inputMode = temporalInputMode
+            )
+        }
 
-        if (romaji?.all { it in 'a'..'z'} ?: false) {
-            val vowel = romaji.takeLast(1)
-            val consonant = romaji.dropLast(1)
+        /* 出力 */
+        if (info.romaji.all { it in 'a'..'z'}) {
+            val vowel = info.romaji.takeLast(1)
+            val consonant = info.romaji.dropLast(1)
             val match = FlickKanaMap.flickConvert.find { it.consonantBefore == consonant }
 
             backspaceHandler.handle()
 
-            if (state.inputMode != InputMode.HIRAGANA && consonant == "x" && vowel == "u") {
+            if (info.type != KanaMap.KanaType.HIRAGANA && consonant == "x" && vowel == "u") {
                 /* ウ -> ヴ */
                 keyProcessor.handle("v")
             } else if ((consonant == "t" || consonant == "ts") && vowel == "u") {
@@ -59,6 +75,13 @@ class DakutenHandler(
             }
 
             keyProcessor.handle(vowel)
+        }
+
+        /* inputModeを元に戻す */
+        stateFlow.update {
+            it.copy(
+                inputMode = state.inputMode
+            )
         }
         inputCommitter.endBatch()
     }

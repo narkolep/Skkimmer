@@ -1,7 +1,6 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
 import android.text.InputType
-import android.util.Printer
 import android.view.inputmethod.EditorInfo
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.ComposingManager
