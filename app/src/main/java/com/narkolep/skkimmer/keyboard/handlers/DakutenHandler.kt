@@ -20,8 +20,6 @@ class DakutenHandler(
     fun handle() {
         val state = stateFlow.value
 
-        inputCommitter.beginBatch()
-
         if (
             state.tourokuFlag.isNotEmpty() &&
             state.tourokuFlag.substringAfter(":").isEmpty() &&
@@ -83,6 +81,5 @@ class DakutenHandler(
                 inputMode = state.inputMode
             )
         }
-        inputCommitter.endBatch()
     }
 }

@@ -152,7 +152,7 @@ fun KeyboardLayout(
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .height((keyboardHeight * 0.8).dp)) {
-                        if (!uiState.isFlick) {
+                        if (!uiState.isFlick && uiState.candidates.isEmpty()) {
                             Row(modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()) {

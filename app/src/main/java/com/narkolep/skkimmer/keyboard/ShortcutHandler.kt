@@ -91,46 +91,62 @@ class ShortcutHandler(
                 }
             }
             'q' -> {
-                val beforeConvert =
-                    if (resultList.isIgnore) state.midashiText + resultList.output
-                    else state.midashiText
-                val afterConvert: String
+                if (state.shiftState == ShiftState.LOWERCASE) {
+                    val beforeConvert =
+                        if (resultList.isIgnore) state.midashiText + resultList.output
+                        else state.midashiText
+                    val afterConvert: String
 
-                if (state.isCtrlPressed) {
-                    if (state.skkState != SkkState.NORMAL) {
-                        afterConvert = composingManager.convertString(beforeConvert, KanaMap.hiraToHalfMap)
-                        stateFlow.update { it.copy(
-                            midashiText = afterConvert,
-                            composingText = ""
-                        ) }
-                    } else {
-                        if (state.inputMode == InputMode.HALF_KATAKANA) {
-                            stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
+                    if (state.isCtrlPressed) {
+                        if (state.skkState != SkkState.NORMAL) {
+                            afterConvert =
+                                composingManager.convertString(beforeConvert, KanaMap.hiraToHalfMap)
+                            stateFlow.update {
+                                it.copy(
+                                    midashiText = afterConvert,
+                                    composingText = ""
+                                )
+                            }
                         } else {
-                            stateFlow.update { it.copy(inputMode = InputMode.HALF_KATAKANA) }
+                            if (state.inputMode == InputMode.HALF_KATAKANA) {
+                                stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
+                            } else {
+                                stateFlow.update { it.copy(inputMode = InputMode.HALF_KATAKANA) }
+                            }
+                        }
+                    } else {
+                        if (state.skkState != SkkState.NORMAL) {
+                            afterConvert = if (state.inputMode == InputMode.KATAKANA) {
+                                composingManager.convertString(beforeConvert, KanaMap.kataToHiraMap)
+                            } else {
+                                composingManager.convertString(beforeConvert, KanaMap.hiraToKataMap)
+                            }
+                            stateFlow.update {
+                                it.copy(
+                                    midashiText = afterConvert,
+                                    composingText = ""
+                                )
+                            }
+                        } else {
+                            if (state.inputMode == InputMode.KATAKANA) {
+                                stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
+                            } else {
+                                stateFlow.update { it.copy(inputMode = InputMode.KATAKANA) }
+                            }
                         }
                     }
+                    composingManager.commit()
+                    return true
                 } else {
-                    if (state.skkState != SkkState.NORMAL) {
-                        afterConvert = if (state.inputMode == InputMode.KATAKANA) {
-                            composingManager.convertString(beforeConvert, KanaMap.kataToHiraMap)
-                        } else {
-                            composingManager.convertString(beforeConvert, KanaMap.hiraToKataMap)
+                    if (state.skkState == SkkState.NORMAL) {
+                        stateFlow.update {
+                            it.copy(
+                                skkState = SkkState.MIDASHI
+                            )
                         }
-                        stateFlow.update { it.copy(
-                            midashiText = afterConvert,
-                            composingText = ""
-                        ) }
-                    } else {
-                        if (state.inputMode == InputMode.KATAKANA) {
-                            stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
-                        } else {
-                            stateFlow.update { it.copy(inputMode = InputMode.KATAKANA) }
-                        }
+                        return true
                     }
                 }
-                composingManager.commit()
-                return true
             }
             'l' -> {
                 if (state.shiftState != ShiftState.LOWERCASE) {
