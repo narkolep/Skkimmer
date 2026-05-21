@@ -61,13 +61,19 @@ object KanaMap {
         "ru" to KanaDefinition("る", "ル", "ﾙ"),
         "re" to KanaDefinition("れ", "レ", "ﾚ"),
         "ro" to KanaDefinition("ろ", "ロ", "ﾛ"),
-        // わ
+        // わ1
         "wa" to KanaDefinition("わ", "ワ", "ﾜ"),
         "wi" to KanaDefinition("うぃ", "ウィ", "ｳｨ"),
         "we" to KanaDefinition("うぇ", "ウェ", "ｳｪ"),
         "wo" to KanaDefinition("を", "ヲ", "ｦ"),
+        // わ2
+        "xwa" to KanaDefinition("ゎ", "ヮ", "ﾜ"),
+        "xwi" to KanaDefinition("ゐ", "ヰ", "ｲ"),
+        "xwe" to KanaDefinition("ゑ", "ヱ", "ｴ"),
         // ん
         "nn" to KanaDefinition("ん", "ン", "ﾝ"),
+        "n'" to KanaDefinition("ん", "ン", "ﾝ"),
+        "mm" to KanaDefinition("ん", "ン", "ﾝ"),
         // が
         "ga" to KanaDefinition("が", "ガ", "ｶﾞ"),
         "gi" to KanaDefinition("ぎ", "ギ", "ｷﾞ"),
@@ -104,16 +110,17 @@ object KanaMap {
         "kyu" to KanaDefinition("きゅ", "キュ", "ｷｭ"),
         "kye" to KanaDefinition("きぇ", "キェ", "ｷｪ"),
         "kyo" to KanaDefinition("きょ", "キョ", "ｷｮ"),
-        // しゃ
+        // しゃ1
         "sha" to KanaDefinition("しゃ", "シャ", "ｼｬ"),
-        "sya" to KanaDefinition("しゃ", "シャ", "ｼｬ"),
         "shi" to KanaDefinition("し", "シ", "ｼ"),
-        "syi" to KanaDefinition("しぃ", "シィ", "ｼｨ"),
         "shu" to KanaDefinition("しゅ", "シュ", "ｼｭ"),
-        "syu" to KanaDefinition("しゅ", "シュ", "ｼｭ"),
         "she" to KanaDefinition("しぇ", "シェ", "ｼｪ"),
-        "sye" to KanaDefinition("しぇ", "シェ", "ｼｪ"),
         "sho" to KanaDefinition("しょ", "ショ", "ｼｮ"),
+        // しゃ2
+        "sya" to KanaDefinition("しゃ", "シャ", "ｼｬ"),
+        "syi" to KanaDefinition("しぃ", "シィ", "ｼｨ"),
+        "syu" to KanaDefinition("しゅ", "シュ", "ｼｭ"),
+        "sye" to KanaDefinition("しぇ", "シェ", "ｼｪ"),
         "syo" to KanaDefinition("しょ", "ショ", "ｼｮ"),
         // ちゃ1
         "tya" to KanaDefinition("ちゃ", "チャ", "ﾁｬ"),
@@ -127,6 +134,12 @@ object KanaMap {
         "chu" to KanaDefinition("ちゅ", "チュ", "ﾁｭ"),
         "che" to KanaDefinition("ちぇ", "チェ", "ﾁｪ"),
         "cho" to KanaDefinition("ちょ", "チョ", "ﾁｮ"),
+        // ちゃ3
+        "cya" to KanaDefinition("ちゃ", "チャ", "ﾁｬ"),
+        "cyi" to KanaDefinition("ち", "チ", "ﾁ"),
+        "cyu" to KanaDefinition("ちゅ", "チュ", "ﾁｭ"),
+        "cye" to KanaDefinition("ちぇ", "チェ", "ﾁｪ"),
+        "cyo" to KanaDefinition("ちょ", "チョ", "ﾁｮ"),
         // てゃ
         "tha" to KanaDefinition("てゃ", "テャ", "ﾃｬ"),
         "thi" to KanaDefinition("てぃ", "ティ", "ﾃｨ"),
@@ -163,12 +176,24 @@ object KanaMap {
         "gyu" to KanaDefinition("ぎゅ", "ギュ", "ｷﾞｭ"),
         "gye" to KanaDefinition("ぎぇ", "ギェ", "ｷﾞｪ"),
         "gyo" to KanaDefinition("ぎょ", "ギョ", "ｷﾞｮ"),
-        // じゃ
+        // じゃ1
         "ja" to KanaDefinition("じゃ", "ジャ", "ｼﾞｬ"),
         "ji" to KanaDefinition("じ", "ジ", "ｼﾞ"),
         "ju" to KanaDefinition("じゅ", "ジュ", "ｼﾞｭ"),
         "je" to KanaDefinition("じぇ", "ジェ", "ｼﾞｪ"),
         "jo" to KanaDefinition("じょ", "ジョ", "ｼﾞｮ"),
+        // じゃ2
+        "jya" to KanaDefinition("じゃ", "ジャ", "ｼﾞｬ"),
+        "jyi" to KanaDefinition("じ", "ジ", "ｼﾞ"),
+        "jyu" to KanaDefinition("じゅ", "ジュ", "ｼﾞｭ"),
+        "jye" to KanaDefinition("じぇ", "ジェ", "ｼﾞｪ"),
+        "jyo" to KanaDefinition("じょ", "ジョ", "ｼﾞｮ"),
+        // じゃ3
+        "zya" to KanaDefinition("じゃ", "ジャ", "ｼﾞｬ"),
+        "zyi" to KanaDefinition("じ", "ジ", "ｼﾞ"),
+        "zyu" to KanaDefinition("じゅ", "ジュ", "ｼﾞｭ"),
+        "zye" to KanaDefinition("じぇ", "ジェ", "ｼﾞｪ"),
+        "zyo" to KanaDefinition("じょ", "ジョ", "ｼﾞｮ"),
         // びゃ
         "bya" to KanaDefinition("びゃ", "ビャ", "ﾋﾞｬ"),
         "byi" to KanaDefinition("びぃ", "ビィ", "ﾋﾞｨ"),
@@ -223,6 +248,15 @@ object KanaMap {
         "xyo" to KanaDefinition("ょ", "ョ", "ｮ"),
         // っ
         "xtu" to KanaDefinition("っ", "ッ", "ｯ"),
+        "xtsu" to KanaDefinition("っ", "ッ", "ｯ"),
+        // ゕ
+        "xka" to KanaDefinition("ゕ", "ヵ", "ｶ"),
+        "xke" to KanaDefinition("ゖ", "ヶ", "ｹ"),
+        // x,v + 記号
+        "v," to KanaDefinition("゛", "゛", "ﾞ"),
+        "v." to KanaDefinition("゜", "゜", "ﾟ"),
+        "x," to KanaDefinition("゙", "゙", "ﾞ"),
+        "x." to KanaDefinition("゚", "゚", "ﾟ"),
         // 矢印
         "zh" to KanaDefinition("←", "←", "←"),
         "zj" to KanaDefinition("↓", "↓", "↓"),
