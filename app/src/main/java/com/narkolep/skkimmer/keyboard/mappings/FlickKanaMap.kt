@@ -7,6 +7,7 @@ import com.composables.icons.lucide.R.drawable.lucide_ic_delete
 import com.composables.icons.lucide.R.drawable.lucide_ic_corner_down_left
 import com.composables.icons.lucide.R.drawable.lucide_ic_refresh_cw
 import com.composables.icons.lucide.R.drawable.lucide_ic_arrow_big_up_dash
+import com.composables.icons.lucide.R.drawable.lucide_ic_command
 
 object FlickKanaMap {
     data class FlickKeyConfig(
@@ -49,7 +50,7 @@ object FlickKanaMap {
         ),
         // 4段目
         listOf(
-            FlickKeyConfig("Ctrl", action = KeyboardAction.Ctrl),
+            FlickKeyConfig("Ctrl", action = KeyboardAction.Ctrl, iconResId = lucide_ic_command),
             FlickKeyConfig("ﾞﾟ", action = KeyboardAction.Dakuten),
             FlickKeyConfig("わ", "w", "a", "o", "nn", "-"),
             FlickKeyConfig("､｡", "", ",", ".", "?", "!",),
