@@ -4,6 +4,7 @@ import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
 import com.narkolep.skkimmer.keyboard.clear
+import com.narkolep.skkimmer.keyboard.tourokuClear
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -17,6 +18,11 @@ class BackspaceHandler(
         /* 範囲選択されているときは空文字を出力 */
         if (inputCommitter.isSelected()) {
             inputCommitter.commit("")
+
+            stateFlow.update {
+                it.tourokuClear()
+                it.clear()
+            }
             return
         }
 
@@ -51,16 +57,13 @@ class BackspaceHandler(
                 if (state.oldOkuriganaTrigger.isNotEmpty()) {
                     /* 登録する文字列が空で、送り仮名があるとき */
                     stateFlow.update {
+                        it.tourokuClear()
                         it.copy(
                             skkState = SkkState.OKURIGANA,
                             composingText = "",
                             midashiText = state.oldMidashiText,
                             okuriganaText = state.oldOkuriganaText,
                             okuriganaTrigger = state.oldOkuriganaTrigger,
-                            oldMidashiText = "",
-                            oldOkuriganaText = "",
-                            oldOkuriganaTrigger = "",
-                            tourokuFlag = ""
                         )
                     }
                     return
@@ -69,16 +72,13 @@ class BackspaceHandler(
                 if (state.oldMidashiText.all { it.code in 0x21..0x7E }) {
                     /* 登録する文字列が空で、ABBREVモードから変換したとき */
                     stateFlow.update {
+                        it.tourokuClear()
                         it.copy(
                             skkState = SkkState.ABBREV,
                             composingText = " ", // 半角スペース
                             midashiText = state.oldMidashiText,
                             okuriganaText = "",
-                            okuriganaTrigger = "",
-                            oldMidashiText = "",
-                            oldOkuriganaText = "",
-                            oldOkuriganaTrigger = "",
-                            tourokuFlag = ""
+                            okuriganaTrigger = ""
                         )
                     }
                     return
@@ -86,16 +86,13 @@ class BackspaceHandler(
 
                 /* OKURIGANAでもABBREVでもないとき */
                 stateFlow.update {
+                    it.tourokuClear()
                     it.copy(
                         skkState = SkkState.MIDASHI,
                         composingText = "",
                         midashiText = state.oldMidashiText,
                         okuriganaText = state.oldOkuriganaText,
-                        okuriganaTrigger = state.oldOkuriganaTrigger,
-                        oldMidashiText = "",
-                        oldOkuriganaText = "",
-                        oldOkuriganaTrigger = "",
-                        tourokuFlag = ""
+                        okuriganaTrigger = state.oldOkuriganaTrigger
                     )
                 }
             }

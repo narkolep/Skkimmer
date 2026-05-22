@@ -22,6 +22,9 @@ enum class SkkState {
     ABBREV
 }
 
+/**
+ * キーボードの状態
+ */
 data class SkkUIState(
     /* === STATE === */
     /* 入力モード */
@@ -33,12 +36,6 @@ data class SkkUIState(
     val lastShiftPressTime: Int = 0,
     /* Controlキーの状態 */
     val isCtrlPressed: Boolean = false,
-    /* 辞書登録モードのトリガー */
-    val tourokuFlag: String = "",
-    /* 辞書登録前の状態を保存しておく */
-    val oldMidashiText: String = "",
-    val oldOkuriganaText: String = "",
-    val oldOkuriganaTrigger: String ="",
     /* フリック入力のON/OFF */
     val isFlick: Boolean = false,
 
@@ -50,9 +47,18 @@ data class SkkUIState(
     val composingText: String = "",
     val midashiText: String = "",
     val okuriganaText: String = "",
-    val okuriganaTrigger: String = ""
+    val okuriganaTrigger: String = "",
+    /* 辞書登録モードのトリガー */
+    val tourokuFlag: String = "",
+    /* 辞書登録前の状態を保存しておく */
+    val oldMidashiText: String = "",
+    val oldOkuriganaText: String = "",
+    val oldOkuriganaTrigger: String =""
 )
 
+/**
+ * 状態の初期化
+ */
 fun SkkUIState.clear(): SkkUIState {
     return copy(
         skkState = SkkState.NORMAL,
@@ -62,5 +68,17 @@ fun SkkUIState.clear(): SkkUIState {
         okuriganaTrigger = "",
         candidates = emptyList(),
         selectedIndex = -1
+    )
+}
+
+/**
+ * 登録モード解除
+ */
+fun SkkUIState.tourokuClear(): SkkUIState {
+    return copy(
+        tourokuFlag = "",
+        oldMidashiText = "",
+        oldOkuriganaText = "",
+        oldOkuriganaTrigger = ""
     )
 }

@@ -187,14 +187,9 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         super.onFinishInputView(finishingInput)
 
         uiStateFlow.update {
-            it.copy(
-                oldMidashiText = "",
-                oldOkuriganaText = "",
-                oldOkuriganaTrigger = "",
-                tourokuFlag = ""
-            )
+            it.tourokuClear()
+            it.clear()
         }
-        uiStateFlow.update { it.clear() }
     }
 
     override fun onDestroy() {

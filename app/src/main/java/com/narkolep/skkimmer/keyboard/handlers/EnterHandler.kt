@@ -8,6 +8,7 @@ import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
 import com.narkolep.skkimmer.keyboard.clear
+import com.narkolep.skkimmer.keyboard.tourokuClear
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,14 +43,9 @@ class EnterHandler(
                     }
 
                     stateFlow.update {
-                        it.copy(
-                            oldMidashiText = "",
-                            oldOkuriganaText = "",
-                            oldOkuriganaTrigger = "",
-                            tourokuFlag = ""
-                        )
+                        it.tourokuClear()
+                        it.clear()
                     }
-                    stateFlow.update { it.clear() }
                 } else {
                     /* 登録モードから抜ける */
                     backspaceHandler.handle()
