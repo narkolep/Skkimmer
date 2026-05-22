@@ -100,7 +100,9 @@ class ComposingManager(
             if (state.inputMode == InputMode.KATAKANA) convertString(state.midashiText, KanaMap.kataToHiraMap)
             else state.midashiText
 
-        val keyText = convertedMidashiText + state.okuriganaTrigger
+        val keyText =
+            if (state.skkState == SkkState.OKURIGANA) convertedMidashiText + state.okuriganaTrigger
+            else convertedMidashiText
 
         CoroutineScope(Dispatchers.Main).launch {
             val candidatesList = dictionaryManager.getCandidates(keyText)

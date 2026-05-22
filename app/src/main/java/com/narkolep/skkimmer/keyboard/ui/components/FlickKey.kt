@@ -78,7 +78,7 @@ fun FlickKey(
         modifier = modifier
             .padding(2.dp)
             .fillMaxHeight()
-            .background(keyColor, shape = RoundedCornerShape(8.dp))
+            .background(color = keyColor, shape = RoundedCornerShape(8.dp))
             .onSizeChanged { size ->
                 keyWidth = with(density) { size.width.toDp() }
                 keyHeight = with(density) { size.height.toDp() }

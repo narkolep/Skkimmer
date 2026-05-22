@@ -33,20 +33,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun SkkKey(
-    mainText: String,
+    mainText: String, // 表示する文字
     modifier: Modifier = Modifier,
-    iconResId: Int? = null,
+    iconResId: Int? = null, // アイコン(svg)
     flickText: String = "",
     textSize: Float = 22f,
     keyboardHeight: Float,
-    keyColor: Color = Color.DarkGray,
-    textColor: Color = Color.White,
-    flickColor: Color = Color.DarkGray,
+    keyColor: Color,
+    textColor: Color,
+    flickColor: Color = Color.Transparent,
     spaceLeftRight: String = "",
-    weight: Float = 1.5f,
+    weight: Float = 1f,
+    cornerShape: Dp = 8.dp,
     keyRepeat: Boolean = false,
     onFlick: () -> Unit = {},
     onClick: () -> Unit
@@ -66,7 +68,7 @@ fun SkkKey(
         modifier = modifier
             .fillMaxSize()
             .pointerInput(mainText, flickText) {
-                val flickThreshold = 30.dp.toPx()
+                val flickThreshold = 40.dp.toPx()
                 val repeatInterval = 100L // 連続入力の間隔 (100ms)
                 val initialDelay = 500L   // 長押しと判定するまでの待機時間 (500ms)
 
@@ -150,7 +152,7 @@ fun SkkKey(
                     .fillMaxHeight()
                     .background(
                         color = if (isPressed) keyColor.copy(alpha = 0.6f) else keyColor,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(cornerShape)
                     )
             ) {
                 if (iconResId != null) {

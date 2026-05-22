@@ -8,9 +8,15 @@ import com.composables.icons.lucide.R.drawable.lucide_ic_space
 import com.composables.icons.lucide.R.drawable.lucide_ic_corner_down_left
 
 object NumericMap {
+    enum class KeyColor {
+        Background,
+        Button,
+        Action
+    }
+
     data class NumericConfig(
         val label: String,
-        val color: Boolean = false, // 色を変える
+        val color: KeyColor = KeyColor.Button,
         val action: KeyboardAction? = null,
         val keyRepeat: Boolean = false,
         val icon: Int? = null
@@ -18,35 +24,35 @@ object NumericMap {
 
     val numericLayout = listOf(
         listOf(
-            NumericConfig(":", color = true),
+            NumericConfig(":", color = KeyColor.Background),
             NumericConfig("1"),
             NumericConfig("2"),
             NumericConfig("3"),
-            NumericConfig("BS", color = true, action = KeyboardAction.Backspace, icon = lucide_ic_delete, keyRepeat = true)
+            NumericConfig("BS", color = KeyColor.Background, action = KeyboardAction.Backspace, icon = lucide_ic_delete, keyRepeat = true)
         ),
 
         listOf(
-            NumericConfig("Left", color = true, action = KeyboardAction.Left, icon = lucide_ic_chevron_left, keyRepeat = true),
+            NumericConfig("Left", color = KeyColor.Background, action = KeyboardAction.Left, icon = lucide_ic_chevron_left, keyRepeat = true),
             NumericConfig("4"),
             NumericConfig("5"),
             NumericConfig("6"),
-            NumericConfig("Right", color = true, action = KeyboardAction.Right, icon = lucide_ic_chevron_right, keyRepeat = true)
+            NumericConfig("Right", color = KeyColor.Background, action = KeyboardAction.Right, icon = lucide_ic_chevron_right, keyRepeat = true)
         ),
 
         listOf(
-            NumericConfig("-", color = true),
+            NumericConfig("-", color = KeyColor.Background),
             NumericConfig("7"),
             NumericConfig("8"),
             NumericConfig("9"),
-            NumericConfig("Space", color = true, action = KeyboardAction.Space, icon = lucide_ic_space)
+            NumericConfig("Space", color = KeyColor.Background, action = KeyboardAction.Space, icon = lucide_ic_space)
         ),
 
         listOf(
-            NumericConfig("ABC", color = true, action = KeyboardAction.ToggleKeyboard),
-            NumericConfig(".", color = true),
+            NumericConfig("ABC", color = KeyColor.Background, action = KeyboardAction.ToggleKeyboard),
+            NumericConfig(".", color = KeyColor.Background),
             NumericConfig("0"),
-            NumericConfig(",", color = true),
-            NumericConfig("Enter", color = true, action = KeyboardAction.Enter, icon = lucide_ic_corner_down_left)
+            NumericConfig(",", color = KeyColor.Background),
+            NumericConfig("Enter", color = KeyColor.Action, action = KeyboardAction.Enter, icon = lucide_ic_corner_down_left)
         )
     )
 }

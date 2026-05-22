@@ -20,7 +20,7 @@ object FlickKanaMap {
         val down: String = "",      // 離した時：下 (o など)
         val action: KeyboardAction? = null, // 機能キー
         val keyRepeat: Boolean = false,     // 長押しした際のリピート
-        val iconResId: Int? = null,         // アイコン
+        val iconResId: Int? = null          // アイコン
     )
 
     val flickLayout = listOf(
