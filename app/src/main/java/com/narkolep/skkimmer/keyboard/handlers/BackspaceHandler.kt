@@ -19,10 +19,8 @@ class BackspaceHandler(
         if (inputCommitter.isSelected()) {
             inputCommitter.commit("")
 
-            stateFlow.update {
-                it.tourokuClear()
-                it.clear()
-            }
+            stateFlow.update { it.tourokuClear() }
+            stateFlow.update { it.clear() }
             return
         }
 
@@ -56,8 +54,8 @@ class BackspaceHandler(
 
                 if (state.oldOkuriganaTrigger.isNotEmpty()) {
                     /* 登録する文字列が空で、送り仮名があるとき */
+                    stateFlow.update { it.tourokuClear() }
                     stateFlow.update {
-                        it.tourokuClear()
                         it.copy(
                             skkState = SkkState.OKURIGANA,
                             composingText = "",
@@ -71,8 +69,8 @@ class BackspaceHandler(
 
                 if (state.oldMidashiText.all { it.code in 0x21..0x7E }) {
                     /* 登録する文字列が空で、ABBREVモードから変換したとき */
+                    stateFlow.update { it.tourokuClear() }
                     stateFlow.update {
-                        it.tourokuClear()
                         it.copy(
                             skkState = SkkState.ABBREV,
                             composingText = " ", // 半角スペース
@@ -85,8 +83,8 @@ class BackspaceHandler(
                 }
 
                 /* OKURIGANAでもABBREVでもないとき */
+                stateFlow.update { it.tourokuClear() }
                 stateFlow.update {
-                    it.tourokuClear()
                     it.copy(
                         skkState = SkkState.MIDASHI,
                         composingText = "",

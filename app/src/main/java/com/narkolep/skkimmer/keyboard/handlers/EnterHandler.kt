@@ -42,10 +42,8 @@ class EnterHandler(
                         )
                     }
 
-                    stateFlow.update {
-                        it.tourokuClear()
-                        it.clear()
-                    }
+                    stateFlow.update { it.tourokuClear() }
+                    stateFlow.update { it.clear() }
                 } else {
                     /* 登録モードから抜ける */
                     backspaceHandler.handle()

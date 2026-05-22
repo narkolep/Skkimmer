@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
-    private val uiStateFlow = MutableStateFlow(SkkUIState())
+    private val stateFlow = MutableStateFlow(SkkUIState())
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private val store = ViewModelStore()
@@ -51,7 +51,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         dictionaryManager = DictionaryManager(this)
 
         composingManager = ComposingManager(
-            stateFlow = uiStateFlow,
+            stateFlow = stateFlow,
             inputCommitter = InputCommitter {
                 currentInputConnection
             },
@@ -66,7 +66,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             }
             emojiCategories = parsedList
 
-            uiStateFlow.collect {
+            stateFlow.collect {
                 /* stateFlowが変化したとき、表示を更新 */
                 composingManager.update()
             }
@@ -89,7 +89,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             setViewTreeSavedStateRegistryOwner(this@SkkService)
 
             setContent {
-                val uiState by uiStateFlow.collectAsState()
+                val uiState by stateFlow.collectAsState()
 
                 KeyboardLayout(
                     uiState = uiState,
@@ -112,7 +112,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         currentEditorInfo = attribute
 
         keyProcessor = KeyProcessor(
-            stateFlow = uiStateFlow,
+            stateFlow = stateFlow,
             dictionaryManager = dictionaryManager,
             connectionProvider = {
                 currentInputConnection
@@ -120,7 +120,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         )
 
         actionProcessor = ActionProcessor(
-            stateFlow = uiStateFlow,
+            stateFlow = stateFlow,
             composingManager = composingManager,
             editorInfo = currentEditorInfo,
             inputCommitter = InputCommitter {
@@ -132,7 +132,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
 
         val autoMode = determineInputMode(currentEditorInfo)
         /* 入力モードを更新 */
-        uiStateFlow.update { current ->
+        stateFlow.update { current ->
             current.copy(
                 inputMode = autoMode,
                 skkState = SkkState.NORMAL,
@@ -186,10 +186,8 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
 
-        uiStateFlow.update {
-            it.tourokuClear()
-            it.clear()
-        }
+        stateFlow.update { it.tourokuClear() }
+        stateFlow.update { it.clear() }
     }
 
     override fun onDestroy() {

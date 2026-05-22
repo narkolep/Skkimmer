@@ -74,6 +74,8 @@ class SpaceHandler(
             }
 
             SkkState.ABBREV -> {
+                if (state.midashiText.isEmpty()) return
+
                 composingManager.handleDictionaryManager(state)
             }
         }

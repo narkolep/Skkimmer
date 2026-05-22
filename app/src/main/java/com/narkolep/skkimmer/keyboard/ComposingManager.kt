@@ -132,7 +132,7 @@ class ComposingManager(
 
     /**
      * 仮名の変換
-     **/
+     */
     fun convertString(text: String, map: Map<String, String>): String {
         var result = text
         map.forEach { (key, value) ->
