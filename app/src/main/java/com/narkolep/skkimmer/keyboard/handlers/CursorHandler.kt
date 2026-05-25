@@ -20,9 +20,10 @@ class CursorHandler(
                 index -= 1
                 stateFlow.update { it.copy(selectedIndex = index) }
             }
-        } else {
-            moveCursor(-1)
+            return
         }
+
+        moveCursor(-1)
     }
 
     fun handleRight() {
@@ -30,9 +31,10 @@ class CursorHandler(
 
         if (state.skkState == SkkState.HENKAN) {
             spaceHandler.handle()
-        } else {
-            moveCursor(1)
+            return
         }
+
+        moveCursor(1)
     }
 
     private fun moveCursor(offset: Int) {

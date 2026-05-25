@@ -113,7 +113,7 @@ class Converter {
         /* 一致なし */
         return ConvertResult(
             composingNext = "",
-            output = composingNow,
+            output = key,
             okuriganaFlag = "",
             isIgnore = false
         )

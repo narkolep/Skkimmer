@@ -43,6 +43,7 @@ class ShortcutHandler(
             "n" -> {
                 /* Numeric keypad */
                 stateFlow.update { it.copy(inputMode = InputMode.NUMERIC) }
+                composingManager.commit()
                 return true
             }
             "a" -> {

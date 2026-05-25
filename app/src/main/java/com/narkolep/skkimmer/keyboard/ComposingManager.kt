@@ -121,7 +121,6 @@ class ComposingManager(
 
                 stateFlow.update {
                     it.copy(
-                        midashiText = convertedMidashiText,
                         oldMidashiText = convertedMidashiText,
                         oldOkuriganaText = state.okuriganaText,
                         oldOkuriganaTrigger = state.okuriganaTrigger,
