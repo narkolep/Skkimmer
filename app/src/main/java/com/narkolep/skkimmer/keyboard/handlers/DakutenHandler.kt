@@ -1,9 +1,7 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
-import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyProcessor
-import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
 import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
@@ -14,27 +12,15 @@ import kotlinx.coroutines.flow.update
 class DakutenHandler(
     private val stateFlow: MutableStateFlow<SkkUIState>,
     private val backspaceHandler: BackspaceHandler,
-    private val keyProcessor: KeyProcessor,
-    private val inputCommitter: InputCommitter
+    private val keyProcessor: KeyProcessor
 ) {
     fun handle() {
         val state = stateFlow.value
 
-        if (
-            state.tourokuFlag.isNotEmpty() &&
-            state.tourokuFlag.substringAfter(":").isEmpty() &&
-            state.skkState == SkkState.NORMAL
-        ) {
-            /* 登録モードから抜ける */
-            backspaceHandler.handle()
-        }
-
         /* 文字の取得 */
-        var text = inputCommitter.getText(1)
-        if (text == "ﾞ" || text == "ﾟ") {
-            text = inputCommitter.getText(2)
-            backspaceHandler.handle()
-        }
+        var text = backspaceHandler.handle()
+        if (text.isEmpty()) text = backspaceHandler.handle()
+        if (text == "ﾞ" || text == "ﾟ") text = backspaceHandler.handle() + text
 
         /* ローマ字に変換 */
         val info = kanaToRomaji[text]
@@ -42,38 +28,38 @@ class DakutenHandler(
             KanaMap.KanaType.HIRAGANA -> InputMode.HIRAGANA
             KanaMap.KanaType.KATAKANA -> InputMode.KATAKANA
             KanaMap.KanaType.HALF_KATAKANA -> InputMode.HALF_KATAKANA
-            else -> return
+            else -> {
+                keyProcessor.handle(text)
+                return
+            }
         }
+
+        /* 取得した文字に合わせて入力モードを変更 */
         stateFlow.update {
             it.copy(
                 inputMode = temporalInputMode
             )
         }
 
-        /* 出力 */
-        if (info.romaji.all { it in 'a'..'z'}) {
-            val vowel = info.romaji.takeLast(1)
-            val consonant = info.romaji.dropLast(1)
-            val match = FlickKanaMap.flickConvert.find { it.consonantBefore == consonant }
+        /* 子音と母音に分ける */
+        val vowel =
+            if (info.romaji.takeLast(1) in setOf("a","i","u","e","o")) info.romaji.takeLast(1)
+            else ""
+        val consonant =
+            if (vowel.isNotEmpty()) info.romaji.dropLast(1)
+            else info.romaji
 
-            backspaceHandler.handle()
-
-            if (info.type != KanaMap.KanaType.HIRAGANA && consonant == "x" && vowel == "u") {
-                /* ウ -> ヴ */
-                keyProcessor.handle("v")
-            } else if ((consonant == "t" || consonant == "ts") && vowel == "u") {
-                /* つ -> っ */
-                keyProcessor.handle("xt")
-            } else if (match != null) {
-                /* それ以外 */
-                keyProcessor.handle(match.consonantAfter)
-            } else {
-                /* 一致しなかった場合 */
-                keyProcessor.handle(consonant)
-            }
-
-            keyProcessor.handle(vowel)
+        /* 子音を変換 */
+        val match = FlickKanaMap.flickConvert.find { it.consonantBefore == consonant }
+        val newConsonant = when {
+            info.type != KanaMap.KanaType.HIRAGANA && consonant == "x" && vowel == "u" -> "v"
+            consonant == "t" && vowel == "u" -> "xt"
+            match != null -> match.consonantAfter
+            else -> consonant
         }
+
+        /* 出力 */
+        keyProcessor.handle(newConsonant + vowel)
 
         /* inputModeを元に戻す */
         stateFlow.update {

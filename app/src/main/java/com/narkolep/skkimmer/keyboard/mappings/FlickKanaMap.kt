@@ -70,18 +70,22 @@ object FlickKanaMap {
         FlickConvertConfig("k", "g"), // か
         FlickConvertConfig("g", "k"),
         FlickConvertConfig("s", "z"), // さ
-        FlickConvertConfig("sh", "z"),
         FlickConvertConfig("z", "s"),
-        FlickConvertConfig("j", "s"),
         FlickConvertConfig("t", "d"), // た
-        FlickConvertConfig("ch", "d"),
         FlickConvertConfig("xt", "d"),
         FlickConvertConfig("d", "t"),
         FlickConvertConfig("h", "b"), // は
-        FlickConvertConfig("f", "b"),
         FlickConvertConfig("b", "p"),
         FlickConvertConfig("p", "h"),
         FlickConvertConfig("y", "xy"), // や
-        FlickConvertConfig("xy", "y")
+        FlickConvertConfig("xy", "y"),
+        FlickConvertConfig(".", ","), // 記号
+        FlickConvertConfig(",", "."),
+        FlickConvertConfig("-", "z-"),
+        FlickConvertConfig("z-", "-"),
+        FlickConvertConfig("(", "「"),
+        FlickConvertConfig("「", "("),
+        FlickConvertConfig(")", "」"),
+        FlickConvertConfig("」", ")"),
     )
 }

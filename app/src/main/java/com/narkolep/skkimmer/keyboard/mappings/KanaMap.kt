@@ -276,7 +276,9 @@ object KanaMap {
         "-" to KanaDefinition("ー", "ー", "ｰ"),
         "~" to KanaDefinition("～", "～", "~"),
         "「" to KanaDefinition("「", "「", "｢"),
-        "」" to KanaDefinition("」", "」", "｣")
+        "」" to KanaDefinition("」", "」", "｣"),
+        "(" to KanaDefinition("（", "（", "("),
+        ")" to KanaDefinition("）", "）", ")")
     )
 
     /* 仮名を変換するマップ */
@@ -293,7 +295,7 @@ object KanaMap {
     enum class KanaType {
         HIRAGANA,    // ひらがな
         KATAKANA,    // カタカナ
-        HALF_KATAKANA // 半角カタカナ
+        HALF_KATAKANA // ｶﾀｶﾅ
     }
 
     data class RomajiAndType(
@@ -304,12 +306,18 @@ object KanaMap {
     val kanaToRomaji: Map<String, RomajiAndType> by lazy {
         buildMap {
             romajiToKana.forEach { (romaji, kanaDef) ->
-                // ひらがなを登録
-                put(kanaDef.hira, RomajiAndType(romaji, KanaType.HIRAGANA))
-                // カタカナを登録
-                put(kanaDef.kata, RomajiAndType(romaji, KanaType.KATAKANA))
-                // 半角カタカナを登録
-                put(kanaDef.halfkata, RomajiAndType(romaji, KanaType.HALF_KATAKANA))
+                // ひらがな
+                if (!containsKey(kanaDef.hira)) {
+                    put(kanaDef.hira, RomajiAndType(romaji, KanaType.HIRAGANA))
+                }
+                // カタカナ
+                if (!containsKey(kanaDef.kata)) {
+                    put(kanaDef.kata, RomajiAndType(romaji, KanaType.KATAKANA))
+                }
+                // ｶﾀｶﾅ
+                if (!containsKey(kanaDef.halfkata)) {
+                    put(kanaDef.halfkata, RomajiAndType(romaji, KanaType.HALF_KATAKANA))
+                }
             }
         }
     }

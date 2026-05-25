@@ -41,7 +41,7 @@ class ActionProcessor(
     private val enterHandler =
         EnterHandler(stateFlow, editorInfo, inputCommitter, dictionaryManager, composingManager, backspaceHandler)
     private val cursorHandler = CursorHandler(stateFlow, inputCommitter, spaceHandler)
-    private val dakutenHandler = DakutenHandler(stateFlow, backspaceHandler, keyProcessor, inputCommitter)
+    private val dakutenHandler = DakutenHandler(stateFlow, backspaceHandler, keyProcessor)
 
     /**
      * アクションキーの分岐

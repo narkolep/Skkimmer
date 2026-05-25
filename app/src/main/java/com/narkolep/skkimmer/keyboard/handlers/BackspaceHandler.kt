@@ -12,7 +12,11 @@ class BackspaceHandler(
     private val stateFlow: MutableStateFlow<SkkUIState>,
     private val inputCommitter: InputCommitter
 ) {
-    fun handle() {
+    /**
+     * 文字を削除する
+     * @return 削除した文字を返す
+     */
+    fun handle(): String {
         val state = stateFlow.value
 
         /* 範囲選択されているときは空文字を出力 */
@@ -21,7 +25,7 @@ class BackspaceHandler(
 
             stateFlow.update { it.tourokuClear() }
             stateFlow.update { it.clear() }
-            return
+            return ""
         }
 
         when (state.skkState) {
@@ -33,13 +37,14 @@ class BackspaceHandler(
                             composingText = state.composingText.dropLast(1)
                         )
                     }
-                    return
+                    return ""
                 }
 
                 if (state.tourokuFlag.isEmpty()) {
                     /* 未確定の文字列がないとき */
+                    val text = inputCommitter.getText(1).toString()
                     inputCommitter.delete()
-                    return
+                    return text
                 }
 
                 if (state.tourokuFlag.substringAfter(":").isNotEmpty()) {
@@ -49,7 +54,7 @@ class BackspaceHandler(
                             tourokuFlag = state.tourokuFlag.dropLast(1)
                         )
                     }
-                    return
+                    return state.tourokuFlag.takeLast(1)
                 }
 
                 if (state.oldOkuriganaTrigger.isNotEmpty()) {
@@ -64,7 +69,7 @@ class BackspaceHandler(
                             okuriganaTrigger = state.oldOkuriganaTrigger,
                         )
                     }
-                    return
+                    return ""
                 }
 
                 if (state.oldMidashiText.all { it.code in 0x21..0x7E }) {
@@ -79,7 +84,7 @@ class BackspaceHandler(
                             okuriganaTrigger = ""
                         )
                     }
-                    return
+                    return ""
                 }
 
                 /* OKURIGANAでもABBREVでもないとき */
@@ -89,10 +94,11 @@ class BackspaceHandler(
                         skkState = SkkState.MIDASHI,
                         composingText = "",
                         midashiText = state.oldMidashiText,
-                        okuriganaText = state.oldOkuriganaText,
-                        okuriganaTrigger = state.oldOkuriganaTrigger
+                        okuriganaText = "",
+                        okuriganaTrigger = ""
                     )
                 }
+                return ""
             }
 
             SkkState.MIDASHI -> {
@@ -102,7 +108,7 @@ class BackspaceHandler(
                             composingText = state.composingText.dropLast(1)
                         )
                     }
-                    return
+                    return ""
                 }
 
                 if (state.midashiText.isNotEmpty()) {
@@ -111,11 +117,12 @@ class BackspaceHandler(
                             midashiText = state.midashiText.dropLast(1)
                         )
                     }
-                    return
+                    return state.midashiText.takeLast(1)
                 }
 
                 /* 見出し文字列がなければ NORMAL に戻す */
                 stateFlow.update { it.clear() }
+                return ""
             }
 
             SkkState.OKURIGANA -> {
@@ -125,18 +132,20 @@ class BackspaceHandler(
                             composingText = state.composingText.dropLast(1)
                         )
                     }
-                    return
+                    return ""
                 }
 
+                /* 送り仮名が存在するとき */
                 if (state.okuriganaText.isNotEmpty()) {
                     stateFlow.update {
                         it.copy(
                             okuriganaText = state.okuriganaText.dropLast(1)
                         )
                     }
-                    return
+                    return state.okuriganaText.takeLast(1)
                 }
 
+                /* 送り仮名が存在しないとき */
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.MIDASHI,
@@ -145,6 +154,7 @@ class BackspaceHandler(
                         selectedIndex = -1
                     )
                 }
+                return ""
             }
 
             SkkState.HENKAN -> {
@@ -158,7 +168,7 @@ class BackspaceHandler(
                             selectedIndex = -1
                         )
                     }
-                    return
+                    return state.okuriganaText.takeLast(1)
                 }
 
                 if (state.midashiText.all { it.code in 0x21..0x7E }) {
@@ -170,7 +180,7 @@ class BackspaceHandler(
                             selectedIndex = -1
                         )
                     }
-                    return
+                    return ""
                 }
 
                 stateFlow.update {
@@ -180,6 +190,7 @@ class BackspaceHandler(
                         selectedIndex = -1
                     )
                 }
+                return ""
             }
 
             SkkState.ABBREV -> {
@@ -189,10 +200,11 @@ class BackspaceHandler(
                             midashiText = state.midashiText.dropLast(1)
                         )
                     }
-                    return
+                    return state.midashiText.takeLast(1)
                 }
 
                 stateFlow.update { it.clear() }
+                return ""
             }
         }
     }
