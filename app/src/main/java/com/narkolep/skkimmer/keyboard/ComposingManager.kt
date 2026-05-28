@@ -19,6 +19,10 @@ class ComposingManager(
     fun update() {
         val state = stateFlow.value
 
+        val midashiSymbol = "▽"
+        val henkanSymbol = "▼"
+        val okuriganaSymbol = "*"
+
         val displayText = when (state.skkState) {
             SkkState.NORMAL -> {
                 if (state.composingText.isEmpty() && state.tourokuFlag.isEmpty()) {
@@ -28,15 +32,17 @@ class ComposingManager(
                 state.tourokuFlag + state.composingText
             }
             SkkState.MIDASHI -> {
-                state.tourokuFlag + "▽" + state.midashiText + state.composingText
+                state.tourokuFlag + midashiSymbol + state.midashiText + state.composingText
             }
             SkkState.OKURIGANA -> {
-                state.tourokuFlag + "▽" + state.midashiText + "*" + state.okuriganaText + state.composingText
+                state.tourokuFlag + midashiSymbol + state.midashiText + okuriganaSymbol + state.okuriganaText + state.composingText
             }
             SkkState.HENKAN -> {
-                val displayOkuri = if (state.okuriganaText.isNotEmpty()) "*" + state.okuriganaText + state.composingText else ""
+                val displayOkuri =
+                    if (state.okuriganaText.isNotEmpty()) okuriganaSymbol + state.okuriganaText + state.composingText
+                    else ""
                 val candidates = state.candidates[state.selectedIndex].split(";")[0]
-                state.tourokuFlag + "▼" + candidates + displayOkuri
+                state.tourokuFlag + henkanSymbol + candidates + displayOkuri
             }
             SkkState.ABBREV -> {
                 state.tourokuFlag + state.midashiText.ifEmpty { state.composingText }
@@ -66,10 +72,14 @@ class ComposingManager(
                 /* 履歴を記録 */
                 val learnText = state.midashiText + state.okuriganaTrigger
                 CoroutineScope(Dispatchers.IO).launch {
-                    dictionaryManager.learnWord(learnText, state.candidates[state.selectedIndex], true)
+                    dictionaryManager.learnWord(
+                        learnText,
+                        state.candidates[state.selectedIndex],
+                        true
+                    )
                 }
-                val word = state.candidates[state.selectedIndex].split(";")[0]
 
+                val word = state.candidates[state.selectedIndex].split(";")[0]
                 word + state.okuriganaText
             }
             SkkState.ABBREV -> {

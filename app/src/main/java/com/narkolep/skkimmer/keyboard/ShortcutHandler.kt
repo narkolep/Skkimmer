@@ -14,6 +14,7 @@ class ShortcutHandler(
 ) {
     /**
      * CTRL押下時のキーボードショートカット
+     * @return 一致するショートカットがあった場合は true を返す
      **/
     fun handleCTRL(
         key: String,
@@ -73,6 +74,7 @@ class ShortcutHandler(
 
     /**
      * 通常のキーボードショートカット
+     * @return 一致するショートカットがあった場合は true を返す
      **/
     fun handleKey(
         state: SkkUIState,
@@ -84,101 +86,107 @@ class ShortcutHandler(
 
         when (keyChar) {
             'x' -> {
-                if (state.skkState == SkkState.HENKAN) {
-                    var index = state.selectedIndex
-                    if (index > 0) index -= 1
-                    stateFlow.update { it.copy(selectedIndex = index) }
-                    return true
-                }
+                if (state.skkState != SkkState.HENKAN) return false
+
+                /* 変換中 */
+                var index = state.selectedIndex
+                if (index > 0) index -= 1
+                stateFlow.update { it.copy(selectedIndex = index) }
+                return true
             }
             'q' -> {
-                if (state.shiftState == ShiftState.LOWERCASE) {
-                    val beforeConvert =
-                        if (resultList.isIgnore) state.midashiText + resultList.output
-                        else state.midashiText
-                    val afterConvert: String
-
-                    if (state.isCtrlPressed) {
-                        if (state.skkState != SkkState.NORMAL) {
-                            afterConvert =
-                                composingManager.convertString(beforeConvert, KanaMap.hiraToHalfMap)
-                            stateFlow.update {
-                                it.copy(
-                                    midashiText = afterConvert,
-                                    composingText = ""
-                                )
-                            }
-                        } else {
-                            if (state.inputMode == InputMode.HALF_KATAKANA) {
-                                stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
-                            } else {
-                                stateFlow.update { it.copy(inputMode = InputMode.HALF_KATAKANA) }
-                            }
-                        }
-                    } else {
-                        if (state.skkState != SkkState.NORMAL) {
-                            afterConvert = if (state.inputMode == InputMode.KATAKANA) {
-                                composingManager.convertString(beforeConvert, KanaMap.kataToHiraMap)
-                            } else {
-                                composingManager.convertString(beforeConvert, KanaMap.hiraToKataMap)
-                            }
-                            stateFlow.update {
-                                it.copy(
-                                    midashiText = afterConvert,
-                                    composingText = ""
-                                )
-                            }
-                        } else {
-                            if (state.inputMode == InputMode.KATAKANA) {
-                                stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
-                            } else {
-                                stateFlow.update { it.copy(inputMode = InputMode.KATAKANA) }
-                            }
-                        }
-                    }
-                    composingManager.commit()
-                    return true
-                } else {
-                    if (state.skkState == SkkState.NORMAL) {
-                        stateFlow.update {
-                            it.copy(
-                                skkState = SkkState.MIDASHI
-                            )
-                        }
-                        return true
-                    }
-                }
-            }
-            'l' -> {
+                /* Shiftキーが押されているとき */
                 if (state.shiftState != ShiftState.LOWERCASE) {
+                    if (state.skkState != SkkState.NORMAL) return false
+
+                    /* NORMALモード中 */
                     stateFlow.update {
                         it.copy(
-                            inputMode = InputMode.FULL_ASCII,
-                            isFlick = false
+                            skkState = SkkState.MIDASHI
                         )
                     }
+                    return true
+                }
+
+                val beforeConvert =
+                    if (resultList.isIgnore) state.midashiText + resultList.output
+                    else state.midashiText
+                val afterConvert: String
+
+                if (state.isCtrlPressed) {
+                    if (state.skkState == SkkState.NORMAL) {
+                        if (state.inputMode == InputMode.HALF_KATAKANA) {
+                            stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
+                        } else {
+                            stateFlow.update { it.copy(inputMode = InputMode.HALF_KATAKANA) }
+                        }
+                    } else {
+                        afterConvert =
+                            composingManager.convertString(beforeConvert, KanaMap.hiraToHalfMap)
+                        stateFlow.update {
+                            it.copy(
+                                midashiText = afterConvert,
+                                composingText = ""
+                            )
+                        }
+                    }
                 } else {
+                    if (state.skkState == SkkState.NORMAL) {
+                        if (state.inputMode == InputMode.KATAKANA) {
+                            stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
+                        } else {
+                            stateFlow.update { it.copy(inputMode = InputMode.KATAKANA) }
+                        }
+                    } else {
+                        afterConvert = if (state.inputMode == InputMode.KATAKANA) {
+                            composingManager.convertString(beforeConvert, KanaMap.kataToHiraMap)
+                        } else {
+                            composingManager.convertString(beforeConvert, KanaMap.hiraToKataMap)
+                        }
+                        stateFlow.update {
+                            it.copy(
+                                midashiText = afterConvert,
+                                composingText = ""
+                            )
+                        }
+                    }
+                }
+
+                composingManager.commit()
+                return true
+            }
+            'l' -> {
+                if (state.shiftState == ShiftState.LOWERCASE) {
                     stateFlow.update {
                         it.copy(
                             inputMode = InputMode.HALF_ASCII,
                             isFlick = false
                         )
                     }
+                } else {
+                    stateFlow.update {
+                        it.copy(
+                            inputMode = InputMode.FULL_ASCII,
+                            isFlick = false
+                        )
+                    }
                 }
+
                 composingManager.commit()
                 return true
             }
             '/' -> {
-                if (state.skkState == SkkState.NORMAL) {
-                    stateFlow.update {
-                        it.copy(
-                            skkState = SkkState.ABBREV,
-                            isFlick = false,
-                            composingText = " "
-                        )
-                    }
-                    return true
+                if (state.skkState != SkkState.NORMAL) return false
+
+                /* NORMALモード中 */
+                stateFlow.update {
+                    it.copy(
+                        skkState = SkkState.ABBREV,
+                        isFlick = false,
+                        composingText = " "
+                    )
                 }
+                return true
             }
         }
 

@@ -65,4 +65,12 @@ class InputCommitter(
     fun getText(position: Int): CharSequence? {
         return connectionProvider()?.getTextBeforeCursor(position, 0)?.toString()
     }
+
+    fun beginBatch() {
+        connectionProvider()?.beginBatchEdit()
+    }
+
+    fun endBatch() {
+        connectionProvider()?.endBatchEdit()
+    }
 }

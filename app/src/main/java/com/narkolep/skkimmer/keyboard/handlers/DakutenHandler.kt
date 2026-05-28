@@ -20,10 +20,12 @@ class DakutenHandler(
         /* 文字の取得 */
         var text = backspaceHandler.handle()
         if (text.isEmpty()) text = backspaceHandler.handle()
-        if (text == "ﾞ" || text == "ﾟ") text = backspaceHandler.handle() + text
+        if (text in setOf("ﾞ","ﾟ","゛","゜","゙","゚")) text = backspaceHandler.handle() + text
 
         /* ローマ字に変換 */
         val info = kanaToRomaji[text]
+
+        /* textに合わせてinputModeを変更 */
         val temporalInputMode = when (info?.type) {
             KanaMap.KanaType.HIRAGANA -> InputMode.HIRAGANA
             KanaMap.KanaType.KATAKANA -> InputMode.KATAKANA

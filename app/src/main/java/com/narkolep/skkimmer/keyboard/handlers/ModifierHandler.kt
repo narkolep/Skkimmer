@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.update
 
 /**
  * Modifierキーの処理をまとめたclass
- **/
+ */
 class ModifierHandler(
     private val stateFlow: MutableStateFlow<SkkUIState>
 ) {
     /**
      * Shiftキーが押されたときの処理
-     **/
+     */
     fun handleShift() {
         val state = stateFlow.value
         val now = System.currentTimeMillis().toInt()
@@ -41,7 +41,7 @@ class ModifierHandler(
 
     /**
      * Ctrlキーが押されたときの処理
-     **/
+     */
     fun handleCtrl() {
         val state = stateFlow.value
 

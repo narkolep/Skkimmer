@@ -23,6 +23,9 @@ class EnterHandler(
     private val composingManager: ComposingManager,
     private val backspaceHandler: BackspaceHandler
 ) {
+    /**
+     * Enterキーの処理
+     */
     fun handle() {
         val state = stateFlow.value
 

@@ -14,7 +14,7 @@ class BackspaceHandler(
 ) {
     /**
      * 文字を削除する
-     * @return 削除した文字を返す
+     * @return 削除した文字 (状態変化のみの場合は空文字を返す)
      */
     fun handle(): String {
         val state = stateFlow.value
@@ -102,6 +102,7 @@ class BackspaceHandler(
             }
 
             SkkState.MIDASHI -> {
+                /* composingTextが存在するとき */
                 if (state.composingText.isNotEmpty()) {
                     stateFlow.update {
                         it.copy(
@@ -111,6 +112,7 @@ class BackspaceHandler(
                     return ""
                 }
 
+                /* 見出し文字列が存在するとき */
                 if (state.midashiText.isNotEmpty()) {
                     stateFlow.update {
                         it.copy(
@@ -126,6 +128,7 @@ class BackspaceHandler(
             }
 
             SkkState.OKURIGANA -> {
+                /* composingTextが存在するとき */
                 if (state.composingText.isNotEmpty()) {
                     stateFlow.update {
                         it.copy(
@@ -158,6 +161,7 @@ class BackspaceHandler(
             }
 
             SkkState.HENKAN -> {
+                /* 送り仮名があるとき */
                 if (state.okuriganaText.isNotEmpty()) {
                     stateFlow.update {
                         it.copy(
@@ -171,6 +175,7 @@ class BackspaceHandler(
                     return state.okuriganaText.takeLast(1)
                 }
 
+                /* 見出し文字列が半角英数字のみのとき */
                 if (state.midashiText.all { it.code in 0x21..0x7E }) {
                     stateFlow.update {
                         it.copy(
@@ -183,6 +188,7 @@ class BackspaceHandler(
                     return ""
                 }
 
+                /* OKURIGANAでもABBREVでもないとき */
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.MIDASHI,
@@ -194,6 +200,7 @@ class BackspaceHandler(
             }
 
             SkkState.ABBREV -> {
+                /* 見出し文字列が存在するとき */
                 if (state.midashiText.isNotEmpty()) {
                     stateFlow.update {
                         it.copy(
@@ -203,6 +210,7 @@ class BackspaceHandler(
                     return state.midashiText.takeLast(1)
                 }
 
+                /* 見出し文字列が存在しないとき */
                 stateFlow.update { it.clear() }
                 return ""
             }
