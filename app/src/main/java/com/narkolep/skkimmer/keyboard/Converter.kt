@@ -13,7 +13,7 @@ data class ConvertResult(
 
 /**
  * ローマ字入力の連結処理
- **/
+ */
 class Converter {
     fun convert(
         composing: String,
@@ -119,6 +119,9 @@ class Converter {
         )
     }
 
+    /**
+     * inputModeに合わせた仮名を返す
+     */
     private fun getOutputString(definition: KanaDefinition, inputMode: InputMode): String {
         return when (inputMode) {
             InputMode.KATAKANA -> definition.kata

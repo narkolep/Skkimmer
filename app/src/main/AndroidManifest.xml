@@ -14,7 +14,7 @@
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="33">
         <service
-            android:name=".keyboard.SkkService"
+            android:name=".keyboard.KeyboardService"
             android:enabled="true"
             android:label="Skkimmer"
             android:permission="android.permission.BIND_INPUT_METHOD"

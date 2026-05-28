@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.update
 
 class ControlState(
     private val stateFlow: MutableStateFlow<SkkUIState>,
-    private val manager: ComposingManager
+    private val manager: OutputManager
 ) {
     fun changeState(
         key: String,

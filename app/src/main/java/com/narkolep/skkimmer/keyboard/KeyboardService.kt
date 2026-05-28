@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     private val stateFlow = MutableStateFlow(SkkUIState())
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
@@ -38,7 +38,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
     override val viewModelStore: ViewModelStore get() = store
     private var emojiCategories: List<EmojiManager.Category> = emptyList()
     private lateinit var dictionaryManager: DictionaryManager
-    private lateinit var composingManager: ComposingManager
+    private lateinit var outputManager: OutputManager
     private lateinit var keyProcessor: KeyProcessor
     private lateinit var actionProcessor: ActionProcessor
     private var currentEditorInfo: EditorInfo? = null
@@ -50,7 +50,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
 
         dictionaryManager = DictionaryManager(this)
 
-        composingManager = ComposingManager(
+        outputManager = OutputManager(
             stateFlow = stateFlow,
             inputCommitter = InputCommitter {
                 currentInputConnection
@@ -62,13 +62,13 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
             val parsedList = withContext(Dispatchers.IO) {
                 val jsonString =
                     assets.open("all-emoji.json").bufferedReader().use { it.readText() }
-                EmojiManager(this@SkkService).loadEmojis(jsonString)
+                EmojiManager(this@KeyboardService).loadEmojis(jsonString)
             }
             emojiCategories = parsedList
 
             stateFlow.collect {
                 /* stateFlowが変化したとき、表示を更新 */
-                composingManager.update()
+                outputManager.update()
             }
         }
     }
@@ -84,9 +84,9 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
         }
 
         composeView.apply {
-            setViewTreeLifecycleOwner(this@SkkService)
-            setViewTreeViewModelStoreOwner(this@SkkService)
-            setViewTreeSavedStateRegistryOwner(this@SkkService)
+            setViewTreeLifecycleOwner(this@KeyboardService)
+            setViewTreeViewModelStoreOwner(this@KeyboardService)
+            setViewTreeSavedStateRegistryOwner(this@KeyboardService)
 
             setContent {
                 val uiState by stateFlow.collectAsState()
@@ -121,7 +121,7 @@ class SkkService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, Sa
 
         actionProcessor = ActionProcessor(
             stateFlow = stateFlow,
-            composingManager = composingManager,
+            outputManager = outputManager,
             editorInfo = currentEditorInfo,
             inputCommitter = InputCommitter {
                 currentInputConnection

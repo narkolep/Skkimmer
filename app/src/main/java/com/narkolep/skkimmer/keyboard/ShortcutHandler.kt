@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 class ShortcutHandler(
     private val stateFlow: MutableStateFlow<SkkUIState>,
     private val inputCommitter: InputCommitter,
-    private val composingManager: ComposingManager
+    private val outputManager: OutputManager
 ) {
     /**
      * CTRL押下時のキーボードショートカット
@@ -44,7 +44,7 @@ class ShortcutHandler(
             "n" -> {
                 /* Numeric keypad */
                 stateFlow.update { it.copy(inputMode = InputMode.NUMERIC) }
-                composingManager.commit()
+                outputManager.commit()
                 return true
             }
             "a" -> {
@@ -122,7 +122,7 @@ class ShortcutHandler(
                         }
                     } else {
                         afterConvert =
-                            composingManager.convertString(beforeConvert, KanaMap.hiraToHalfMap)
+                            outputManager.convertString(beforeConvert, KanaMap.hiraToHalfMap)
                         stateFlow.update {
                             it.copy(
                                 midashiText = afterConvert,
@@ -139,9 +139,9 @@ class ShortcutHandler(
                         }
                     } else {
                         afterConvert = if (state.inputMode == InputMode.KATAKANA) {
-                            composingManager.convertString(beforeConvert, KanaMap.kataToHiraMap)
+                            outputManager.convertString(beforeConvert, KanaMap.kataToHiraMap)
                         } else {
-                            composingManager.convertString(beforeConvert, KanaMap.hiraToKataMap)
+                            outputManager.convertString(beforeConvert, KanaMap.hiraToKataMap)
                         }
                         stateFlow.update {
                             it.copy(
@@ -152,7 +152,7 @@ class ShortcutHandler(
                     }
                 }
 
-                composingManager.commit()
+                outputManager.commit()
                 return true
             }
             'l' -> {
@@ -172,7 +172,7 @@ class ShortcutHandler(
                     }
                 }
 
-                composingManager.commit()
+                outputManager.commit()
                 return true
             }
             '/' -> {

@@ -1,6 +1,6 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
-import com.narkolep.skkimmer.keyboard.ComposingManager
+import com.narkolep.skkimmer.keyboard.OutputManager
 import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 class SpaceHandler(
     private val stateFlow: MutableStateFlow<SkkUIState>,
     private val keyProcessor: KeyProcessor,
-    private val composingManager: ComposingManager
+    private val outputManager: OutputManager
 ) {
     fun handle() {
         val state = stateFlow.value
@@ -38,13 +38,13 @@ class SpaceHandler(
                 /* stateを再取得 */
                 val state = stateFlow.value
 
-                composingManager.handleDictionaryManager(state)
+                outputManager.handleDictionaryManager(state)
             }
 
             SkkState.OKURIGANA -> {
                 if (state.okuriganaText.isEmpty()) return
 
-                composingManager.handleDictionaryManager(state)
+                outputManager.handleDictionaryManager(state)
             }
 
             SkkState.HENKAN -> {
@@ -59,24 +59,25 @@ class SpaceHandler(
                     return
                 }
 
-                if (state.tourokuFlag.isEmpty()) {
-                    stateFlow.update { it.clear() }
+                /* 既に登録モードになっているとき */
+                if (state.tourokuFlag.isNotEmpty()) return
 
-                    stateFlow.update {
-                        it.copy(
-                            oldMidashiText = state.midashiText,
-                            oldOkuriganaText = state.okuriganaText,
-                            oldOkuriganaTrigger = state.okuriganaTrigger,
-                            tourokuFlag = "[登録]" + state.midashiText + state.okuriganaTrigger + ":"
-                        )
-                    }
+                /* 登録モードではないとき、登録モードに入る */
+                stateFlow.update { it.clear() }
+                stateFlow.update {
+                    it.copy(
+                        oldMidashiText = state.midashiText,
+                        oldOkuriganaText = state.okuriganaText,
+                        oldOkuriganaTrigger = state.okuriganaTrigger,
+                        tourokuFlag = "[登録]" + state.midashiText + state.okuriganaTrigger + ":"
+                    )
                 }
             }
 
             SkkState.ABBREV -> {
                 if (state.midashiText.isEmpty()) return
 
-                composingManager.handleDictionaryManager(state)
+                outputManager.handleDictionaryManager(state)
             }
         }
     }

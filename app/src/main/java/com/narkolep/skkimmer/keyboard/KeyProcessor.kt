@@ -11,11 +11,10 @@ class KeyProcessor(
     connectionProvider: () -> InputConnection?
 ) {
     private val inputCommitter = InputCommitter(connectionProvider)
-    private val composingManager = ComposingManager(stateFlow, inputCommitter, dictionaryManager)
+    private val outputManager = OutputManager(stateFlow, inputCommitter, dictionaryManager)
     private val romajiConverter = Converter()
-    private val shortcutHandler = ShortcutHandler(stateFlow, inputCommitter, composingManager)
-    private val output = OutputText(stateFlow, inputCommitter, composingManager)
-    private val controlState = ControlState(stateFlow, composingManager)
+    private val shortcutHandler = ShortcutHandler(stateFlow, inputCommitter, outputManager)
+    private val controlState = ControlState(stateFlow, outputManager)
 
     fun handle(key: String) {
         val state = stateFlow.value
@@ -32,7 +31,7 @@ class KeyProcessor(
         if (shortcutHandler.handleCTRL(key, state)) return
 
         // 英数字(直接出力)
-        if (output.asciiOutput(key, state)) return
+        if (outputManager.asciiOutput(key, state)) return
 
         // ローマ字変換
         val result = romajiConverter.convert(
@@ -50,6 +49,6 @@ class KeyProcessor(
         // resultの出力処理
         val oldState = state
         val newState = stateFlow.value
-        output.kanaOutput(newState, oldState, result)
+        outputManager.kanaOutput(newState, oldState, result)
     }
 }

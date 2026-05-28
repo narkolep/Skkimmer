@@ -28,7 +28,7 @@ sealed class KeyboardAction {
 
 class ActionProcessor(
     private val stateFlow: MutableStateFlow<SkkUIState>,
-    private val composingManager: ComposingManager,
+    private val outputManager: OutputManager,
     private val inputCommitter: InputCommitter,
     editorInfo: EditorInfo?,
     keyProcessor: KeyProcessor,
@@ -36,10 +36,10 @@ class ActionProcessor(
 ) {
     /* Handlers */
     private val modifierHandler = ModifierHandler(stateFlow)
-    private val spaceHandler = SpaceHandler(stateFlow, keyProcessor, composingManager)
+    private val spaceHandler = SpaceHandler(stateFlow, keyProcessor, outputManager)
     private val backspaceHandler = BackspaceHandler(stateFlow, inputCommitter)
     private val enterHandler =
-        EnterHandler(stateFlow, editorInfo, inputCommitter, dictionaryManager, composingManager, backspaceHandler)
+        EnterHandler(stateFlow, editorInfo, inputCommitter, dictionaryManager, outputManager, backspaceHandler)
     private val cursorHandler = CursorHandler(stateFlow, inputCommitter, keyProcessor, spaceHandler)
     private val dakutenHandler = DakutenHandler(stateFlow, backspaceHandler, keyProcessor)
 
@@ -81,7 +81,7 @@ class ActionProcessor(
             is KeyboardAction.CandidateIndex -> {
                 val index = action.index
                 stateFlow.update { it.copy(selectedIndex = index) }
-                composingManager.commit()
+                outputManager.commit()
             }
         }
     }

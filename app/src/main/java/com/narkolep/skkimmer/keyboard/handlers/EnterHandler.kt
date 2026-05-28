@@ -3,7 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import com.narkolep.skkimmer.data.DictionaryManager
-import com.narkolep.skkimmer.keyboard.ComposingManager
+import com.narkolep.skkimmer.keyboard.OutputManager
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.SkkUIState
@@ -20,7 +20,7 @@ class EnterHandler(
     private val editorInfo: EditorInfo?,
     private val inputCommitter: InputCommitter,
     private val dictionaryManager: DictionaryManager,
-    private val composingManager: ComposingManager,
+    private val outputManager: OutputManager,
     private val backspaceHandler: BackspaceHandler
 ) {
     /**
@@ -79,6 +79,6 @@ class EnterHandler(
             }
         }
 
-        composingManager.commit()
+        outputManager.commit()
     }
 }
