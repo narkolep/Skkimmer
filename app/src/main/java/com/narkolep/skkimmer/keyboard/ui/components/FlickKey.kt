@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap
 import kotlin.math.abs
 import androidx.compose.ui.res.painterResource
+import com.narkolep.skkimmer.ui.theme.AppFontFamily
 
 enum class FlickDirection {
     NONE, CENTER, LEFT, RIGHT, UP, DOWN
@@ -148,8 +149,9 @@ fun FlickKey(
         } else {
             Text(
                 text = displayText,
+                fontFamily = AppFontFamily,
                 color = textColor,
-                fontSize = 24.sp
+                fontSize = 28.sp
             )
         }
 
@@ -203,8 +205,9 @@ fun FlickPopup(
         ) {
             Text(
                 text = text,
+                fontFamily = AppFontFamily,
                 color = if (isActive) activeTextColor else inactiveTextColor,
-                fontSize = 24.sp,
+                fontSize = 28.sp,
                 fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal
             )
         }

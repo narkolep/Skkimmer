@@ -22,7 +22,6 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.data.EmojiManager
 import com.narkolep.skkimmer.keyboard.ui.KeyboardLayout
-import com.narkolep.skkimmer.ui.theme.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update

@@ -33,7 +33,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import com.narkolep.skkimmer.ui.theme.AppFontFamily
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SkkKey(
@@ -41,7 +44,7 @@ fun SkkKey(
     modifier: Modifier = Modifier,
     iconResId: Int? = null, // アイコン(svg)
     flickText: String = "",
-    textSize: Float = 22f,
+    textSize: Float = 24f,
     keyboardHeight: Float,
     keyColor: Color,
     textColor: Color,
@@ -88,10 +91,10 @@ fun SkkKey(
                             // リピート開始
                             if (keyRepeat) {
                                 repeatJob = scope.launch {
-                                    delay(initialDelay) // 最初は500ms待つ
+                                    delay(initialDelay.milliseconds) // 最初は500ms待つ
                                     while (isActive) {
                                         onClick() // アクションを実行
-                                        delay(repeatInterval) // 100ms待ってからループ
+                                        delay(repeatInterval.milliseconds) // 100ms待ってからループ
                                     }
                                 }
                             }
@@ -168,8 +171,9 @@ fun SkkKey(
                     if (flickText.isNotEmpty()) {
                         Text(
                             text = flickText,
-                            color = textColor.copy(alpha = 0.6f),
                             fontSize = 10.sp,
+                            fontFamily = AppFontFamily,
+                            color = textColor.copy(alpha = 0.6f),
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(4.dp)
@@ -178,8 +182,10 @@ fun SkkKey(
 
                     Text(
                         text = mainText,
-                        color = textColor,
+                        fontWeight = FontWeight.SemiBold,
                         fontSize = textSize.sp,
+                        fontFamily = AppFontFamily,
+                        color = textColor,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -198,8 +204,10 @@ fun SkkKey(
                         ) {
                             Text(
                                 text = currentPopupText,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 28.sp,
+                                fontFamily = AppFontFamily,
                                 color = textColor,
-                                fontSize = 28.sp
                             )
                         }
                     }

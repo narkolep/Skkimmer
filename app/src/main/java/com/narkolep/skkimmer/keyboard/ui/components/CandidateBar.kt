@@ -21,7 +21,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import com.narkolep.skkimmer.ui.theme.AppFontFamily
 
 @Composable
 fun CandidateBar(
@@ -54,7 +56,6 @@ fun CandidateBar(
         itemsIndexed(candidates) { index, candidate ->
             val isSelected = index == selectedIndex
             val textColor = if (isSelected) selectedTextColor else selectedTextColor.copy(alpha = 0.6f)
-            val backgroundColor = if (isSelected) selectedBackgroundColor else Color.Transparent
 
             // 注釈のパース処理
             val annotatedText = buildAnnotatedString {
@@ -80,13 +81,15 @@ fun CandidateBar(
 
             Text(
                 text = annotatedText,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                fontSize = 20.sp,
+                fontFamily = AppFontFamily,
                 color = textColor,
-                fontSize = 18.sp,
                 modifier = Modifier
                     .fillMaxHeight()
                     .padding(vertical = 4.dp, horizontal = 2.dp)
                     .background(
-                        color = backgroundColor,
+                        color = if (isSelected) selectedBackgroundColor else Color.Transparent,
                         shape = RoundedCornerShape(8.dp)
                     )
                     .clickable { onCandidateClick(index) }
