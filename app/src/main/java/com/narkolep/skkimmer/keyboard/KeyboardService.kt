@@ -22,6 +22,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.data.EmojiManager
 import com.narkolep.skkimmer.keyboard.ui.KeyboardLayout
+import com.narkolep.skkimmer.ui.theme.AppTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -29,19 +30,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+    override val viewModelStore: ViewModelStore get() = store
+    override val lifecycle: Lifecycle get() = lifecycleRegistry
+    override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
+
+    private val store = ViewModelStore()
     private val stateFlow = MutableStateFlow(SkkUIState())
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
-    private val store = ViewModelStore()
-    override val lifecycle: Lifecycle get() = lifecycleRegistry
-    override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
-    override val viewModelStore: ViewModelStore get() = store
     private var emojiCategories: List<EmojiManager.Category> = emptyList()
+    private var currentEditorInfo: EditorInfo? = null
+
     private lateinit var dictionaryManager: DictionaryManager
     private lateinit var outputManager: OutputManager
     private lateinit var keyProcessor: KeyProcessor
     private lateinit var actionProcessor: ActionProcessor
-    private var currentEditorInfo: EditorInfo? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -52,9 +55,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
         outputManager = OutputManager(
             stateFlow = stateFlow,
-            inputCommitter = InputCommitter {
-                currentInputConnection
-            },
+            inputCommitter = InputCommitter { currentInputConnection },
             dictionaryManager
         )
 
@@ -103,9 +104,25 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
+        /* 入力モードを更新 */
+        val autoMode = determineInputMode(currentEditorInfo)
+        if (autoMode != null) {
+            stateFlow.update {
+                it.copy(
+                    inputMode = autoMode
+                )
+            }
+        }
+        stateFlow.update {
+            it.copy(
+                skkState = SkkState.NORMAL,
+                composingText = "",
+                isFlick = (autoMode == InputMode.HIRAGANA)
+            )
+        }
+
         return composeView
     }
-
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
@@ -114,38 +131,36 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         keyProcessor = KeyProcessor(
             stateFlow = stateFlow,
             dictionaryManager = dictionaryManager,
-            connectionProvider = {
-                currentInputConnection
-            }
+            connectionProvider = { currentInputConnection }
         )
 
         actionProcessor = ActionProcessor(
             stateFlow = stateFlow,
             outputManager = outputManager,
             editorInfo = currentEditorInfo,
-            inputCommitter = InputCommitter {
-                currentInputConnection
-            },
+            inputCommitter = InputCommitter { currentInputConnection },
             keyProcessor = keyProcessor,
             dictionaryManager = dictionaryManager
         )
+    }
 
-        val autoMode = determineInputMode(currentEditorInfo)
-        /* 入力モードを更新 */
-        stateFlow.update { current ->
-            current.copy(
-                inputMode = autoMode,
-                skkState = SkkState.NORMAL,
-                composingText = "",
-                isFlick = (autoMode == InputMode.HIRAGANA)
-            )
-        }
+    override fun onFinishInputView(finishingInput: Boolean) {
+        super.onFinishInputView(finishingInput)
+
+        stateFlow.update { it.tourokuClear() }
+        stateFlow.update { it.clear() }
+    }
+
+    override fun onDestroy() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        viewModelStore.clear()
+        super.onDestroy()
     }
 
     /**
      * EditorInfoから適切なInputModeを決定する関数
      */
-    private fun determineInputMode(editorInfo: EditorInfo?): InputMode {
+    private fun determineInputMode(editorInfo: EditorInfo?): InputMode? {
         if (editorInfo == null) return InputMode.HIRAGANA
 
         val inputType = editorInfo.inputType
@@ -163,36 +178,19 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             /* テキストの入力欄 */
             InputType.TYPE_CLASS_TEXT -> {
                 when (variation) {
-                    /* パスワード、メールアドレス、URLなど */
+                    /* パスワードとメールアドレス */
                     InputType.TYPE_TEXT_VARIATION_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
-                    InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS,
-                    InputType.TYPE_TEXT_VARIATION_URI -> {
+                    InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS -> {
                         InputMode.HALF_ASCII
                     }
-                    /* 日本語入力 */
-                    else -> {
-                        InputMode.HIRAGANA
-                    }
+                    else -> null
                 }
             }
 
-            else -> InputMode.HIRAGANA
+            else -> null
         }
-    }
-
-    override fun onFinishInputView(finishingInput: Boolean) {
-        super.onFinishInputView(finishingInput)
-
-        stateFlow.update { it.tourokuClear() }
-        stateFlow.update { it.clear() }
-    }
-
-    override fun onDestroy() {
-        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        viewModelStore.clear()
-        super.onDestroy()
     }
 }

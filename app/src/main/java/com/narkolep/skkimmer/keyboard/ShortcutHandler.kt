@@ -1,5 +1,6 @@
 package com.narkolep.skkimmer.keyboard
 
+import com.narkolep.skkimmer.keyboard.handlers.convertString
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -121,8 +122,7 @@ class ShortcutHandler(
                             stateFlow.update { it.copy(inputMode = InputMode.HALF_KATAKANA) }
                         }
                     } else {
-                        afterConvert =
-                            outputManager.convertString(beforeConvert, KanaMap.hiraToHalfMap)
+                        afterConvert = convertString(beforeConvert, KanaMap.hiraToHalfMap)
                         stateFlow.update {
                             it.copy(
                                 midashiText = afterConvert,
@@ -139,9 +139,9 @@ class ShortcutHandler(
                         }
                     } else {
                         afterConvert = if (state.inputMode == InputMode.KATAKANA) {
-                            outputManager.convertString(beforeConvert, KanaMap.kataToHiraMap)
+                            convertString(beforeConvert, KanaMap.kataToHiraMap)
                         } else {
-                            outputManager.convertString(beforeConvert, KanaMap.hiraToKataMap)
+                            convertString(beforeConvert, KanaMap.hiraToKataMap)
                         }
                         stateFlow.update {
                             it.copy(

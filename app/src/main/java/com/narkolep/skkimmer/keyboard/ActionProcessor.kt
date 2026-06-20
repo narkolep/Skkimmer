@@ -2,12 +2,12 @@ package com.narkolep.skkimmer.keyboard
 
 import android.view.inputmethod.EditorInfo
 import com.narkolep.skkimmer.data.DictionaryManager
-import com.narkolep.skkimmer.keyboard.handlers.BackspaceHandler
-import com.narkolep.skkimmer.keyboard.handlers.CursorHandler
-import com.narkolep.skkimmer.keyboard.handlers.DakutenHandler
-import com.narkolep.skkimmer.keyboard.handlers.EnterHandler
-import com.narkolep.skkimmer.keyboard.handlers.ModifierHandler
-import com.narkolep.skkimmer.keyboard.handlers.SpaceHandler
+import com.narkolep.skkimmer.keyboard.handlers.backspaceHandler
+import com.narkolep.skkimmer.keyboard.handlers.ctrlHandler
+import com.narkolep.skkimmer.keyboard.handlers.dakutenHandler
+import com.narkolep.skkimmer.keyboard.handlers.enterHandler
+import com.narkolep.skkimmer.keyboard.handlers.shiftHandler
+import com.narkolep.skkimmer.keyboard.handlers.spaceHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -30,19 +30,10 @@ class ActionProcessor(
     private val stateFlow: MutableStateFlow<SkkUIState>,
     private val outputManager: OutputManager,
     private val inputCommitter: InputCommitter,
-    editorInfo: EditorInfo?,
-    keyProcessor: KeyProcessor,
-    dictionaryManager: DictionaryManager,
+    private val keyProcessor: KeyProcessor,
+    private val dictionaryManager: DictionaryManager,
+    private val editorInfo: EditorInfo?
 ) {
-    /* Handlers */
-    private val modifierHandler = ModifierHandler(stateFlow)
-    private val spaceHandler = SpaceHandler(stateFlow, keyProcessor, outputManager)
-    private val backspaceHandler = BackspaceHandler(stateFlow, inputCommitter)
-    private val enterHandler =
-        EnterHandler(stateFlow, editorInfo, inputCommitter, dictionaryManager, outputManager, backspaceHandler)
-    private val cursorHandler = CursorHandler(stateFlow, inputCommitter, keyProcessor, spaceHandler)
-    private val dakutenHandler = DakutenHandler(stateFlow, backspaceHandler, keyProcessor)
-
     /**
      * アクションキーの分岐
      **/
@@ -50,33 +41,41 @@ class ActionProcessor(
 
         when(action) {
             KeyboardAction.Shift -> {
-                modifierHandler.handleShift()
+                shiftHandler(stateFlow)
             }
             KeyboardAction.Ctrl -> {
-                modifierHandler.handleCtrl()
+                ctrlHandler(stateFlow)
             }
             KeyboardAction.Space -> {
-                spaceHandler.handle()
+                spaceHandler(stateFlow, dictionaryManager, keyProcessor)
             }
             KeyboardAction.Backspace -> {
-                backspaceHandler.handle()
+                backspaceHandler(stateFlow, inputCommitter)
             }
             KeyboardAction.Enter -> {
-                enterHandler.handle()
+                enterHandler(stateFlow, inputCommitter, dictionaryManager, outputManager, editorInfo)
             }
             KeyboardAction.ToggleKeyboard -> {
                 stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
             }
             KeyboardAction.Left -> {
-                cursorHandler.handleLeft()
+                if (stateFlow.value.skkState == SkkState.HENKAN) {
+                    keyProcessor.handle("x")
+                    return
+                }
+
+                moveCursor(-1)
             }
             KeyboardAction.Right -> {
-                cursorHandler.handleRight()
+                if (stateFlow.value.skkState == SkkState.HENKAN) {
+                    spaceHandler(stateFlow, dictionaryManager, keyProcessor)
+                    return
+                }
+
+                moveCursor(1)
             }
             KeyboardAction.Dakuten -> {
-                inputCommitter.beginBatch()
-                dakutenHandler.handle()
-                inputCommitter.endBatch()
+                dakutenHandler(stateFlow, inputCommitter, keyProcessor)
             }
             is KeyboardAction.CandidateIndex -> {
                 val index = action.index
@@ -84,5 +83,15 @@ class ActionProcessor(
                 outputManager.commit()
             }
         }
+    }
+
+    /* カーソル移動 */
+    private fun moveCursor(offset: Int) {
+        val extracted = inputCommitter.getExtractedText() ?: return
+        val textLength = extracted.text?.length ?: 0
+        val current = extracted.selectionStart
+        val newPos = (current + offset).coerceIn(0, textLength)
+
+        inputCommitter.setSelection(newPos, newPos)
     }
 }

@@ -15,70 +15,67 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class EnterHandler(
-    private val stateFlow: MutableStateFlow<SkkUIState>,
-    private val editorInfo: EditorInfo?,
-    private val inputCommitter: InputCommitter,
-    private val dictionaryManager: DictionaryManager,
-    private val outputManager: OutputManager,
-    private val backspaceHandler: BackspaceHandler
+/**
+ * Enterキーの処理
+ */
+fun enterHandler(
+    stateFlow: MutableStateFlow<SkkUIState>,
+    inputCommitter: InputCommitter,
+    dictionaryManager: DictionaryManager,
+    outputManager: OutputManager,
+    editorInfo: EditorInfo?
 ) {
-    /**
-     * Enterキーの処理
-     */
-    fun handle() {
-        val state = stateFlow.value
+    val state = stateFlow.value
 
-        if (state.skkState == SkkState.NORMAL) {
-            if (state.tourokuFlag.isNotEmpty()) {
-                val tourokuText = state.tourokuFlag.substringAfter(":")
-                val commitText = tourokuText.split(";")[0] + state.oldOkuriganaText
-                inputCommitter.commit(commitText)
+    if (state.skkState == SkkState.NORMAL) {
+        if (state.tourokuFlag.isNotEmpty()) {
+            val tourokuText = state.tourokuFlag.substringAfter(":")
+            val commitText = tourokuText.split(";")[0] + state.oldOkuriganaText
+            inputCommitter.commit(commitText)
 
-                if (tourokuText.isNotEmpty()) {
-                    /* ユーザー辞書として登録 */
-                    CoroutineScope(Dispatchers.IO).launch {
-                        dictionaryManager.learnWord(
-                            state.oldMidashiText + state.oldOkuriganaTrigger,
-                            tourokuText,
-                            false
-                        )
-                    }
-
-                    stateFlow.update { it.tourokuClear() }
-                    stateFlow.update { it.clear() }
-                } else {
-                    /* 登録モードから抜ける */
-                    backspaceHandler.handle()
+            if (tourokuText.isNotEmpty()) {
+                /* ユーザー辞書として登録 */
+                CoroutineScope(Dispatchers.IO).launch {
+                    dictionaryManager.learnWord(
+                        state.oldMidashiText + state.oldOkuriganaTrigger,
+                        tourokuText,
+                        false
+                    )
                 }
 
-                return
+                stateFlow.update { it.tourokuClear() }
+                stateFlow.update { it.clear() }
+            } else {
+                /* 登録モードから抜ける */
+                backspaceHandler(stateFlow, inputCommitter)
             }
 
-            if (state.composingText.isEmpty()) {
-                val action = editorInfo?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
-                val inputType = editorInfo?.inputType ?: 0
-                val imeOptions = editorInfo?.imeOptions ?: 0
+            return
+        }
 
-                val isMultiLine = (inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
-                val noEnterAction = (imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0
+        if (state.composingText.isEmpty()) {
+            val action = editorInfo?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
+            val inputType = editorInfo?.inputType ?: 0
+            val imeOptions = editorInfo?.imeOptions ?: 0
 
-                if (isMultiLine || noEnterAction) {
-                    /* 改行 */
-                    inputCommitter.commit("\n")
-                    return
-                }
-                if (action != null) {
-                    /* アクション実行 */
-                    inputCommitter.performEditorAction(action)
-                    return
-                }
-                /* fallback (改行) */
+            val isMultiLine = (inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+            val noEnterAction = (imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0
+
+            if (isMultiLine || noEnterAction) {
+                /* 改行 */
                 inputCommitter.commit("\n")
                 return
             }
+            if (action != null) {
+                /* アクション実行 */
+                inputCommitter.performEditorAction(action)
+                return
+            }
+            /* fallback (改行) */
+            inputCommitter.commit("\n")
+            return
         }
-
-        outputManager.commit()
     }
+
+    outputManager.commit()
 }

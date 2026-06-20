@@ -26,11 +26,33 @@ object FlickKanaMap {
     val flickLayout = listOf(
         // 1段目
         listOf(
-            FlickKeyConfig("Q", "", "q", "", "/", "l", "x", iconResId = lucide_ic_refresh_cw),
-            FlickKeyConfig("あ", "", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("か", "k", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("さ", "s", "a", "i", "u", "e", "o"),
-            FlickKeyConfig("BS", action = KeyboardAction.Backspace, iconResId = lucide_ic_delete, keyRepeat = true)
+            FlickKeyConfig(
+                label = "Q",
+                consonant = "",
+                center = "q", left = "", up = "/", right = "l", down = "x",
+                iconResId = lucide_ic_refresh_cw
+            ),
+            FlickKeyConfig(
+                label = "あ",
+                consonant = "",
+                center = "a", left = "i", up = "u", right = "e", down = "o"
+            ),
+            FlickKeyConfig(
+                label = "か",
+                consonant = "k",
+                center = "a", left = "i", up = "u", right = "e", down = "o"
+            ),
+            FlickKeyConfig(
+                label = "さ",
+                consonant = "s",
+                center = "a", left = "i", up = "u", right = "e", down = "o"
+            ),
+            FlickKeyConfig(
+                label = "BS",
+                action = KeyboardAction.Backspace,
+                iconResId = lucide_ic_delete,
+                keyRepeat = true
+            )
         ),
         // 2段目
         listOf(
