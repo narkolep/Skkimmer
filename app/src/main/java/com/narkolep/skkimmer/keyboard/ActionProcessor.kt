@@ -27,7 +27,7 @@ sealed class KeyboardAction {
 }
 
 class ActionProcessor(
-    private val stateFlow: MutableStateFlow<SkkUIState>,
+    private val stateFlow: MutableStateFlow<KeyboardState>,
     private val outputManager: OutputManager,
     private val inputCommitter: InputCommitter,
     private val keyProcessor: KeyProcessor,

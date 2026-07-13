@@ -6,7 +6,7 @@ import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.OutputManager
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.SkkUIState
+import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.tourokuClear
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  * Enterキーの処理
  */
 fun enterHandler(
-    stateFlow: MutableStateFlow<SkkUIState>,
+    stateFlow: MutableStateFlow<KeyboardState>,
     inputCommitter: InputCommitter,
     dictionaryManager: DictionaryManager,
     outputManager: OutputManager,

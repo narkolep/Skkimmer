@@ -34,7 +34,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
 
     private val store = ViewModelStore()
-    private val stateFlow = MutableStateFlow(SkkUIState())
+    private val stateFlow = MutableStateFlow(KeyboardState())
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private var emojiCategories: List<EmojiManager.Category> = emptyList()

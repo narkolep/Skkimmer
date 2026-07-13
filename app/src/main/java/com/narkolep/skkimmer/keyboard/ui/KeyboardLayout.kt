@@ -32,7 +32,7 @@ import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.SkkUIState
+import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.keyDefinitions
 import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.numericKeyDefinitions
 import com.narkolep.skkimmer.keyboard.mappings.NumericMap
@@ -45,7 +45,7 @@ import com.composables.icons.lucide.R.drawable.lucide_ic_square_library
 @SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
 fun KeyboardLayout(
-    uiState: SkkUIState,
+    uiState: KeyboardState,
     categories: List<EmojiManager.Category>,
     onKeyClick: (String) -> Unit,
     onActionClick: (KeyboardAction) -> Unit

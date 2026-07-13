@@ -3,7 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.SkkUIState
+import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.clear
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
  * Spaceキーが押されたときの処理
  */
 fun spaceHandler(
-    stateFlow: MutableStateFlow<SkkUIState>,
+    stateFlow: MutableStateFlow<KeyboardState>,
     dictionaryManager: DictionaryManager,
     keyProcessor: KeyProcessor
 ) {

@@ -2,7 +2,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.SkkUIState
+import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.tourokuClear
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.update
  * @return 削除した文字 (状態変化のみの場合は空文字を返す)
  */
 fun backspaceHandler(
-    stateFlow : MutableStateFlow<SkkUIState>,
+    stateFlow : MutableStateFlow<KeyboardState>,
     inputCommitter: InputCommitter
 ): String {
     val state = stateFlow.value

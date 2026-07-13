@@ -3,7 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyProcessor
-import com.narkolep.skkimmer.keyboard.SkkUIState
+import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap.kanaToRomaji
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.update
  * カーソルの左側の文字を変換する
  */
 fun dakutenHandler(
-    stateFlow: MutableStateFlow<SkkUIState>,
+    stateFlow: MutableStateFlow<KeyboardState>,
     inputCommitter: InputCommitter,
     keyProcessor: KeyProcessor
 ) {

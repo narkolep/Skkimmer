@@ -3,7 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.SkkUIState
+import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
  * 辞書の検索、モード切り換え
  */
 fun getCandidatesAndChangeState(
-    stateFlow: MutableStateFlow<SkkUIState>,
+    stateFlow: MutableStateFlow<KeyboardState>,
     dictionaryManager: DictionaryManager
 ) {
     val state = stateFlow.value

@@ -25,7 +25,7 @@ enum class SkkState {
 /**
  * キーボードの状態
  */
-data class SkkUIState(
+data class KeyboardState(
     /* === STATE === */
     /* 入力モード */
     val inputMode: InputMode = InputMode.HIRAGANA,
@@ -59,7 +59,7 @@ data class SkkUIState(
 /**
  * 状態の初期化
  */
-fun SkkUIState.clear(): SkkUIState {
+fun KeyboardState.clear(): KeyboardState {
     return copy(
         skkState = SkkState.NORMAL,
         midashiText = "",
@@ -74,7 +74,7 @@ fun SkkUIState.clear(): SkkUIState {
 /**
  * 登録モード解除
  */
-fun SkkUIState.tourokuClear(): SkkUIState {
+fun KeyboardState.tourokuClear(): KeyboardState {
     return copy(
         tourokuFlag = "",
         oldMidashiText = "",

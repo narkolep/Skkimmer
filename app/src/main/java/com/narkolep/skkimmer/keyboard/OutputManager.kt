@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class OutputManager(
-    private val stateFlow: MutableStateFlow<SkkUIState>,
+    private val stateFlow: MutableStateFlow<KeyboardState>,
     private val inputCommitter: InputCommitter,
     private val dictionaryManager: DictionaryManager
 ) {
@@ -19,7 +19,7 @@ class OutputManager(
      */
     fun asciiOutput(
         key: String,
-        state: SkkUIState
+        state: KeyboardState
     ): Boolean {
         val outChar = if (state.shiftState == ShiftState.LOWERCASE) key else key.uppercase()
 
@@ -55,8 +55,8 @@ class OutputManager(
      * 仮名を出力
      */
     fun kanaOutput(
-        newState: SkkUIState,
-        oldState: SkkUIState,
+        newState: KeyboardState,
+        oldState: KeyboardState,
         result: ConvertResult
     ) {
         stateFlow.update {

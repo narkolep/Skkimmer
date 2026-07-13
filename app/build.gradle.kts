@@ -8,15 +8,13 @@ plugins {
 android {
     namespace = "com.narkolep.skkimmer"
     compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
+        version = release(37)
     }
 
     defaultConfig {
         applicationId = "com.narkolep.skkimmer"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.1.0"
 
