@@ -59,32 +59,37 @@ class OutputManager(
         oldState: KeyboardState,
         result: ConvertResult
     ) {
-        stateFlow.update {
-            it.copy(
-                composingText = result.composingNext,
-                oldOkuriganaTrigger =
-                    if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
-                    else it.oldOkuriganaTrigger
-            )
-        }
-
         when (newState.skkState) {
             SkkState.NORMAL -> {
                 if (newState.tourokuFlag.isNotEmpty()) {
                     stateFlow.update {
                         it.copy(
+                            composingText = result.composingNext,
                             tourokuFlag = newState.tourokuFlag + result.output
                         )
                     }
-                } else {
-                    inputCommitter.commit(result.output)
+                    return
                 }
+
+                stateFlow.update {
+                    it.copy(
+                        composingText = result.composingNext,
+                        oldOkuriganaTrigger = result.okuriganaFlag
+                    )
+                }
+                inputCommitter.commit(result.output)
+
+                if (!newState.isFlick) update()
             }
 
             SkkState.MIDASHI -> {
                 stateFlow.update {
                     it.copy(
+                        composingText = result.composingNext,
                         midashiText = newState.midashiText + result.output,
+                        oldOkuriganaTrigger =
+                            if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                            else it.oldOkuriganaTrigger
                     )
                 }
             }
@@ -94,25 +99,34 @@ class OutputManager(
                     /* outputが"ん"、"っ"、もしくは未確定のとき */
                     stateFlow.update {
                         it.copy(
+                            composingText = result.composingNext,
                             midashiText = newState.midashiText + if (oldState.skkState == SkkState.MIDASHI) result.output else "",
                             okuriganaText = newState.okuriganaText + if (oldState.skkState == SkkState.OKURIGANA) result.output else "",
+                            oldOkuriganaTrigger =
+                                if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                                else it.oldOkuriganaTrigger
                         )
                     }
-                } else {
-                    /* 候補を検索する */
-                    var flag = result.okuriganaFlag
-                    if (oldState.okuriganaText.firstOrNull() == 'ん' || oldState.okuriganaText.firstOrNull() == 'ン') flag = "n"
-                    if (oldState.okuriganaText.firstOrNull() == 'っ' || oldState.okuriganaText.firstOrNull() == 'ッ') flag = "t"
-
-                    stateFlow.update {
-                        it.copy(
-                            okuriganaText = newState.okuriganaText + result.output,
-                            okuriganaTrigger = flag
-                        )
-                    }
-
-                    getCandidatesAndChangeState(stateFlow, dictionaryManager)
+                    return
                 }
+
+                /* 候補を検索する */
+                var flag = result.okuriganaFlag
+                if (oldState.okuriganaText.firstOrNull() == 'ん' || oldState.okuriganaText.firstOrNull() == 'ン') flag = "n"
+                if (oldState.okuriganaText.firstOrNull() == 'っ' || oldState.okuriganaText.firstOrNull() == 'ッ') flag = "t"
+
+                stateFlow.update {
+                    it.copy(
+                        composingText = result.composingNext,
+                        okuriganaText = newState.okuriganaText + result.output,
+                        okuriganaTrigger = flag,
+                        oldOkuriganaTrigger =
+                            if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                            else it.oldOkuriganaTrigger
+                    )
+                }
+
+                getCandidatesAndChangeState(stateFlow, dictionaryManager)
             }
 
             SkkState.HENKAN -> {
@@ -125,7 +139,10 @@ class OutputManager(
                 commit()
                 stateFlow.update {
                     it.copy(
-                        composingText = result.composingNext
+                        composingText = result.composingNext,
+                        oldOkuriganaTrigger =
+                            if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                            else it.oldOkuriganaTrigger
                     )
                 }
             }

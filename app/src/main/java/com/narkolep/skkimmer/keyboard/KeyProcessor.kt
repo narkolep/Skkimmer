@@ -25,7 +25,7 @@ class KeyProcessor(
         ) }
 
         // ショートカット処理 その1
-        if (handleCTRL(key, stateFlow, inputCommitter, outputManager)) return
+        if (handleCTRL(key, state, stateFlow, inputCommitter, outputManager)) return
 
         // 英数字(直接出力)
         if (outputManager.asciiOutput(key, state)) return
@@ -38,7 +38,7 @@ class KeyProcessor(
         )
 
         // ショートカット処理 その2
-        if (handleKey(stateFlow, result, outputManager)) return
+        if (handleKey(state, stateFlow, result, outputManager)) return
 
         // shiftキーによる状態遷移
         changeState(key, state)

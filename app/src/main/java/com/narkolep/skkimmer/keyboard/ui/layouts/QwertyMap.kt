@@ -1,8 +1,8 @@
-package com.narkolep.skkimmer.keyboard.mappings
+package com.narkolep.skkimmer.keyboard.ui.layouts
 
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 
-object KeyboardMap {
+object QwertyMap {
     data class KeyDef(
         val main: String,
         val flick: String = "",
@@ -72,7 +72,7 @@ object KeyboardMap {
         // 5段目
         listOf(
             KeyDef("Ctrl", action = KeyboardAction.Ctrl, weight = 2f),
-            KeyDef("Space", action = KeyboardAction.Space, weight = 5f, textSize = 18f),
+            KeyDef("Space", action = KeyboardAction.Space, weight = 6f, textSize = 18f),
             KeyDef("Enter", action = KeyboardAction.Enter, weight = 2f)
         )
     )

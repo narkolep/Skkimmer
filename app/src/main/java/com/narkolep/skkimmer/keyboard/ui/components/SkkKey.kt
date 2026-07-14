@@ -182,7 +182,7 @@ fun SkkKey(
 
                     Text(
                         text = mainText,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = if (flickText.isNotEmpty()) FontWeight.SemiBold else FontWeight.Normal,
                         fontSize = textSize.sp,
                         fontFamily = AppFontFamily,
                         color = textColor,

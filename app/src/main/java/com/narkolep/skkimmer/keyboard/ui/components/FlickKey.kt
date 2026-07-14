@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,7 +34,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap
+import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKanaMap
 import kotlin.math.abs
 import androidx.compose.ui.res.painterResource
 import com.narkolep.skkimmer.ui.theme.AppFontFamily
@@ -151,7 +152,10 @@ fun FlickKey(
                 text = displayText,
                 fontFamily = AppFontFamily,
                 color = textColor,
-                fontSize = 28.sp
+                fontSize = 28.sp,
+                modifier = Modifier.offset(
+                    y = 2.dp
+                )
             )
         }
 

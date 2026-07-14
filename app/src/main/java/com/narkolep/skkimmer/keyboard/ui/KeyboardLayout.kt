@@ -18,7 +18,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.narkolep.skkimmer.keyboard.mappings.FlickKanaMap.flickLayout
+import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKanaMap.flickLayout
 import com.narkolep.skkimmer.keyboard.ui.components.CandidateBar
 import com.narkolep.skkimmer.keyboard.ui.components.SkkKey
 import com.narkolep.skkimmer.data.EmojiManager
@@ -33,9 +33,9 @@ import com.narkolep.skkimmer.keyboard.KeyboardAction
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
-import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.keyDefinitions
-import com.narkolep.skkimmer.keyboard.mappings.KeyboardMap.numericKeyDefinitions
-import com.narkolep.skkimmer.keyboard.mappings.NumericMap
+import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.keyDefinitions
+import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.numericKeyDefinitions
+import com.narkolep.skkimmer.keyboard.ui.layouts.NumericMap
 import com.narkolep.skkimmer.keyboard.ui.components.FlickKey
 import com.composables.icons.lucide.R.drawable.lucide_ic_space
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_asterisk
@@ -193,31 +193,17 @@ fun KeyboardLayout(
                                     KeyboardAction.Dakuten -> keyboardButtonColor
                                     else -> keyboardBackgroundColor
                                 }
-                                var actionIcon = config.iconResId
-                                var actionText = config.label
-                                if (config.action == KeyboardAction.Space) {
-                                    actionIcon = when (uiState.inputMode) {
-                                        InputMode.HIRAGANA -> when (uiState.skkState) {
-                                            SkkState.NORMAL -> lucide_ic_space
+                                val actionIcon = if (config.action == KeyboardAction.Space) {
+                                        when (uiState.skkState) {
                                             SkkState.MIDASHI -> lucide_ic_square_dashed
                                             SkkState.OKURIGANA -> lucide_ic_square_asterisk
                                             SkkState.HENKAN -> lucide_ic_square_library
                                             else -> lucide_ic_space
                                         }
-
-                                        else -> null
-                                    }
-                                    actionText = when (uiState.inputMode) {
-                                        InputMode.HALF_KATAKANA -> "__ｶﾅ"
-                                        InputMode.KATAKANA -> "カナ"
-                                        InputMode.HALF_ASCII -> "半角"
-                                        InputMode.FULL_ASCII -> "全角"
-                                        else -> "Space"
-                                    }
-                                }
+                                    } else config.iconResId
 
                                 SkkKey(
-                                    mainText = actionText,
+                                    mainText = config.hiraLabel,
                                     modifier = Modifier.weight(1f),
                                     keyColor = keyColor,
                                     textColor = if (keyColor == keyboardActionColor) keyboardActionTextColor else keyboardTextColor,
@@ -231,9 +217,14 @@ fun KeyboardLayout(
                                 FlickKey(
                                     config = config,
                                     modifier = Modifier.weight(1f),
-                                    displayText = config.label,
+                                    displayText =
+                                        when (uiState.inputMode) {
+                                            InputMode.KATAKANA -> config.kataLabel
+                                            InputMode.HALF_KATAKANA -> config.halfLabel
+                                            else -> config.hiraLabel
+                                        },
                                     keyColor =
-                                        when (config.label) {
+                                        when (config.hiraLabel) {
                                             "Q" -> keyboardBackgroundColor
                                             else -> keyboardButtonColor
                                         },
@@ -271,8 +262,8 @@ fun KeyboardLayout(
                                 KeyboardAction.Space -> {
                                     val jisyoKey = if (uiState.tourokuFlag.isNotEmpty()) "辞書登録 / " else ""
                                     mainText = when (uiState.inputMode) {
-                                        InputMode.HALF_ASCII -> "SKK"
-                                        InputMode.FULL_ASCII -> "全英"
+                                        InputMode.HALF_ASCII -> "半角英数"
+                                        InputMode.FULL_ASCII -> "全角英数"
                                         InputMode.HIRAGANA -> when (uiState.skkState) {
                                             SkkState.NORMAL -> jisyoKey + "NORMAL"
                                             SkkState.MIDASHI -> jisyoKey + "見出し語"
@@ -280,8 +271,8 @@ fun KeyboardLayout(
                                             SkkState.HENKAN -> jisyoKey + "変換"
                                             SkkState.ABBREV -> jisyoKey + "abbreviation"
                                         }
-                                        InputMode.KATAKANA -> "カナ"
-                                        InputMode.HALF_KATAKANA -> "__ｶﾅ"
+                                        InputMode.KATAKANA -> "カタカナ"
+                                        InputMode.HALF_KATAKANA -> "____ｶﾀｶﾅ"
                                     }
                                 }
                                 else -> {}

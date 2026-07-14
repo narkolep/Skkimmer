@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.update
  **/
 fun handleCTRL(
     key: String,
+    state: KeyboardState,
     stateFlow: MutableStateFlow<KeyboardState>,
     inputCommitter: InputCommitter,
     outputManager: OutputManager
 ): Boolean {
-    val state = stateFlow.value
     if (!state.isCtrlPressed) return false
 
     when (key) {
@@ -73,12 +73,11 @@ fun handleCTRL(
  * @return 一致するショートカットがあった場合は true を返す
  **/
 fun handleKey(
+    state: KeyboardState,
     stateFlow: MutableStateFlow<KeyboardState>,
     resultList: ConvertResult,
     outputManager: OutputManager
 ): Boolean {
-    val state = stateFlow.value
-
     val keyChar =
         if (resultList.composingNext.isNotEmpty()) resultList.composingNext.last()
         else resultList.output.lastOrNull()
