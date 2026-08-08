@@ -145,7 +145,7 @@ object FlickKanaMap {
             ),
             FlickKeyConfig(
                 hiraLabel = "､｡",
-                center = ",", left = ".", up = "？", right = "！", down = ""
+                center = ",", left = "！", up = "？", right = ".", down = ""
             ),
             FlickKeyConfig(
                 hiraLabel = "Enter",

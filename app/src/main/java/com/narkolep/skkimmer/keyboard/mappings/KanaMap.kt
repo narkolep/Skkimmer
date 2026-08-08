@@ -303,6 +303,7 @@ object KanaMap {
         val type: KanaType
     )
 
+    /* ローマ字に戻すマップ */
     val kanaToRomaji: Map<String, RomajiAndType> by lazy {
         buildMap {
             romajiToKana.forEach { (romaji, kanaDef) ->

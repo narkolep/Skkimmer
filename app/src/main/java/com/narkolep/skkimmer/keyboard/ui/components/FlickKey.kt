@@ -104,8 +104,8 @@ fun FlickKey(
                     isDragging = true // 指が触れたら表示
                     currentDir = FlickDirection.CENTER
 
-                    var finalX = 0f
-                    var finalY = 0f
+                    var finalX: Float
+                    var finalY: Float
 
                     do {
                         val event = awaitPointerEvent()
