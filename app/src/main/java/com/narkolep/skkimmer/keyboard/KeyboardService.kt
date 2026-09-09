@@ -104,17 +104,13 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
         /* 入力モードを更新 */
-        val autoMode = determineInputMode(currentEditorInfo)
-        if (autoMode != null) {
-            stateFlow.update {
-                it.copy(
-                    inputMode = autoMode
-                )
-            }
-        }
+        val (autoMode, autoType) = determineInputMode(currentEditorInfo)
+
         stateFlow.update {
             it.copy(
                 skkState = SkkState.NORMAL,
+                inputMode = autoMode ?: InputMode.HIRAGANA,
+                keyboardType = autoType ?: KeyboardType.NORMAL,
                 composingText = "",
                 isFlick = (autoMode == InputMode.HIRAGANA)
             )
@@ -157,10 +153,10 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     }
 
     /**
-     * EditorInfoから適切なInputModeを決定する関数
+     * EditorInfoから適切なInputMode,KeyboardTypeを決定する関数
      */
-    private fun determineInputMode(editorInfo: EditorInfo?): InputMode? {
-        if (editorInfo == null) return InputMode.HIRAGANA
+    private fun determineInputMode(editorInfo: EditorInfo?): Pair<InputMode?, KeyboardType?> {
+        if (editorInfo == null) return null to null
 
         val inputType = editorInfo.inputType
         val classType = inputType and InputType.TYPE_MASK_CLASS
@@ -171,7 +167,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             InputType.TYPE_CLASS_NUMBER,
             InputType.TYPE_CLASS_PHONE,
             InputType.TYPE_CLASS_DATETIME -> {
-                InputMode.NUMERIC
+                InputMode.HALF_ASCII to KeyboardType.NUMERIC
             }
 
             /* テキストの入力欄 */
@@ -183,13 +179,13 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                     InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
                     InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS -> {
-                        InputMode.HALF_ASCII
+                        InputMode.HALF_ASCII to KeyboardType.NORMAL
                     }
-                    else -> null
+                    else -> null to null
                 }
             }
 
-            else -> null
+            else -> null to null
         }
     }
 }

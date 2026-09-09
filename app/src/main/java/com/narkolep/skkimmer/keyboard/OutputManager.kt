@@ -24,7 +24,7 @@ class OutputManager(
         val outChar = if (state.shiftState == ShiftState.LOWERCASE) key else key.uppercase()
 
         when (state.inputMode) {
-            InputMode.HALF_ASCII, InputMode.NUMERIC -> {
+            InputMode.HALF_ASCII -> {
                 inputCommitter.commit(outChar)
                 return true
             }

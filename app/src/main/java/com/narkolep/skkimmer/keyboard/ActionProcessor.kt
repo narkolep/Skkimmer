@@ -18,6 +18,7 @@ sealed class KeyboardAction {
     object Backspace : KeyboardAction()
     object Enter : KeyboardAction()
     object ToggleKeyboard : KeyboardAction()
+    object ToggleWidth : KeyboardAction()
     object Left : KeyboardAction()
     object Right : KeyboardAction()
     object Dakuten : KeyboardAction()
@@ -38,6 +39,7 @@ class ActionProcessor(
      * アクションキーの分岐
      **/
     fun handle(action: KeyboardAction) {
+        val state = stateFlow.value
 
         when(action) {
             KeyboardAction.Shift -> {
@@ -56,7 +58,16 @@ class ActionProcessor(
                 enterHandler(stateFlow, inputCommitter, dictionaryManager, outputManager, editorInfo)
             }
             KeyboardAction.ToggleKeyboard -> {
-                stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
+                stateFlow.update { it.copy(
+                    keyboardType = KeyboardType.NORMAL
+                ) }
+            }
+            KeyboardAction.ToggleWidth -> {
+                stateFlow.update { it.copy(
+                    inputMode =
+                        if (state.inputMode == InputMode.FULL_ASCII) InputMode.HALF_ASCII
+                        else InputMode.FULL_ASCII
+                ) }
             }
             KeyboardAction.Left -> {
                 if (stateFlow.value.skkState == SkkState.HENKAN) {

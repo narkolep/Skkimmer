@@ -35,12 +35,13 @@ import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.keyDefinitions
 import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.numericKeyDefinitions
-import com.narkolep.skkimmer.keyboard.ui.layouts.NumericMap
 import com.narkolep.skkimmer.keyboard.ui.components.FlickKey
 import com.composables.icons.lucide.R.drawable.lucide_ic_space
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_asterisk
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_dashed
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_library
+import com.narkolep.skkimmer.keyboard.KeyboardType
+import com.narkolep.skkimmer.keyboard.ui.layouts.NumericMap.numericLayout
 
 @SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
@@ -103,7 +104,7 @@ fun KeyboardLayout(
             .padding(bottom = bottomPadding.dp)
     ) {
         /* 絵文字入力画面 */
-        if (uiState.inputMode == InputMode.EMOJI) {
+        if (uiState.keyboardType == KeyboardType.EMOJI) {
             EmojiPicker(
                 backgroundColor = keyboardBackgroundColor,
                 textColor = keyboardTextColor,
@@ -121,7 +122,7 @@ fun KeyboardLayout(
         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
             /* 候補/数字バー */
             Box(modifier = Modifier.fillMaxWidth().height((keyboardHeight * 0.8).dp)) {
-                if (!uiState.isFlick && uiState.candidates.isEmpty() && uiState.inputMode != InputMode.NUMERIC) {
+                if (!uiState.isFlick && uiState.candidates.isEmpty() && uiState.keyboardType != KeyboardType.NUMERIC) {
                     Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
                         numericKeyDefinitions.forEach { config ->
                             SkkKey(
@@ -147,33 +148,45 @@ fun KeyboardLayout(
             }
 
             /* テンキー */
-            if (uiState.inputMode == InputMode.NUMERIC) {
-                NumericMap.numericLayout.forEach { rowKeys ->
+            if (uiState.keyboardType == KeyboardType.NUMERIC) {
+                numericLayout.forEach { rowKeys ->
                     Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
                         rowKeys.forEach { config ->
-                            SkkKey(
-                                mainText = config.label,
-                                modifier = Modifier.weight(1f),
-                                keyColor =
-                                    when (config.color) {
-                                        NumericMap.KeyColor.Background -> keyboardBackgroundColor
-                                        NumericMap.KeyColor.Action -> keyboardActionColor
-                                        else -> keyboardButtonColor
-                                    },
-                                textColor =
-                                    when (config.color) {
-                                        NumericMap.KeyColor.Action -> keyboardActionTextColor
-                                        else -> keyboardTextColor
-                                    },
-                                iconResId = config.icon,
-                                keyboardHeight = keyboardHeight,
-                                cornerShape = if (config.action == KeyboardAction.Enter) (keyboardHeight*0.5).dp else 8.dp,
-                                keyRepeat = config.keyRepeat,
-                                onClick = {
-                                    if (config.action != null) onActionClick(config.action)
-                                    else onKeyClick(config.label)
+                            if (config.action != null) {
+                                val keyColor = when (config.action) {
+                                    KeyboardAction.Shift -> if (isShifted) keyboardActionColor else keyboardBackgroundColor
+                                    KeyboardAction.Enter -> keyboardActionColor
+                                    else -> keyboardBackgroundColor
                                 }
-                            )
+
+                                SkkKey(
+                                    mainText = config.hiraLabel,
+                                    modifier = Modifier.weight(1f),
+                                    keyColor = keyColor,
+                                    textColor = if (keyColor == keyboardActionColor) keyboardActionTextColor else keyboardTextColor,
+                                    iconResId = config.iconResId,
+                                    keyboardHeight = keyboardHeight,
+                                    cornerShape = if (config.action == KeyboardAction.Enter) (keyboardHeight*0.5).dp else 8.dp,
+                                    keyRepeat = config.keyRepeat,
+                                    onClick = { onActionClick(config.action) }
+                                )
+                            } else {
+                                FlickKey(
+                                    config = config,
+                                    modifier = Modifier.weight(1f),
+                                    displayText = config.hiraLabel,
+                                    keyColor =
+                                        if (config.hiraLabel[0] in '0'..'9') keyboardButtonColor
+                                        else keyboardBackgroundColor,
+                                    textColor = keyboardTextColor,
+                                    backgroundColor = keyboardBackgroundColor,
+                                    actionColor = keyboardActionColor,
+                                    isCtrlPressed = uiState.isCtrlPressed,
+                                    onInput = { text ->
+                                        text.forEach { keyId -> onKeyClick(keyId.toString()) }
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -245,7 +258,7 @@ fun KeyboardLayout(
                 return
             }
 
-            /* qwertyキーボード */
+            /* qwerty キーボード */
             keyDefinitions.forEach { rowKeys ->
                 Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
                     rowKeys.forEach { config ->

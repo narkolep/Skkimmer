@@ -3,6 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.KeyboardState
+import com.narkolep.skkimmer.keyboard.SkkState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -13,11 +14,12 @@ fun shiftHandler(stateFlow: MutableStateFlow<KeyboardState>) {
     val state = stateFlow.value
     val now = System.currentTimeMillis().toInt()
     val timing = now - state.lastShiftPressTime < 500
+    val isCapsLock: Boolean = state.inputMode == InputMode.HALF_ASCII || state.inputMode == InputMode.FULL_ASCII || state.skkState == SkkState.ABBREV
 
     val nextShift = when (state.shiftState) {
         ShiftState.LOWERCASE -> ShiftState.SHIFTED
         ShiftState.SHIFTED -> {
-            if (timing && (state.inputMode == InputMode.HALF_ASCII || state.inputMode == InputMode.FULL_ASCII))
+            if (timing && isCapsLock)
                 ShiftState.CAPS_LOCK
             else
                 ShiftState.LOWERCASE

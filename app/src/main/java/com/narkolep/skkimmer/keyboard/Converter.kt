@@ -84,6 +84,21 @@ fun romajiConverter(
         )
     }
 
+    /* xから始まったが、拗音や促音ではなかった場合 */
+    if (composingNow.firstOrNull() == 'x' && KanaMap.romajiToKana.containsKey(composingNow.drop(1))) {
+        val kana = getOutputString(
+            KanaMap.romajiToKana[composingNow.drop(1)]!!,
+            inputMode
+        )
+
+        return ConvertResult(
+            composingNext = "",
+            output = kana,
+            okuriganaFlag = composingNow.drop(1).firstOrNull().toString(),
+            isIgnore = false
+        )
+    }
+
     /* composingNowが一致しない、かつkeyが完全一致の場合 */
     if (KanaMap.romajiToKana.containsKey(key)) {
         val kana = getOutputString(

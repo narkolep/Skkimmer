@@ -5,15 +5,21 @@ enum class ShiftState {
     SHIFTED,
     CAPS_LOCK
 }
+
+enum class KeyboardType {
+    NORMAL,
+    EMOJI,
+    NUMERIC
+}
+
 enum class InputMode {
     HALF_ASCII,
     FULL_ASCII,
     HIRAGANA,
     KATAKANA,
-    HALF_KATAKANA,
-    EMOJI,
-    NUMERIC
+    HALF_KATAKANA
 }
+
 enum class SkkState {
     NORMAL,
     MIDASHI,
@@ -27,10 +33,12 @@ enum class SkkState {
  */
 data class KeyboardState(
     /* === STATE === */
-    /* 入力モード */
+    /* 入力モード(英数/日本語など) */
     val inputMode: InputMode = InputMode.HIRAGANA,
-    /* 日本語入力の状態 */
+    /* 変換の状態 */
     val skkState: SkkState = SkkState.NORMAL,
+    /* キーボードのタイプ */
+    val keyboardType: KeyboardType = KeyboardType.NORMAL,
     /* Shiftキーの状態 */
     val shiftState: ShiftState = ShiftState.LOWERCASE,
     val lastShiftPressTime: Int = 0,

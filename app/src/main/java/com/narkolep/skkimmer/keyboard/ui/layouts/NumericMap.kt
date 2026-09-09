@@ -4,136 +4,106 @@ import com.composables.icons.lucide.R
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 
 object NumericMap {
-    enum class KeyColor {
-        Background,
-        Button,
-        Action
-    }
-
-    data class NumericConfig(
-        val label: String,
-
-        val center: String = "",    // 中央
-        val left: String = "",      // 左
-        val up: String = "",        // 上
-        val right: String = "",     // 右
-        val down: String = "",      // 下
-
-        val color: KeyColor = KeyColor.Button,
-        val action: KeyboardAction? = null,
-        val keyRepeat: Boolean = false,
-        val icon: Int? = null
-    )
-
     val numericLayout = listOf(
         listOf(
-            NumericConfig(
-                label = "Toggle",
-                color = KeyColor.Background,
-                icon = R.drawable.lucide_ic_refresh_cw
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "L",
+                action = KeyboardAction.ToggleWidth,
+                iconResId = R.drawable.lucide_ic_refresh_cw
             ),
-            NumericConfig(
-                label = "1",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "1",
                 center = "1", left = "", up = "", right = "", down = ""
             ),
-            NumericConfig(
-                label = "2",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "2",
                 center = "2", left = "$", up = "", right = "￥", down = ""
             ),
-            NumericConfig(
-                label = "3",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "3",
                 center = "3", left = "%", up = "&", right = "#", down = ""
             ),
-            NumericConfig(
-                label = "BS",
-                color = KeyColor.Background,
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "BS",
                 action = KeyboardAction.Backspace,
-                icon = R.drawable.lucide_ic_delete,
+                iconResId = R.drawable.lucide_ic_delete,
                 keyRepeat = true
             )
         ),
 
         listOf(
-            NumericConfig(
-                label = "Left",
-                color = KeyColor.Background,
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "Left",
                 action = KeyboardAction.Left,
-                icon = R.drawable.lucide_ic_chevron_left,
+                iconResId = R.drawable.lucide_ic_chevron_left,
                 keyRepeat = true
             ),
-            NumericConfig(
-                label = "4",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "4",
                 center = "4", left = "*", up = "", right = "・", down = ""
             ),
-            NumericConfig(
-                label = "5",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "5",
                 center = "5", left = "+", up = "×", right = "÷", down = ""
             ),
-            NumericConfig(
-                label = "6",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "6",
                 center = "6", left = "<", up = "=", right = ">", down = ""
             ),
-            NumericConfig(
-                label = "Right",
-                color = KeyColor.Background,
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "Right",
                 action = KeyboardAction.Right,
-                icon = R.drawable.lucide_ic_chevron_right,
+                iconResId = R.drawable.lucide_ic_chevron_right,
                 keyRepeat = true
             )
         ),
 
         listOf(
-            NumericConfig(
-                label = "Shift",
-                color = KeyColor.Background,
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "Shift",
                 action = KeyboardAction.Shift,
-                icon = R.drawable.lucide_ic_arrow_big_up_dash
+                iconResId = R.drawable.lucide_ic_arrow_big_up_dash
             ),
-            NumericConfig(
-                label = "7",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "7",
                 center = "7", left = "「", up = ":", right = "」", down = ";"
             ),
-            NumericConfig(
-                label = "8",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "8",
                 center = "8", left = "(", up = "", right = ")", down = ""
             ),
-            NumericConfig(
-                label = "9",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "9",
                 center = "9", left = "|", up = "^", right = "", down = ""
             ),
-            NumericConfig(
-                label = "Space",
-                color = KeyColor.Background,
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "Space",
                 action = KeyboardAction.Space,
-                icon = R.drawable.lucide_ic_space
+                iconResId = R.drawable.lucide_ic_space
             )
         ),
 
         listOf(
-            NumericConfig(
-                label = "Back",
-                color = KeyColor.Background,
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "Back",
                 action = KeyboardAction.ToggleKeyboard
             ),
-            NumericConfig(
-                label = "-~",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "-",
                 center = "-", left = "~", up = """\""", right = "/", down = "",
-                color = KeyColor.Background
             ),
-            NumericConfig(
-                label = "0",
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "0",
                 center = "0", left = "@", up = "", right = "", down = ""
             ),
-            NumericConfig(
-                label = ",.",
-                center = ",", left = "!", up = "?", right = ".", down = "",
-                color = KeyColor.Background
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = ",.",
+                center = ",", left = "!", up = "?", right = ".", down = ""
             ),
-            NumericConfig(
-                label = "Enter",
-                color = KeyColor.Action,
+            FlickKanaMap.FlickKeyConfig(
+                hiraLabel = "Enter",
                 action = KeyboardAction.Enter,
-                icon = R.drawable.lucide_ic_corner_down_left
+                iconResId = R.drawable.lucide_ic_corner_down_left
             )
         )
     )

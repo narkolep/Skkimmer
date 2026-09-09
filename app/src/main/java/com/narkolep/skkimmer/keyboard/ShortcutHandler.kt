@@ -21,25 +21,38 @@ fun handleCTRL(
     when (key) {
         "j" -> {
             /* Japanese input */
-            stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
+            stateFlow.update { it.copy(
+                inputMode = InputMode.HIRAGANA,
+                shiftState = ShiftState.LOWERCASE
+            ) }
             return true
         }
         "e" -> {
             /* Emoji */
-            stateFlow.update { it.copy(inputMode = InputMode.EMOJI) }
+            stateFlow.update { it.copy(
+                keyboardType = KeyboardType.EMOJI,
+                shiftState = ShiftState.LOWERCASE
+            ) }
             return true
         }
         "k" -> {
             /* switching Keyboards */
             stateFlow.update { it.copy(
                 isFlick = !state.isFlick,
-                inputMode = InputMode.HIRAGANA
+                shiftState = ShiftState.LOWERCASE,
+                inputMode = InputMode.HIRAGANA,
+                skkState =
+                    if (state.skkState == SkkState.ABBREV) SkkState.NORMAL
+                    else state.skkState
             ) }
             return true
         }
         "n" -> {
             /* Numeric keypad */
-            stateFlow.update { it.copy(inputMode = InputMode.NUMERIC) }
+            stateFlow.update { it.copy(
+                keyboardType = KeyboardType.NUMERIC,
+                shiftState = ShiftState.LOWERCASE
+            ) }
             outputManager.commit()
             return true
         }
