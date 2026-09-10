@@ -21,6 +21,11 @@ fun dakutenHandler(
 ) {
     val state = stateFlow.value
 
+    /* 辞書登録モードの解除 */
+    if (state.tourokuFlag.isNotEmpty()) {
+        backspaceHandler(stateFlow, inputCommitter)
+    }
+
     /* 文字の取得 */
     val text = inputCommitter.getText(1).toString()
 

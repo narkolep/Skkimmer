@@ -51,6 +51,7 @@ fun handleCTRL(
             /* Numeric keypad */
             stateFlow.update { it.copy(
                 keyboardType = KeyboardType.NUMERIC,
+                inputMode = InputMode.HALF_ASCII,
                 shiftState = ShiftState.LOWERCASE
             ) }
             outputManager.commit()

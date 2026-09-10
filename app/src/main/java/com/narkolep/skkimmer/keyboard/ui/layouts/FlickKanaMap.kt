@@ -130,7 +130,7 @@ object FlickKanaMap {
             FlickKeyConfig(
                 hiraLabel = "Ctrl",
                 action = KeyboardAction.Ctrl,
-                iconResId = R.drawable.lucide_ic_command
+                iconResId = R.drawable.lucide_ic_cog
             ),
             FlickKeyConfig(
                 hiraLabel = "ﾞﾟ",
@@ -145,7 +145,7 @@ object FlickKanaMap {
             ),
             FlickKeyConfig(
                 hiraLabel = "､｡",
-                center = ",", left = "！", up = "？", right = ".", down = ""
+                center = ",", left = ".", up = "?", right = "!", down = ""
             ),
             FlickKeyConfig(
                 hiraLabel = "Enter",

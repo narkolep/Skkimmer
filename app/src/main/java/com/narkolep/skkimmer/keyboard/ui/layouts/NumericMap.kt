@@ -60,9 +60,9 @@ object NumericMap {
 
         listOf(
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "Shift",
-                action = KeyboardAction.Shift,
-                iconResId = R.drawable.lucide_ic_arrow_big_up_dash
+                hiraLabel = "Emoji",
+                action = KeyboardAction.Emoji,
+                iconResId = R.drawable.lucide_ic_apple
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "7",
@@ -86,7 +86,8 @@ object NumericMap {
         listOf(
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "Back",
-                action = KeyboardAction.ToggleKeyboard
+                action = KeyboardAction.ToggleKeyboard,
+                iconResId = R.drawable.lucide_ic_earth
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "-",

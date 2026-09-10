@@ -19,6 +19,7 @@ sealed class KeyboardAction {
     object Enter : KeyboardAction()
     object ToggleKeyboard : KeyboardAction()
     object ToggleWidth : KeyboardAction()
+    object Emoji : KeyboardAction()
     object Left : KeyboardAction()
     object Right : KeyboardAction()
     object Dakuten : KeyboardAction()
@@ -59,7 +60,8 @@ class ActionProcessor(
             }
             KeyboardAction.ToggleKeyboard -> {
                 stateFlow.update { it.copy(
-                    keyboardType = KeyboardType.NORMAL
+                    keyboardType = KeyboardType.NORMAL,
+                    inputMode = InputMode.HIRAGANA
                 ) }
             }
             KeyboardAction.ToggleWidth -> {
@@ -68,6 +70,9 @@ class ActionProcessor(
                         if (state.inputMode == InputMode.FULL_ASCII) InputMode.HALF_ASCII
                         else InputMode.FULL_ASCII
                 ) }
+            }
+            KeyboardAction.Emoji -> {
+                stateFlow.update { it.copy(keyboardType = KeyboardType.EMOJI) }
             }
             KeyboardAction.Left -> {
                 if (stateFlow.value.skkState == SkkState.HENKAN) {

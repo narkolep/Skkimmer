@@ -155,6 +155,7 @@ fun KeyboardLayout(
                             if (config.action != null) {
                                 val keyColor = when (config.action) {
                                     KeyboardAction.Shift -> if (isShifted) keyboardActionColor else keyboardBackgroundColor
+                                    KeyboardAction.ToggleWidth -> if (uiState.inputMode == InputMode.FULL_ASCII) keyboardActionColor else keyboardBackgroundColor
                                     KeyboardAction.Enter -> keyboardActionColor
                                     else -> keyboardBackgroundColor
                                 }
