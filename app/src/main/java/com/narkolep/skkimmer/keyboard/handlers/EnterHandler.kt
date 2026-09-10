@@ -1,6 +1,5 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
-import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.OutputManager
@@ -54,28 +53,23 @@ fun enterHandler(
         }
 
         if (state.composingText.isEmpty()) {
-            val action = editorInfo?.imeOptions?.and(EditorInfo.IME_MASK_ACTION)
-            val inputType = editorInfo?.inputType ?: 0
-            val imeOptions = editorInfo?.imeOptions ?: 0
-
-            val isMultiLine = (inputType and InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0
+            val imeOptions = editorInfo?.imeOptions ?: EditorInfo.IME_ACTION_NONE
+            val action = imeOptions and EditorInfo.IME_MASK_ACTION
             val noEnterAction = (imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0
+            val hasRequestedAction = action != EditorInfo.IME_ACTION_NONE && !noEnterAction
 
-            if (isMultiLine || noEnterAction) {
-                /* 改行 */
-                inputCommitter.commit("\n")
-                return
-            }
-            if (action != null) {
-                /* アクション実行 */
+            if (hasRequestedAction) {
+                // 検索/送信/完了などのアクションが指定されている場合はそれを実行
                 inputCommitter.performEditorAction(action)
-                return
+            } else {
+                // 改行を挿入
+                inputCommitter.commit("\n")
             }
-            /* fallback (改行) */
-            inputCommitter.commit("\n")
+
             return
         }
     }
 
+    /* 文字列の確定 */
     outputManager.commit()
 }

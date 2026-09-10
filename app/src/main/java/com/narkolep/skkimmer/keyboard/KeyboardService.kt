@@ -1,5 +1,6 @@
 package com.narkolep.skkimmer.keyboard
 
+import android.R.color.black
 import android.inputmethodservice.InputMethodService
 import android.text.InputType
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -82,6 +84,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             decorView.setViewTreeViewModelStoreOwner(this)
             decorView.setViewTreeSavedStateRegistryOwner(this)
         }
+
+        setupEdgeToEdgeNavigationBar()
 
         composeView.apply {
             setViewTreeLifecycleOwner(this@KeyboardService)
@@ -187,5 +191,18 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
             else -> null to null
         }
+    }
+
+    /**
+     * Android 15+ (API 35+) 向けのedge-to-edge設定
+     * 3ボタンナビゲーション時に自動でかかる半透明スクリムを無効化
+     */
+    private fun setupEdgeToEdgeNavigationBar() {
+        val win = window.window ?: return // InputMethodServiceのDialogが持つWindow
+
+        WindowCompat.setDecorFitsSystemWindows(win, false)
+        win.isNavigationBarContrastEnforced = false
+
+        win.navigationBarColor = color@black
     }
 }

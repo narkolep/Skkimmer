@@ -91,6 +91,8 @@ class ActionProcessor(
                 moveCursor(1)
             }
             KeyboardAction.Dakuten -> {
+                // カーソルを末尾に移動してから濁点処理を実行する
+                outputManager.update()
                 dakutenHandler(stateFlow, inputCommitter, keyProcessor)
             }
             is KeyboardAction.CandidateIndex -> {

@@ -77,7 +77,7 @@ fun App(dao: HistoryDao) {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    // DataStoreからテーマの設定を読み込む（初期値は "システム"）
+    // DataStoreからテーマの設定を読み込む
     val themeMode by context.dataStore.data
         .map { preferences -> preferences[THEME_KEY] ?: "システム" }
         .collectAsState(initial = "システム")
