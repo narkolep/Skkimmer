@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import com.narkolep.skkimmer.ui.theme.AppFontFamily
 
 @Composable
 fun EmojiPicker(
@@ -87,7 +86,6 @@ fun EmojiPicker(
                             text = category.name,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 13.sp,
-                            fontFamily = AppFontFamily,
                             maxLines = 1,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp) // タブ内の余白
                         )
@@ -110,7 +108,6 @@ fun EmojiPicker(
                             Text(
                                 text = subcategory.name,
                                 fontSize = 14.sp,
-                                fontFamily = AppFontFamily,
                                 color = textColor.copy(alpha = 0.6f),
                                 modifier = Modifier.padding(top = 16.dp, bottom = 4.dp, start = 4.dp)
                             )
@@ -166,7 +163,7 @@ fun EmojiPicker(
         ) {
             Text(
                 text = "ABC",
-                fontFamily = AppFontFamily,
+                fontSize = 20.sp,
                 color = actionTextColor
             )
         }

@@ -23,7 +23,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import com.narkolep.skkimmer.ui.theme.AppFontFamily
 
 @Composable
 fun CandidateBar(
@@ -83,7 +82,6 @@ fun CandidateBar(
                 text = annotatedText,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 fontSize = 20.sp,
-                fontFamily = AppFontFamily,
                 color = textColor,
                 modifier = Modifier
                     .fillMaxHeight()

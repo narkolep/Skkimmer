@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +36,6 @@ import androidx.compose.runtime.setValue
 import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKanaMap
 import kotlin.math.abs
 import androidx.compose.ui.res.painterResource
-import com.narkolep.skkimmer.ui.theme.AppFontFamily
 
 enum class FlickDirection {
     NONE, CENTER, LEFT, RIGHT, UP, DOWN
@@ -150,12 +148,8 @@ fun FlickKey(
         } else {
             Text(
                 text = displayText,
-                fontFamily = AppFontFamily,
                 color = textColor,
-                fontSize = 28.sp,
-                modifier = Modifier.offset(
-                    y = 2.dp
-                )
+                fontSize = 28.sp
             )
         }
 
@@ -209,7 +203,6 @@ fun FlickPopup(
         ) {
             Text(
                 text = text,
-                fontFamily = AppFontFamily,
                 color = if (isActive) activeTextColor else inactiveTextColor,
                 fontSize = 28.sp,
                 fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal

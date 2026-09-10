@@ -35,7 +35,6 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import com.narkolep.skkimmer.ui.theme.AppFontFamily
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -44,7 +43,7 @@ fun SkkKey(
     modifier: Modifier = Modifier,
     iconResId: Int? = null, // アイコン(svg)
     flickText: String = "",
-    textSize: Float = 24f,
+    textSize: Float = 22f,
     keyboardHeight: Float,
     keyColor: Color,
     textColor: Color,
@@ -72,8 +71,8 @@ fun SkkKey(
             .fillMaxSize()
             .pointerInput(mainText, flickText) {
                 val flickThreshold = 40.dp.toPx()
-                val repeatInterval = 100L // 連続入力の間隔 (100ms)
-                val initialDelay = 500L   // 長押しと判定するまでの待機時間 (500ms)
+                val repeatInterval = 80L // 連続入力の間隔
+                val initialDelay = 500L   // 長押しと判定するまでの待機時間
 
                 awaitEachGesture {
                     val downEvent = awaitFirstDown(requireUnconsumed = false)
@@ -172,7 +171,6 @@ fun SkkKey(
                         Text(
                             text = flickText,
                             fontSize = 10.sp,
-                            fontFamily = AppFontFamily,
                             color = textColor.copy(alpha = 0.6f),
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
@@ -184,7 +182,6 @@ fun SkkKey(
                         text = mainText,
                         fontWeight = if (flickText.isNotEmpty()) FontWeight.SemiBold else FontWeight.Normal,
                         fontSize = textSize.sp,
-                        fontFamily = AppFontFamily,
                         color = textColor,
                         modifier = Modifier.align(Alignment.Center)
                     )
@@ -206,8 +203,7 @@ fun SkkKey(
                                 text = currentPopupText,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 28.sp,
-                                fontFamily = AppFontFamily,
-                                color = textColor,
+                                color = textColor
                             )
                         }
                     }
