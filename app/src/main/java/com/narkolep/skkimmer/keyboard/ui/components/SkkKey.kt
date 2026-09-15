@@ -50,7 +50,7 @@ fun SkkKey(
     flickColor: Color = Color.Transparent,
     spaceLeftRight: String = "",
     weight: Float = 1f,
-    cornerShape: Dp = 8.dp,
+    cornerShape: Dp = 10.dp,
     keyRepeat: Boolean = false,
     onFlick: () -> Unit = {},
     onClick: () -> Unit
@@ -149,7 +149,7 @@ fun SkkKey(
 
             Box(
                 modifier = Modifier
-                    .padding(2.dp)
+                    .padding(3.dp)
                     .weight(weight)
                     .fillMaxHeight()
                     .background(
@@ -162,7 +162,7 @@ fun SkkKey(
                         painter = painterResource(id = iconResId),
                         contentDescription = mainText,
                         modifier = Modifier
-                            .size(26.dp)
+                            .size(24.dp)
                             .align(Alignment.Center),
                         tint = textColor
                     )

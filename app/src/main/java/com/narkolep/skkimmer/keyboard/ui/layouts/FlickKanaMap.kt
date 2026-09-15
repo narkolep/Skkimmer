@@ -56,6 +56,7 @@ object FlickKanaMap {
                 keyRepeat = true
             )
         ),
+
         /* 2段目 */
         listOf(
             FlickKeyConfig(
@@ -92,6 +93,7 @@ object FlickKanaMap {
                 keyRepeat = true
             )
         ),
+
         // 3段目
         listOf(
             FlickKeyConfig(
@@ -125,6 +127,7 @@ object FlickKanaMap {
                 action = KeyboardAction.Space
             )
         ),
+
         // 4段目
         listOf(
             FlickKeyConfig(

@@ -163,7 +163,7 @@ fun EmojiPicker(
         ) {
             Text(
                 text = "ABC",
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 color = actionTextColor
             )
         }

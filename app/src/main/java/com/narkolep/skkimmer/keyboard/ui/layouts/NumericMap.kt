@@ -5,6 +5,7 @@ import com.narkolep.skkimmer.keyboard.KeyboardAction
 
 object NumericMap {
     val numericLayout = listOf(
+        /* 1段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "L",
@@ -31,6 +32,7 @@ object NumericMap {
             )
         ),
 
+        /* 2段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "Left",
@@ -58,6 +60,7 @@ object NumericMap {
             )
         ),
 
+        /* 3段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "Emoji",
@@ -83,6 +86,7 @@ object NumericMap {
             )
         ),
 
+        /* 4段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "Back",
@@ -99,7 +103,7 @@ object NumericMap {
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = ",.",
-                center = ",", left = "!", up = "?", right = ".", down = ""
+                center = ",", left = ".", up = "?", right = "!", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "Enter",

@@ -69,16 +69,17 @@ fun FlickKey(
     var yOffset by remember { mutableIntStateOf(0) }
     var xOffset by remember { mutableIntStateOf(0) }
 
-    val paddingPx = with(density) { 2.dp.roundToPx() }
+    val paddingDp = 3.dp
+    val paddingPx = with(density) { paddingDp.roundToPx() }
 
     val currentIsCtrlActive by rememberUpdatedState(isCtrlPressed)
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .padding(2.dp)
+            .padding(paddingDp)
             .fillMaxHeight()
-            .background(color = keyColor, shape = RoundedCornerShape(8.dp))
+            .background(color = keyColor, shape = RoundedCornerShape(10.dp))
             .onSizeChanged { size ->
                 keyWidth = with(density) { size.width.toDp() }
                 keyHeight = with(density) { size.height.toDp() }
@@ -87,10 +88,10 @@ fun FlickKey(
 
                 yOffset = 0
                 xOffset = 0
-                if (config.up.isEmpty()) yOffset += ((keyHeightPx + paddingPx)*0.5).toInt()
-                if (config.down.isEmpty()) yOffset -= ((keyHeightPx + paddingPx)*0.5).toInt()
-                if (config.left.isEmpty()) xOffset += ((keyWidthPx + paddingPx)*0.5).toInt()
-                if (config.right.isEmpty()) xOffset -= ((keyWidthPx + paddingPx)*0.5).toInt()
+                if (config.up.isEmpty()) yOffset += (keyHeightPx*0.5 + paddingPx*0.5).toInt()
+                if (config.down.isEmpty()) yOffset -= (keyHeightPx*0.5 + paddingPx*0.5).toInt()
+                if (config.left.isEmpty()) xOffset += (keyWidthPx*0.5 + paddingPx).toInt()
+                if (config.right.isEmpty()) xOffset -= (keyWidthPx*0.5 + paddingPx).toInt()
             }
             .pointerInput(isFlickMode) {
                 if (!isFlickMode) return@pointerInput
@@ -99,7 +100,8 @@ fun FlickKey(
                     val downEvent = awaitFirstDown()
                     if (config.consonant.isNotEmpty()) onInput(config.consonant)
 
-                    isDragging = true // 指が触れたら表示
+                    // 指が触れたら表示
+                    isDragging = true
                     currentDir = FlickDirection.CENTER
 
                     var finalX: Float
@@ -122,7 +124,8 @@ fun FlickKey(
                         }
                     } while (event.changes.any { it.pressed })
 
-                    isDragging = false // 指が離れたら非表示
+                    // 指が離れたら非表示
+                    isDragging = false
                     val output = when(currentDir) {
                         FlickDirection.CENTER -> config.center
                         FlickDirection.LEFT -> config.left
@@ -149,7 +152,7 @@ fun FlickKey(
             Text(
                 text = displayText,
                 color = textColor,
-                fontSize = 28.sp
+                fontSize = 26.sp
             )
         }
 
@@ -162,8 +165,9 @@ fun FlickKey(
                 FlickPopup(
                     config = config,
                     currentDir = currentDir,
-                    keyWidth = keyWidth + 2.dp,
-                    keyHeight = keyHeight + 2.dp,
+                    paddingDp = paddingDp,
+                    keyWidth = keyWidth + paddingDp,
+                    keyHeight = keyHeight + paddingDp,
                     activeBgColor = keyColor,
                     activeTextColor = actionColor,
                     inactiveBgColor = backgroundColor,
@@ -178,6 +182,7 @@ fun FlickKey(
 fun FlickPopup(
     config: FlickKanaMap.FlickKeyConfig,
     currentDir: FlickDirection,
+    paddingDp: Dp,
     keyWidth: Dp,
     keyHeight: Dp,
     activeBgColor: Color = Color.Blue,
@@ -185,17 +190,22 @@ fun FlickPopup(
     inactiveBgColor: Color = Color.LightGray,
     inactiveTextColor: Color = Color.DarkGray
 ) {
-    // 1つの文字ブロックを描画する関数
+    // 文字ブロックを描画する関数
     @Composable
     fun PopupChar(text: String, isActive: Boolean) {
         if (text.isEmpty()) {
-            Spacer(modifier = Modifier.size(width = keyWidth, height = keyHeight))
+            Spacer(
+                modifier = Modifier
+                    .size(width = keyWidth, height = keyHeight)
+                    .padding(paddingDp/3)
+            )
             return
         }
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(width = keyWidth, height = keyHeight)
+                .padding(paddingDp/3)
                 .background(
                     color = if (isActive) activeBgColor else inactiveBgColor,
                     shape = RoundedCornerShape(8.dp)
@@ -213,28 +223,36 @@ fun FlickPopup(
     // レイアウト
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = Modifier.padding(2.dp)
+        verticalArrangement = Arrangement.spacedBy(paddingDp)
     ) {
         // 上段
-        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(paddingDp)) {
             if (config.up.isNotEmpty()) {
                 if (config.left.isNotEmpty()) PopupChar("", false)
-                PopupChar(text = config.up, isActive = currentDir == FlickDirection.UP)
+                PopupChar(
+                    text = config.up,
+                    isActive = currentDir == FlickDirection.UP
+                )
                 if (config.right.isNotEmpty()) PopupChar("", false)
             }
         }
         // 中段
-        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(paddingDp)) {
             if (config.left.isNotEmpty()) PopupChar(text = config.left, isActive = currentDir == FlickDirection.LEFT)
-            PopupChar(text = config.center, isActive = currentDir == FlickDirection.CENTER)
+            PopupChar(
+                text = config.center,
+                isActive = currentDir == FlickDirection.CENTER
+            )
             if (config.right.isNotEmpty()) PopupChar(text = config.right, isActive = currentDir == FlickDirection.RIGHT)
         }
         // 下段
-        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(paddingDp*2)) {
             if (config.down.isNotEmpty()) {
                 if (config.left.isNotEmpty()) PopupChar("", false)
-                PopupChar(text = config.down, isActive = currentDir == FlickDirection.DOWN)
+                PopupChar(
+                    text = config.down,
+                    isActive = currentDir == FlickDirection.DOWN
+                )
                 if (config.right.isNotEmpty()) PopupChar("", false)
             }
         }
