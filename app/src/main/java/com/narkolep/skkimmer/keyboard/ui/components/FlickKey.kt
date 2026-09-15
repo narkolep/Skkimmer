@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -33,6 +33,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKanaMap
 import kotlin.math.abs
 import androidx.compose.ui.res.painterResource
@@ -52,6 +53,7 @@ fun FlickKey(
     actionColor: Color = Color.DarkGray,
     iconResId: Int? = null,
     isFlickMode: Boolean = true,
+    isNumberKeyboard: Boolean = false,
     isCtrlPressed: Boolean = false,
     onInput: (String) -> Unit
 ) {
@@ -72,6 +74,7 @@ fun FlickKey(
     val paddingDp = 3.dp
     val paddingPx = with(density) { paddingDp.roundToPx() }
 
+    val offsetDp: Dp = if (isNumberKeyboard) (-4).dp else 0.dp
     val currentIsCtrlActive by rememberUpdatedState(isCtrlPressed)
 
     Box(
@@ -149,10 +152,22 @@ fun FlickKey(
                 tint = textColor
             )
         } else {
+            if (isNumberKeyboard) {
+                Text(
+                    text = config.left + config.up + config.down + config.right,
+                    fontSize = 10.sp,
+                    color = textColor.copy(alpha = 0.6f),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(2.dp)
+                )
+            }
+
             Text(
                 text = displayText,
                 color = textColor,
-                fontSize = 26.sp
+                fontSize = 26.sp,
+                modifier = Modifier.offset(y = offsetDp)
             )
         }
 

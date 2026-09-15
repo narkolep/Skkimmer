@@ -14,15 +14,15 @@ object NumericMap {
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "1",
-                center = "1", left = "", up = "", right = "", down = ""
+                center = "1", left = "☆", up = "♪", right = "→", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "2",
-                center = "2", left = "$", up = "", right = "￥", down = ""
+                center = "2", left = "¥", up = "€", right = "$", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "3",
-                center = "3", left = "%", up = "&", right = "#", down = ""
+                center = "3", left = "%", up = "°", right = "#", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "BS",
@@ -42,7 +42,7 @@ object NumericMap {
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "4",
-                center = "4", left = "*", up = "", right = "・", down = ""
+                center = "4", left = "○", up = "*", right = "・", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "5",
@@ -69,15 +69,15 @@ object NumericMap {
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "7",
-                center = "7", left = "「", up = ":", right = "」", down = ";"
+                center = "7", left = "「", up = ":", right = "」", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "8",
-                center = "8", left = "(", up = "", right = ")", down = ""
+                center = "8", left = "〒", up = "々", right = "〆", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "9",
-                center = "9", left = "|", up = "^", right = "", down = ""
+                center = "9", left = "^", up = "|", right = """\""", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "Space",
@@ -94,16 +94,16 @@ object NumericMap {
                 iconResId = R.drawable.lucide_ic_earth
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "-",
-                center = "-", left = "~", up = """\""", right = "/", down = "",
+                hiraLabel = "()[]",
+                center = "(", left = ")", up = "[", right = "]", down = "",
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "0",
-                center = "0", left = "@", up = "", right = "", down = ""
+                center = "0", left = "~", up = "…", right = "@", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = ",.",
-                center = ",", left = ".", up = "?", right = "!", down = ""
+                hiraLabel = ".,-/",
+                center = ".", left = ",", up = "-", right = "/", down = ""
             ),
             FlickKanaMap.FlickKeyConfig(
                 hiraLabel = "Enter",

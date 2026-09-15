@@ -182,6 +182,7 @@ fun KeyboardLayout(
                                     textColor = keyboardTextColor,
                                     backgroundColor = keyboardBackgroundColor,
                                     actionColor = keyboardActionColor,
+                                    isNumberKeyboard = config.hiraLabel[0] in '0'..'9',
                                     isCtrlPressed = uiState.isCtrlPressed,
                                     onInput = { text ->
                                         text.forEach { keyId -> onKeyClick(keyId.toString()) }
