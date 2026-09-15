@@ -14,9 +14,10 @@ fun handleCTRL(
     state: KeyboardState,
     stateFlow: MutableStateFlow<KeyboardState>,
     inputCommitter: InputCommitter,
-    outputManager: OutputManager
-): Boolean {
-    if (!state.isCtrlPressed) return false
+    outputManager: OutputManager,
+    service: KeyboardService
+): String? {
+    if (!state.isCtrlPressed) return key
 
     when (key) {
         "j" -> {
@@ -25,7 +26,7 @@ fun handleCTRL(
                 inputMode = InputMode.HIRAGANA,
                 shiftState = ShiftState.LOWERCASE
             ) }
-            return true
+            return null
         }
         "e" -> {
             /* Emoji */
@@ -33,7 +34,8 @@ fun handleCTRL(
                 keyboardType = KeyboardType.EMOJI,
                 shiftState = ShiftState.LOWERCASE
             ) }
-            return true
+            outputManager.commit()
+            return null
         }
         "k" -> {
             /* switching Keyboards */
@@ -45,7 +47,7 @@ fun handleCTRL(
                     if (state.skkState == SkkState.ABBREV) SkkState.NORMAL
                     else state.skkState
             ) }
-            return true
+            return null
         }
         "n" -> {
             /* Numeric keypad */
@@ -55,31 +57,30 @@ fun handleCTRL(
                 shiftState = ShiftState.LOWERCASE
             ) }
             outputManager.commit()
-            return true
+            return null
         }
         "a" -> {
             /* select All */
             inputCommitter.selectAll()
-            return true
+            return null
         }
         "x" -> {
             /* Cut */
             inputCommitter.cut()
-            return true
+            return null
         }
         "c" -> {
             /* Copy */
             inputCommitter.copy()
-            return true
+            return null
         }
         "v" -> {
             /* Paste */
-            inputCommitter.paste()
-            return true
+            return service.getClipboardText()
         }
     }
 
-    return false
+    return key
 }
 
 /**

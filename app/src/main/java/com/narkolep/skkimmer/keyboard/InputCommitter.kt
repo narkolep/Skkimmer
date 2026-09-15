@@ -28,12 +28,6 @@ class InputCommitter(
         )
     }
 
-    fun paste() {
-        connectionProvider()?.performContextMenuAction(
-            android.R.id.paste
-        )
-    }
-
     fun commit(text: String) {
         connectionProvider()?.commitText(text, 1)
     }

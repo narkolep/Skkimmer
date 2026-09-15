@@ -1,6 +1,7 @@
 package com.narkolep.skkimmer.keyboard
 
 import android.R.color.black
+import android.content.ClipboardManager
 import android.inputmethodservice.InputMethodService
 import android.text.InputType
 import android.view.View
@@ -26,9 +27,12 @@ import com.narkolep.skkimmer.data.EmojiManager
 import com.narkolep.skkimmer.keyboard.ui.KeyboardLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.getValue
 
 class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     override val viewModelStore: ViewModelStore get() = store
@@ -41,7 +45,9 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     private var emojiCategories: List<EmojiManager.Category> = emptyList()
     private var currentEditorInfo: EditorInfo? = null
-
+    private val clipboardManager by lazy {
+        getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+    }
     private lateinit var dictionaryManager: DictionaryManager
     private lateinit var outputManager: OutputManager
     private lateinit var keyProcessor: KeyProcessor
@@ -62,30 +68,37 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
         lifecycleScope.launch {
             val parsedList = withContext(Dispatchers.IO) {
-                val jsonString =
-                    assets.open("all-emoji.json").bufferedReader().use { it.readText() }
+                val jsonString = assets.open("all-emoji.json").bufferedReader().use { it.readText() }
                 EmojiManager(this@KeyboardService).loadEmojis(jsonString)
             }
             emojiCategories = parsedList
 
-            stateFlow.collect {
-                /* stateFlowが変化したとき、表示を更新 */
-                outputManager.update()
-            }
+            stateFlow
+                .map { it.toBufferSnapshot() }
+                .distinctUntilChanged()
+                .collect {
+                    /* bufferにあたるフィールドが変化したときのみ表示を更新 */
+                    outputManager.update()
+                }
         }
     }
 
     override fun onCreateInputView(): View {
         val composeView = ComposeView(this)
 
-        val decorView = window?.window?.decorView
+        val win = window?.window
+        if (win != null) {
+            WindowCompat.setDecorFitsSystemWindows(win, false)
+            win.isNavigationBarContrastEnforced = false
+            win.navigationBarColor = color@black
+        }
+
+        val decorView = win?.decorView
         if (decorView != null) {
             decorView.setViewTreeLifecycleOwner(this)
             decorView.setViewTreeViewModelStoreOwner(this)
             decorView.setViewTreeSavedStateRegistryOwner(this)
         }
-
-        setupEdgeToEdgeNavigationBar()
 
         composeView.apply {
             setViewTreeLifecycleOwner(this@KeyboardService)
@@ -107,20 +120,23 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
-        /* 入力モードを更新 */
-        val (autoMode, autoType) = determineInputMode(currentEditorInfo)
+        return composeView
+    }
+
+    override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
+        super.onStartInputView(info, restarting)
+
+        /* 入力欄が切り替わるたびにキーボードタイプを決定する */
+        val autoType = determineInputMode(info)
 
         stateFlow.update {
             it.copy(
                 skkState = SkkState.NORMAL,
-                inputMode = autoMode ?: InputMode.HIRAGANA,
                 keyboardType = autoType ?: KeyboardType.NORMAL,
-                composingText = "",
-                isFlick = (autoMode == InputMode.HIRAGANA)
+                inputMode = if (autoType == null) InputMode.HIRAGANA else InputMode.HALF_ASCII,
+                composingText = ""
             )
         }
-
-        return composeView
     }
 
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
@@ -129,6 +145,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
         keyProcessor = KeyProcessor(
             stateFlow = stateFlow,
+            keyboardService = this,
             dictionaryManager = dictionaryManager,
             connectionProvider = { currentInputConnection }
         )
@@ -159,8 +176,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     /**
      * EditorInfoから適切なInputMode,KeyboardTypeを決定する関数
      */
-    private fun determineInputMode(editorInfo: EditorInfo?): Pair<InputMode?, KeyboardType?> {
-        if (editorInfo == null) return null to null
+    private fun determineInputMode(editorInfo: EditorInfo?): KeyboardType? {
+        if (editorInfo == null) return null
 
         val inputType = editorInfo.inputType
         val classType = inputType and InputType.TYPE_MASK_CLASS
@@ -171,38 +188,62 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             InputType.TYPE_CLASS_NUMBER,
             InputType.TYPE_CLASS_PHONE,
             InputType.TYPE_CLASS_DATETIME -> {
-                InputMode.HALF_ASCII to KeyboardType.NUMERIC
+                KeyboardType.NUMERIC
             }
 
             /* テキストの入力欄 */
             InputType.TYPE_CLASS_TEXT -> {
                 when (variation) {
-                    /* パスワードとメールアドレス */
                     InputType.TYPE_TEXT_VARIATION_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD,
                     InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS,
                     InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS -> {
-                        InputMode.HALF_ASCII to KeyboardType.NORMAL
+                        KeyboardType.NORMAL
                     }
-                    else -> null to null
+                    else -> null
                 }
             }
 
-            else -> null to null
+            else -> null
         }
     }
 
-    /**
-     * Android 15+ (API 35+) 向けのedge-to-edge設定
-     * 3ボタンナビゲーション時に自動でかかる半透明スクリムを無効化
-     */
-    private fun setupEdgeToEdgeNavigationBar() {
-        val win = window.window ?: return // InputMethodServiceのDialogが持つWindow
+    // bufferに該当するフィールドだけを抜き出した比較用スナップショット
+    private data class BufferSnapshot(
+        val candidates: List<String>,
+        val selectedIndex: Int,
+        val composingText: String,
+        val midashiText: String,
+        val okuriganaText: String,
+        val okuriganaTrigger: String,
+        val tourokuFlag: String,
+        val oldMidashiText: String,
+        val oldOkuriganaText: String,
+        val oldOkuriganaTrigger: String,
+    )
 
-        WindowCompat.setDecorFitsSystemWindows(win, false)
-        win.isNavigationBarContrastEnforced = false
+    private fun KeyboardState.toBufferSnapshot() = BufferSnapshot(
+        candidates = candidates,
+        selectedIndex = selectedIndex,
+        composingText = composingText,
+        midashiText = midashiText,
+        okuriganaText = okuriganaText,
+        okuriganaTrigger = okuriganaTrigger,
+        tourokuFlag = tourokuFlag,
+        oldMidashiText = oldMidashiText,
+        oldOkuriganaText = oldOkuriganaText,
+        oldOkuriganaTrigger = oldOkuriganaTrigger,
+    )
 
-        win.navigationBarColor = color@black
+    fun getClipboardText(): String? {
+        if (!clipboardManager.hasPrimaryClip()) {
+            return null
+        }
+
+        return clipboardManager.primaryClip
+            ?.getItemAt(0)
+            ?.coerceToText(this)
+            ?.toString()
     }
 }

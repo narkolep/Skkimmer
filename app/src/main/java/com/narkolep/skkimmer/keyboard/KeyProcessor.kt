@@ -7,14 +7,15 @@ import kotlinx.coroutines.flow.update
 
 class KeyProcessor(
     private val stateFlow: MutableStateFlow<KeyboardState>,
+    private val keyboardService: KeyboardService,
     dictionaryManager: DictionaryManager,
-    connectionProvider: () -> InputConnection?
+    connectionProvider: () -> InputConnection?,
 ) {
     private val inputCommitter = InputCommitter(connectionProvider)
     private val outputManager = OutputManager(stateFlow, inputCommitter, dictionaryManager)
 
     fun handle(key: String) {
-        val state = stateFlow.value
+        val oldState = stateFlow.value
 
         // ShiftとCtrlを元に戻す
         stateFlow.update { it.copy(
@@ -25,26 +26,25 @@ class KeyProcessor(
         ) }
 
         // ショートカット処理 その1
-        if (handleCTRL(key, state, stateFlow, inputCommitter, outputManager)) return
+        val newKey = handleCTRL(key, oldState, stateFlow, inputCommitter, outputManager, keyboardService) ?: return
 
         // 英数字(直接出力)
-        if (outputManager.asciiOutput(key, state)) return
+        if (outputManager.asciiOutput(newKey, oldState)) return
 
         // ローマ字変換
         val result = romajiConverter(
-            composing = state.composingText,
-            key = key,
-            inputMode = state.inputMode
+            composing = oldState.composingText,
+            key = newKey,
+            inputMode = oldState.inputMode
         )
 
         // ショートカット処理 その2
-        if (handleKey(state, stateFlow, result, outputManager)) return
+        if (handleKey(oldState, stateFlow, result, outputManager)) return
 
         // shiftキーによる状態遷移
-        changeState(key, state)
+        changeState(newKey, oldState)
 
         // resultの出力処理
-        val oldState = state
         val newState = stateFlow.value
         outputManager.kanaOutput(newState, oldState, result)
     }
