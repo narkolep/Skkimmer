@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.update
 
 /**
  * 文字を削除する
- * @return 削除した文字 (状態変化のみの場合は空文字を返す)
  */
 fun backspaceHandler(
     stateFlow : MutableStateFlow<KeyboardState>,
@@ -41,7 +40,7 @@ fun backspaceHandler(
 
             if (state.tourokuFlag.isEmpty()) {
                 /* 未確定の文字列がないとき */
-                inputCommitter.delete()
+                inputCommitter.delete(1)
                 return
             }
 

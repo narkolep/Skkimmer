@@ -38,7 +38,7 @@ class ActionProcessor(
 ) {
     /**
      * アクションキーの分岐
-     **/
+     */
     fun handle(action: KeyboardAction) {
         val state = stateFlow.value
 
@@ -80,7 +80,7 @@ class ActionProcessor(
                     return
                 }
 
-                moveCursor(-1)
+                inputCommitter.moveCursor(-1)
             }
             KeyboardAction.Right -> {
                 if (stateFlow.value.skkState == SkkState.HENKAN) {
@@ -88,7 +88,7 @@ class ActionProcessor(
                     return
                 }
 
-                moveCursor(1)
+                inputCommitter.moveCursor(1)
             }
             KeyboardAction.Dakuten -> {
                 // カーソルを末尾に移動してから濁点処理を実行する
@@ -101,15 +101,5 @@ class ActionProcessor(
                 outputManager.commit()
             }
         }
-    }
-
-    /* カーソル移動 */
-    private fun moveCursor(offset: Int) {
-        val extracted = inputCommitter.getExtractedText() ?: return
-        val textLength = extracted.text?.length ?: 0
-        val current = extracted.selectionStart
-        val newPos = (current + offset).coerceIn(0, textLength)
-
-        inputCommitter.setSelection(newPos, newPos)
     }
 }
