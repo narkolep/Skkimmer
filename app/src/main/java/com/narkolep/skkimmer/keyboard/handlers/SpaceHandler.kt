@@ -4,6 +4,7 @@ import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
+import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.clear
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -23,13 +24,19 @@ fun spaceHandler(
             if (state.tourokuFlag.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
-                        tourokuFlag = state.tourokuFlag + " "
+                        tourokuFlag = state.tourokuFlag + "\u0020"
                     )
                 }
                 return
             }
 
-            keyProcessor.handle(" ")
+            if (state.shiftState == ShiftState.LOWERCASE) {
+                /* 半角スペース */
+                keyProcessor.handle("\u0020")
+            } else {
+                /* 全角スペース */
+                keyProcessor.handle("\u3000")
+            }
         }
 
         SkkState.MIDASHI -> {

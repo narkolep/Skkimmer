@@ -159,10 +159,8 @@ class OutputManager(
     fun update() {
         val state = stateFlow.value
 
-        val midashiSymbol = ""
+        val midashiSymbol = "\u0020"
         val henkanSymbol = ""
-        // val midashiSymbol = "▽"
-        // val henkanSymbol = "▼"
         val okuriganaSymbol = "*"
 
         val displayText = when (state.skkState) {
