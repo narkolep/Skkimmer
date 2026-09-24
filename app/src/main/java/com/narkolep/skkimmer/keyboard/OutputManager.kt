@@ -159,8 +159,6 @@ class OutputManager(
     fun update() {
         val state = stateFlow.value
 
-        val midashiSymbol = "\u0020"
-        val henkanSymbol = ""
         val okuriganaSymbol = "*"
 
         val displayText = when (state.skkState) {
@@ -172,17 +170,17 @@ class OutputManager(
                 state.tourokuFlag + state.composingText
             }
             SkkState.MIDASHI -> {
-                state.tourokuFlag + midashiSymbol + state.midashiText + state.composingText
+                state.tourokuFlag + state.midashiText + state.composingText
             }
             SkkState.OKURIGANA -> {
-                state.tourokuFlag + midashiSymbol + state.midashiText + okuriganaSymbol + state.okuriganaText + state.composingText
+                state.tourokuFlag + state.midashiText + okuriganaSymbol + state.okuriganaText + state.composingText
             }
             SkkState.HENKAN -> {
                 val displayOkuri =
                     if (state.okuriganaText.isNotEmpty()) okuriganaSymbol + state.okuriganaText + state.composingText
                     else ""
                 val candidates = state.candidates[state.selectedIndex].split(";")[0]
-                state.tourokuFlag + henkanSymbol + candidates + displayOkuri
+                state.tourokuFlag + candidates + displayOkuri
             }
             SkkState.ABBREV -> {
                 state.tourokuFlag + state.midashiText.ifEmpty { state.composingText }

@@ -115,7 +115,8 @@ fun handleKey(
                 /* NORMALモード中 */
                 stateFlow.update {
                     it.copy(
-                        skkState = SkkState.MIDASHI
+                        skkState = SkkState.MIDASHI,
+                        composingText = "\u0020"
                     )
                 }
                 return true
@@ -195,7 +196,7 @@ fun handleKey(
                 it.copy(
                     skkState = SkkState.ABBREV,
                     isFlick = false,
-                    composingText = " "
+                    composingText = "\u0020"
                 )
             }
             return true

@@ -75,7 +75,7 @@ fun backspaceHandler(
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.ABBREV,
-                        composingText = " ", // 半角スペース
+                        composingText = "\u0020", // 半角スペース
                         midashiText = state.oldMidashiText,
                         okuriganaText = "",
                         okuriganaTrigger = ""
@@ -95,15 +95,24 @@ fun backspaceHandler(
                     okuriganaTrigger = ""
                 )
             }
-            return
         }
 
         SkkState.MIDASHI -> {
+            /* " "のとき */
+            if (state.composingText == "\u0020") {
+                stateFlow.update { it.clear() }
+                return
+            }
+
             /* composingTextが存在するとき */
             if (state.composingText.isNotEmpty()) {
+                val newComposingText = state.composingText.dropLast(1)
+
                 stateFlow.update {
                     it.copy(
-                        composingText = state.composingText.dropLast(1)
+                        composingText =
+                            if (newComposingText.isEmpty() && state.midashiText.isEmpty()) "\u0020"
+                            else newComposingText
                     )
                 }
                 return
@@ -111,9 +120,14 @@ fun backspaceHandler(
 
             /* 見出し文字列が存在するとき */
             if (state.midashiText.isNotEmpty()) {
+                val newMidashiText = state.midashiText.dropLast(1)
+
                 stateFlow.update {
                     it.copy(
-                        midashiText = state.midashiText.dropLast(1)
+                        midashiText = newMidashiText,
+                        composingText =
+                            if (newMidashiText.isEmpty()) "\u0020"
+                            else state.composingText
                     )
                 }
                 return
@@ -121,7 +135,6 @@ fun backspaceHandler(
 
             /* 見出し文字列がなければ NORMAL に戻す */
             stateFlow.update { it.clear() }
-            return
         }
 
         SkkState.OKURIGANA -> {
@@ -154,7 +167,6 @@ fun backspaceHandler(
                     selectedIndex = -1
                 )
             }
-            return
         }
 
         SkkState.HENKAN -> {
@@ -177,7 +189,7 @@ fun backspaceHandler(
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.ABBREV,
-                        composingText = " ", // 半角スペース
+                        composingText = "\u0020", // 半角スペース
                         candidates = emptyList(),
                         selectedIndex = -1
                     )
@@ -193,7 +205,6 @@ fun backspaceHandler(
                     selectedIndex = -1
                 )
             }
-            return
         }
 
         SkkState.ABBREV -> {
@@ -209,7 +220,6 @@ fun backspaceHandler(
 
             /* 見出し文字列が存在しないとき */
             stateFlow.update { it.clear() }
-            return
         }
     }
 }
