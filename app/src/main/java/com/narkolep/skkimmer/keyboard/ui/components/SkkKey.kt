@@ -47,7 +47,7 @@ fun SkkKey(
     keyboardHeight: Float,
     keyColor: Color,
     textColor: Color,
-    flickColor: Color = Color.Transparent,
+    flickColor: Color = Color.Black,
     spaceLeftRight: String = "",
     weight: Float = 1f,
     cornerShape: Dp = 10.dp,

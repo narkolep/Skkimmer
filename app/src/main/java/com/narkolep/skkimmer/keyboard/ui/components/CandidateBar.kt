@@ -26,7 +26,6 @@ import androidx.compose.ui.text.withStyle
 
 @Composable
 fun CandidateBar(
-    backgroundColor: Color = Color.Black,
     selectedBackgroundColor: Color = Color.DarkGray,
     selectedTextColor: Color = Color.LightGray,
     candidates: List<String>,
@@ -47,7 +46,6 @@ fun CandidateBar(
         modifier = Modifier
             .fillMaxWidth()
             .height(45.dp)
-            .background(backgroundColor) // バー全体の背景色
             .padding(horizontal = 0.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

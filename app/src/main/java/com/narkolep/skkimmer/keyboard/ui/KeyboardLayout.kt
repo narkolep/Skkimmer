@@ -18,6 +18,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKanaMap.flickLayout
 import com.narkolep.skkimmer.keyboard.ui.components.CandidateBar
 import com.narkolep.skkimmer.keyboard.ui.components.SkkKey
@@ -88,6 +89,7 @@ fun KeyboardLayout(
     }
 
     /* ボタンの色 */
+    val keyboardAlpha: Float = 1.0f
     val keyboardBackgroundColor = colorScheme.surfaceDim
     val keyboardButtonColor = colorScheme.surfaceBright
     val keyboardTextColor = colorScheme.onBackground
@@ -106,7 +108,6 @@ fun KeyboardLayout(
         /* 絵文字入力画面 */
         if (uiState.keyboardType == KeyboardType.EMOJI) {
             EmojiPicker(
-                backgroundColor = keyboardBackgroundColor,
                 textColor = keyboardTextColor,
                 actionColor = keyboardActionColor,
                 actionTextColor = keyboardActionTextColor,
@@ -128,7 +129,7 @@ fun KeyboardLayout(
                             SkkKey(
                                 mainText = config.main,
                                 modifier = Modifier.weight(1f),
-                                keyColor = keyboardBackgroundColor,
+                                keyColor = Color.Transparent,
                                 textColor = keyboardTextColor.copy(alpha = 0.8f),
                                 keyboardHeight = keyboardHeight,
                                 onClick = { onKeyClick(config.main) }
@@ -137,7 +138,6 @@ fun KeyboardLayout(
                     }
                 } else if (uiState.candidates.isNotEmpty()) {
                     CandidateBar(
-                        backgroundColor = keyboardBackgroundColor,
                         selectedBackgroundColor = keyboardButtonColor,
                         selectedTextColor = keyboardTextColor,
                         candidates = uiState.candidates,
@@ -154,10 +154,10 @@ fun KeyboardLayout(
                         rowKeys.forEach { config ->
                             if (config.action != null) {
                                 val keyColor = when (config.action) {
-                                    KeyboardAction.Shift -> if (isShifted) keyboardActionColor else keyboardBackgroundColor
-                                    KeyboardAction.ToggleWidth -> if (uiState.inputMode == InputMode.FULL_ASCII) keyboardActionColor else keyboardBackgroundColor
+                                    KeyboardAction.Shift -> if (isShifted) keyboardActionColor else Color.Transparent
+                                    KeyboardAction.ToggleWidth -> if (uiState.inputMode == InputMode.FULL_ASCII) keyboardActionColor else Color.Transparent
                                     KeyboardAction.Enter -> keyboardActionColor
-                                    else -> keyboardBackgroundColor
+                                    else -> Color.Transparent
                                 }
 
                                 SkkKey(
@@ -202,11 +202,11 @@ fun KeyboardLayout(
                         rowKeys.forEach { config ->
                             if (config.action != null) {
                                 val keyColor = when (config.action) {
-                                    KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) keyboardActionColor else keyboardBackgroundColor
-                                    KeyboardAction.Shift -> if (isShifted) keyboardActionColor else keyboardBackgroundColor
+                                    KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) keyboardActionColor else Color.Transparent
+                                    KeyboardAction.Shift -> if (isShifted) keyboardActionColor else Color.Transparent
                                     KeyboardAction.Enter -> keyboardActionColor
                                     KeyboardAction.Dakuten -> keyboardButtonColor
-                                    else -> keyboardBackgroundColor
+                                    else -> Color.Transparent
                                 }
                                 val actionIcon = if (config.action == KeyboardAction.Space) {
                                         when (uiState.skkState) {
@@ -294,9 +294,9 @@ fun KeyboardLayout(
                             }
 
                             val keyColor = when (config.action) {
-                                KeyboardAction.Shift -> if (isShifted) keyboardActionColor else keyboardBackgroundColor
-                                KeyboardAction.Backspace -> keyboardBackgroundColor
-                                KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) keyboardActionColor else keyboardBackgroundColor
+                                KeyboardAction.Shift -> if (isShifted) keyboardActionColor else Color.Transparent
+                                KeyboardAction.Backspace -> Color.Transparent
+                                KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) keyboardActionColor else Color.Transparent
                                 KeyboardAction.Space -> keyboardButtonColor
                                 KeyboardAction.Enter -> keyboardActionColor
                                 else -> keyboardButtonColor

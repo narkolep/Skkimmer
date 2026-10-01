@@ -22,10 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun EmojiPicker(
-    backgroundColor: Color = Color.Black,
-    textColor: Color = Color.White,
-    actionColor: Color = Color.DarkGray,
-    actionTextColor: Color = Color.White,
+    textColor: Color,
+    actionColor: Color,
+    actionTextColor: Color,
     height: Float = 300f,
     categories: List<EmojiManager.Category>,
     onBackToKeyboard: () -> Unit,
@@ -60,10 +59,10 @@ fun EmojiPicker(
             .height(height.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // 上部カテゴリータブ
+            /* 上部カテゴリータブ */
             PrimaryScrollableTabRow(
                 selectedTabIndex = selectedTabIndex,
-                containerColor = backgroundColor,
+                containerColor = Color.Transparent,
                 edgePadding = 4.dp,
                 indicator = {},
                 divider = {},
@@ -94,7 +93,7 @@ fun EmojiPicker(
             }
 
             if (currentCategory != null) {
-                // カテゴリー内の全絵文字を一覧表示するリスト
+                /* カテゴリー内の全絵文字を一覧表示するリスト */
                 LazyColumn(
                     contentPadding = PaddingValues(bottom = 60.dp),
                     modifier = Modifier
@@ -103,7 +102,7 @@ fun EmojiPicker(
                 ) {
                     currentCategory.subcategories.forEach { subcategory ->
 
-                        // サブカテゴリーの見出し
+                        /* サブカテゴリーの見出し */
                         item(key = "header_${subcategory.name}") {
                             Text(
                                 text = subcategory.name,
@@ -115,7 +114,7 @@ fun EmojiPicker(
 
                         val chunkedEmojis = subcategory.emojis.chunked(columns)
 
-                        // 行ごとにCanvasを描画
+                        /* 行ごとにCanvasを描画する */
                         items(chunkedEmojis) { rowEmojis ->
                             androidx.compose.foundation.Canvas(
                                 modifier = Modifier
@@ -153,7 +152,7 @@ fun EmojiPicker(
                 }
             }
         }
-        // 戻るボタン
+        /* 戻るボタン */
         Button(
             onClick = onBackToKeyboard,
             modifier = Modifier
