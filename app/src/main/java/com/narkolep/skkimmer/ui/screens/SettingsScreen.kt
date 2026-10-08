@@ -17,15 +17,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.core.edit
 import androidx.navigation.NavController
 import com.narkolep.skkimmer.dataStore
-import com.narkolep.skkimmer.THEME_KEY
 import com.narkolep.skkimmer.KEYBOARD_HEIGHT_KEY
 import com.narkolep.skkimmer.KEYBOARD_HEIGHT_LANDSCAPE_KEY
-import com.narkolep.skkimmer.KEYBOARD_HEIGHT_BOTTOM_PADDING
+import com.narkolep.skkimmer.KEYBOARD_BOTTOM_PADDING_KEY
+import com.narkolep.skkimmer.KEYBOARD_PADDING_KEY
 import com.narkolep.skkimmer.ui.components.Divider
-import com.narkolep.skkimmer.ui.components.KeyboardHeightSliderItem
+import com.narkolep.skkimmer.ui.components.DpSliderItem
 import com.narkolep.skkimmer.ui.components.SectionHeader
 import com.narkolep.skkimmer.ui.components.SettingItem
-import com.narkolep.skkimmer.ui.components.ThemeSettingItem
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity
@@ -39,25 +38,25 @@ fun SettingsScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // DataStoreから現在のテーマを読み取る
-    val currentTheme by context.dataStore.data
-        .map { preferences -> preferences[THEME_KEY] ?: "システム" }
-        .collectAsState(initial = "システム")
-
     // 縦向きの高さ
     val portraitHeight by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_HEIGHT_KEY] ?: 55f } // デフォルトは250dp
-        .collectAsState(initial = 55f)
+        .map { preferences -> preferences[KEYBOARD_HEIGHT_KEY] ?: 54f } // デフォルトは250dp
+        .collectAsState(initial = 54f)
 
     // 横向きの高さ
     val landscapeHeight by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] ?: 45f }
-        .collectAsState(initial = 45f)
+        .map { preferences -> preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] ?: 44f }
+        .collectAsState(initial = 44f)
 
-    // パディング
+    // 下端のパディング
     val bottomPadding by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_HEIGHT_BOTTOM_PADDING] ?: 47f }
-        .collectAsState(initial = 47f)
+        .map { preferences -> preferences[KEYBOARD_BOTTOM_PADDING_KEY] ?: 51f }
+        .collectAsState(initial = 51f)
+
+    // 左右のパディング
+    val sidePadding by context.dataStore.data
+        .map { preferences -> preferences[KEYBOARD_PADDING_KEY] ?: 0f }
+        .collectAsState(initial = 0f)
 
     Scaffold(
         topBar = {
@@ -83,55 +82,65 @@ fun SettingsScreen(
             item { Divider() }
             item { SectionHeader("デザイン") }
             item {
-                ThemeSettingItem(
-                    selected = currentTheme,
-                    onThemeSelected = { newTheme ->
-                        scope.launch {
-                            context.dataStore.edit { preferences ->
-                                preferences[THEME_KEY] = newTheme
-                            }
-                        }
-                    }
-                )
+                SettingItem("テーマカラー", "キーボードの色をカスタマイズできます") {
+                    navController.navigate("color")
+                }
             }
             item {
-                KeyboardHeightSliderItem(
+                DpSliderItem(
                     title = "キーボードの高さ（縦）",
-                    currentHeight = portraitHeight,
+                    currentValue = portraitHeight,
                     valueRange = 40f..70f,
-                    onHeightChanged = { newHeight ->
+                    steps = 10,
+                    onValueChanged = { newValue ->
                         scope.launch {
                             context.dataStore.edit { preferences ->
-                                preferences[KEYBOARD_HEIGHT_KEY] = newHeight
+                                preferences[KEYBOARD_HEIGHT_KEY] = newValue
                             }
                         }
                     }
                 )
             }
             item {
-                KeyboardHeightSliderItem(
+                DpSliderItem(
                     title = "キーボードの高さ（横）",
-                    currentHeight = landscapeHeight,
+                    currentValue = landscapeHeight,
                     valueRange = 30f..60f,
-                    onHeightChanged = { newHeight ->
+                    steps = 10,
+                    onValueChanged = { newValue ->
                         scope.launch {
                             context.dataStore.edit { preferences ->
-                                preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] = newHeight
+                                preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] = newValue
                             }
                         }
                     }
                 )
             }
             item {
-                KeyboardHeightSliderItem(
+                DpSliderItem(
                     title = "下部のスペース",
-                    currentHeight = bottomPadding,
-                    valueRange = 0f..70f,
-                    onHeightChanged = { newHeight ->
-                        // 保存処理
+                    currentValue = bottomPadding,
+                    valueRange = 0f..80f,
+                    steps = 10,
+                    onValueChanged = { newValue ->
                         scope.launch {
                             context.dataStore.edit { preferences ->
-                                preferences[KEYBOARD_HEIGHT_BOTTOM_PADDING] = newHeight
+                                preferences[KEYBOARD_BOTTOM_PADDING_KEY] = newValue
+                            }
+                        }
+                    }
+                )
+            }
+            item {
+                DpSliderItem(
+                    title = "左右のスペース",
+                    currentValue = sidePadding,
+                    valueRange = 0f..50f,
+                    steps = 10,
+                    onValueChanged = { newValue ->
+                        scope.launch {
+                            context.dataStore.edit { preferences ->
+                                preferences[KEYBOARD_PADDING_KEY] = newValue
                             }
                         }
                     }

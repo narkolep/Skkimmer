@@ -50,7 +50,6 @@ fun FlickKey(
     keyColor: Color = Color.Black,
     textColor: Color = Color.Gray,
     backgroundColor: Color = Color.LightGray,
-    actionColor: Color = Color.DarkGray,
     iconResId: Int? = null,
     isFlickMode: Boolean = true,
     isNumberKeyboard: Boolean = false,
@@ -184,7 +183,7 @@ fun FlickKey(
                     keyWidth = keyWidth + paddingDp,
                     keyHeight = keyHeight + paddingDp,
                     activeBgColor = keyColor,
-                    activeTextColor = actionColor,
+                    activeTextColor = textColor,
                     inactiveBgColor = backgroundColor,
                     inactiveTextColor = textColor
                 )

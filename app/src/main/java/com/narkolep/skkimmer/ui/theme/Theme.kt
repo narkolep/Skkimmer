@@ -14,6 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+import com.narkolep.skkimmer.keyboard.ui.theme.KeyboardTheme
+
 private val LightColors = lightColorScheme()
 private val DarkColors = darkColorScheme()
 
@@ -49,6 +51,8 @@ fun AppTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        content = content
+        content = {
+            KeyboardTheme(content = content)
+        }
     )
 }

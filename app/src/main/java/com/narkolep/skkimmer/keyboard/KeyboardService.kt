@@ -25,6 +25,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.data.EmojiManager
 import com.narkolep.skkimmer.keyboard.ui.KeyboardLayout
+import com.narkolep.skkimmer.keyboard.ui.theme.KeyboardTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -108,12 +109,14 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             setContent {
                 val uiState by stateFlow.collectAsState()
 
-                KeyboardLayout(
-                    uiState = uiState,
-                    categories = emojiCategories,
-                    onKeyClick = { keyId -> keyProcessor.handle(keyId) },
-                    onActionClick = { action -> actionProcessor.handle(action) }
-                )
+                KeyboardTheme {
+                    KeyboardLayout(
+                        uiState = uiState,
+                        categories = emojiCategories,
+                        onKeyClick = { keyId -> keyProcessor.handle(keyId) },
+                        onActionClick = { action -> actionProcessor.handle(action) }
+                    )
+                }
             }
         }
 

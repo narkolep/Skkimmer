@@ -3,18 +3,12 @@ package com.narkolep.skkimmer.keyboard.ui
 import kotlinx.coroutines.flow.map
 import android.content.res.Configuration
 import android.annotation.SuppressLint
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,24 +19,25 @@ import com.narkolep.skkimmer.keyboard.ui.components.SkkKey
 import com.narkolep.skkimmer.data.EmojiManager
 import com.narkolep.skkimmer.keyboard.ui.components.EmojiPicker
 import com.narkolep.skkimmer.dataStore
-import com.narkolep.skkimmer.THEME_KEY
 import com.narkolep.skkimmer.KEYBOARD_HEIGHT_KEY
 import com.narkolep.skkimmer.KEYBOARD_HEIGHT_LANDSCAPE_KEY
-import com.narkolep.skkimmer.KEYBOARD_HEIGHT_BOTTOM_PADDING
+import com.narkolep.skkimmer.KEYBOARD_BOTTOM_PADDING_KEY
+import com.narkolep.skkimmer.KEYBOARD_PADDING_KEY
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
+import com.narkolep.skkimmer.keyboard.KeyboardType
 import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.keyDefinitions
 import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.numericKeyDefinitions
+import com.narkolep.skkimmer.keyboard.ui.layouts.NumericMap.numericLayout
 import com.narkolep.skkimmer.keyboard.ui.components.FlickKey
 import com.composables.icons.lucide.R.drawable.lucide_ic_space
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_asterisk
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_dashed
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_library
-import com.narkolep.skkimmer.keyboard.KeyboardType
-import com.narkolep.skkimmer.keyboard.ui.layouts.NumericMap.numericLayout
+import com.narkolep.skkimmer.keyboard.ui.theme.LocalKeyboardColors
 
 @SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
@@ -59,58 +54,41 @@ fun KeyboardLayout(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val portraitHeight by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_HEIGHT_KEY] ?: 55f }
-        .collectAsState(initial = 55f)
+        .map { preferences -> preferences[KEYBOARD_HEIGHT_KEY] ?: 54f }
+        .collectAsState(initial = 54f)
 
     val landscapeHeight by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] ?: 45f }
-        .collectAsState(initial = 45f)
+        .map { preferences -> preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] ?: 44f }
+        .collectAsState(initial = 44f)
+
+    val sidePadding by context.dataStore.data
+        .map { preferences -> preferences[KEYBOARD_PADDING_KEY] ?: 0f }
+        .collectAsState(initial = 0f)
 
     val bottomPadding by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_HEIGHT_BOTTOM_PADDING] ?: 48f }
-        .collectAsState(initial = 48f)
+        .map { preferences -> preferences[KEYBOARD_BOTTOM_PADDING_KEY] ?: 51f }
+        .collectAsState(initial = 51f)
 
     val keyboardHeight = if (isLandscape) landscapeHeight else portraitHeight
-
-    val themeMode by context.dataStore.data
-        .map { preferences -> preferences[THEME_KEY] ?: "システム" }
-        .collectAsState(initial = "システム")
-
-    val isDarkTheme = when (themeMode) {
-        "ダーク" -> true
-        "ライト" -> false
-        else -> isSystemInDarkTheme()
-    }
-
-    val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (isDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    } else {
-        if (isDarkTheme) darkColorScheme() else lightColorScheme()
-    }
-
-    /* ボタンの色 */
-    val keyboardAlpha: Float = 1.0f
-    val keyboardBackgroundColor = colorScheme.surfaceDim
-    val keyboardButtonColor = colorScheme.surfaceBright
-    val keyboardTextColor = colorScheme.onBackground
-    val keyboardFlickColor = colorScheme.onSecondary
-    val keyboardActionColor = colorScheme.primary
-    val keyboardActionTextColor = colorScheme.onPrimary
-
+    val colors = LocalKeyboardColors.current
     val isShifted = uiState.shiftState != ShiftState.LOWERCASE
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(keyboardBackgroundColor) // キーボード全体の背景色
-            .padding(bottom = bottomPadding.dp)
+            .background(colors.background) // キーボード全体の背景色
+            .padding(
+                start = sidePadding.dp,
+                end = sidePadding.dp,
+                bottom = bottomPadding.dp
+            )
     ) {
         /* 絵文字入力画面 */
         if (uiState.keyboardType == KeyboardType.EMOJI) {
             EmojiPicker(
-                textColor = keyboardTextColor,
-                actionColor = keyboardActionColor,
-                actionTextColor = keyboardActionTextColor,
+                textColor = colors.keyText,
+                actionColor = colors.specialKeyBackground,
+                actionTextColor = colors.specialKeyText,
                 height = (keyboardHeight * 4.8f),
                 categories = categories,
                 onBackToKeyboard = { onActionClick(KeyboardAction.ToggleKeyboard) },
@@ -130,7 +108,7 @@ fun KeyboardLayout(
                                 mainText = config.main,
                                 modifier = Modifier.weight(1f),
                                 keyColor = Color.Transparent,
-                                textColor = keyboardTextColor.copy(alpha = 0.8f),
+                                textColor = colors.keyText.copy(alpha = 0.8f),
                                 keyboardHeight = keyboardHeight,
                                 onClick = { onKeyClick(config.main) }
                             )
@@ -138,8 +116,8 @@ fun KeyboardLayout(
                     }
                 } else if (uiState.candidates.isNotEmpty()) {
                     CandidateBar(
-                        selectedBackgroundColor = keyboardButtonColor,
-                        selectedTextColor = keyboardTextColor,
+                        selectedBackgroundColor = colors.keyBackground,
+                        selectedTextColor = colors.keyText,
                         candidates = uiState.candidates,
                         selectedIndex = uiState.selectedIndex,
                         onCandidateClick = { index -> onActionClick(KeyboardAction.CandidateIndex(index)) }
@@ -154,9 +132,9 @@ fun KeyboardLayout(
                         rowKeys.forEach { config ->
                             if (config.action != null) {
                                 val keyColor = when (config.action) {
-                                    KeyboardAction.Shift -> if (isShifted) keyboardActionColor else Color.Transparent
-                                    KeyboardAction.ToggleWidth -> if (uiState.inputMode == InputMode.FULL_ASCII) keyboardActionColor else Color.Transparent
-                                    KeyboardAction.Enter -> keyboardActionColor
+                                    KeyboardAction.Shift -> if (isShifted) colors.specialKeyBackground else Color.Transparent
+                                    KeyboardAction.ToggleWidth -> if (uiState.inputMode == InputMode.FULL_ASCII) colors.specialKeyBackground else Color.Transparent
+                                    KeyboardAction.Enter -> colors.specialKeyBackground
                                     else -> Color.Transparent
                                 }
 
@@ -164,7 +142,7 @@ fun KeyboardLayout(
                                     mainText = config.hiraLabel,
                                     modifier = Modifier.weight(1f),
                                     keyColor = keyColor,
-                                    textColor = if (keyColor == keyboardActionColor) keyboardActionTextColor else keyboardTextColor,
+                                    textColor = if (keyColor == colors.specialKeyBackground) colors.specialKeyText else colors.keyText,
                                     iconResId = config.iconResId,
                                     keyboardHeight = keyboardHeight,
                                     cornerShape = if (config.action == KeyboardAction.Enter) (keyboardHeight*0.5).dp else 8.dp,
@@ -177,11 +155,10 @@ fun KeyboardLayout(
                                     modifier = Modifier.weight(1f),
                                     displayText = config.hiraLabel,
                                     keyColor =
-                                        if (config.hiraLabel[0] in '0'..'9') keyboardButtonColor
-                                        else keyboardBackgroundColor,
-                                    textColor = keyboardTextColor,
-                                    backgroundColor = keyboardBackgroundColor,
-                                    actionColor = keyboardActionColor,
+                                        if (config.hiraLabel[0] in '0'..'9') colors.keyBackground
+                                        else colors.background,
+                                    textColor = colors.keyText,
+                                    backgroundColor = colors.background,
                                     isNumberKeyboard = config.hiraLabel[0] in '0'..'9',
                                     isCtrlPressed = uiState.isCtrlPressed,
                                     onInput = { text ->
@@ -202,10 +179,10 @@ fun KeyboardLayout(
                         rowKeys.forEach { config ->
                             if (config.action != null) {
                                 val keyColor = when (config.action) {
-                                    KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) keyboardActionColor else Color.Transparent
-                                    KeyboardAction.Shift -> if (isShifted) keyboardActionColor else Color.Transparent
-                                    KeyboardAction.Enter -> keyboardActionColor
-                                    KeyboardAction.Dakuten -> keyboardButtonColor
+                                    KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) colors.specialKeyBackground else Color.Transparent
+                                    KeyboardAction.Shift -> if (isShifted) colors.specialKeyBackground else Color.Transparent
+                                    KeyboardAction.Enter -> colors.specialKeyBackground
+                                    KeyboardAction.Dakuten -> colors.keyBackground
                                     else -> Color.Transparent
                                 }
                                 val actionIcon = if (config.action == KeyboardAction.Space) {
@@ -221,7 +198,7 @@ fun KeyboardLayout(
                                     mainText = config.hiraLabel,
                                     modifier = Modifier.weight(1f),
                                     keyColor = keyColor,
-                                    textColor = if (keyColor == keyboardActionColor) keyboardActionTextColor else keyboardTextColor,
+                                    textColor = if (keyColor == colors.specialKeyBackground) colors.specialKeyText else colors.keyText,
                                     iconResId = actionIcon,
                                     keyboardHeight = keyboardHeight,
                                     cornerShape = if (config.action == KeyboardAction.Enter) (keyboardHeight*0.5).dp else 8.dp,
@@ -240,12 +217,11 @@ fun KeyboardLayout(
                                         },
                                     keyColor =
                                         when (config.hiraLabel) {
-                                            "Q" -> keyboardBackgroundColor
-                                            else -> keyboardButtonColor
+                                            "Q" -> colors.background
+                                            else -> colors.keyBackground
                                         },
-                                    textColor = keyboardTextColor,
-                                    backgroundColor = keyboardBackgroundColor,
-                                    actionColor = keyboardActionColor,
+                                    textColor = colors.keyText,
+                                    backgroundColor = colors.background,
                                     iconResId = config.iconResId,
                                     isCtrlPressed = uiState.isCtrlPressed,
                                     onInput = { text ->
@@ -294,12 +270,12 @@ fun KeyboardLayout(
                             }
 
                             val keyColor = when (config.action) {
-                                KeyboardAction.Shift -> if (isShifted) keyboardActionColor else Color.Transparent
+                                KeyboardAction.Shift -> if (isShifted) colors.specialKeyBackground else Color.Transparent
                                 KeyboardAction.Backspace -> Color.Transparent
-                                KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) keyboardActionColor else Color.Transparent
-                                KeyboardAction.Space -> keyboardButtonColor
-                                KeyboardAction.Enter -> keyboardActionColor
-                                else -> keyboardButtonColor
+                                KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) colors.specialKeyBackground else Color.Transparent
+                                KeyboardAction.Space -> colors.keyBackground
+                                KeyboardAction.Enter -> colors.specialKeyBackground
+                                else -> colors.keyBackground
                             }
 
                             SkkKey(
@@ -307,7 +283,7 @@ fun KeyboardLayout(
                                 modifier = Modifier.weight(config.weight),
                                 textSize = config.textSize,
                                 keyColor = keyColor,
-                                textColor = if (keyColor == keyboardActionColor) keyboardActionTextColor else keyboardTextColor,
+                                textColor = if (keyColor == colors.specialKeyBackground) colors.specialKeyText else colors.keyText,
                                 keyboardHeight = keyboardHeight,
                                 cornerShape = if (config.action == KeyboardAction.Enter) (keyboardHeight*0.5).dp else 8.dp,
                                 keyRepeat = config.keyRepeat
@@ -317,9 +293,9 @@ fun KeyboardLayout(
                                 mainText = if (isShifted) config.main.uppercase() else config.main,
                                 flickText = if (isShifted) config.shiftFlick else config.flick,
                                 modifier = Modifier.weight(config.weight),
-                                keyColor = keyboardButtonColor,
-                                textColor = keyboardTextColor,
-                                flickColor = keyboardFlickColor,
+                                keyColor = colors.keyBackground,
+                                textColor = colors.keyText,
+                                flickColor = colors.flickKeyBackground,
                                 keyboardHeight = keyboardHeight,
                                 spaceLeftRight = config.padding,
                                 weight = config.weight,

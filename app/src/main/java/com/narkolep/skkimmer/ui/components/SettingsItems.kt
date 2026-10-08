@@ -28,7 +28,7 @@ import kotlin.math.roundToInt
 
 /**
  * SETTING SCREEN内のアイテム
- **/
+ */
 // 横線
 @Composable
 fun Divider() {
@@ -91,76 +91,14 @@ fun ConfirmDialog(
     )
 }
 
-// ラジオボタン付きのポップアップ
-@Composable
-fun ThemeSettingItem(
-    selected: String,
-    onThemeSelected: (String) -> Unit
-) {
-    var showDialog by remember { mutableStateOf(false) }
-    val themes = listOf("ライト", "ダーク", "システム")
-
-    ListItem(
-        headlineContent = { Text("テーマの選択") },
-        supportingContent = { Text(selected) },
-        modifier = Modifier.clickable { showDialog = true }
-    )
-
-    if (showDialog) {
-        var tempSelected by remember { mutableStateOf(selected) }
-
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("テーマの選択") },
-            text = {
-                Column {
-                    themes.forEach { theme ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    // タップした時は一時的な状態を更新するだけ（保存はしない）
-                                    tempSelected = theme
-                                }
-                                .padding(vertical = 0.dp)
-                        ) {
-                            RadioButton(
-                                selected = (theme == tempSelected),
-                                onClick = { tempSelected = theme }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = theme)
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onThemeSelected(tempSelected)
-                    showDialog = false
-                }) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showDialog = false
-                }) {
-                    Text("キャンセル")
-                }
-            }
-        )
-    }
-}
-
 // スライダー付きのポップアップ
 @Composable
-fun KeyboardHeightSliderItem(
+fun DpSliderItem(
     title: String,
-    currentHeight: Float,
+    currentValue: Float,
     valueRange: ClosedFloatingPointRange<Float>,
-    onHeightChanged: (Float) -> Unit
+    steps: Int = 5,
+    onValueChanged: (Float) -> Unit
 ) {
     // --- ポップアップの表示状態を管理する変数 ---
     var showDialog by remember { mutableStateOf(false) }
@@ -168,14 +106,14 @@ fun KeyboardHeightSliderItem(
     // --- 設定画面に表示されるリスト項目 ---
     ListItem(
         headlineContent = { Text(title) },
-        supportingContent = { Text("${currentHeight.roundToInt()} dp") },
+        supportingContent = { Text("${currentValue.roundToInt()} dp") },
         modifier = Modifier.clickable { showDialog = true }
     )
 
     // --- ポップアップ（ダイアログ）の中身 ---
     if (showDialog) {
         // スライダー操作中の一時的な値を保持
-        var sliderPosition by remember(currentHeight) { mutableStateOf(currentHeight) }
+        var sliderPosition by remember(currentValue) { mutableStateOf(currentValue) }
 
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -199,14 +137,14 @@ fun KeyboardHeightSliderItem(
                             sliderPosition = newValue
                         },
                         valueRange = valueRange,
-                        steps = 5
+                        steps = steps
                     )
                 }
             },
             confirmButton = {
                 // OKボタン
                 TextButton(onClick = {
-                    onHeightChanged(sliderPosition) // ここで保存処理を実行
+                    onValueChanged(sliderPosition) // ここで保存処理を実行
                     showDialog = false
                 }) {
                     Text("OK")
