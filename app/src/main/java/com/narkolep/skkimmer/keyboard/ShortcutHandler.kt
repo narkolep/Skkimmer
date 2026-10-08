@@ -108,11 +108,8 @@ fun handleKey(
             return true
         }
         'q' -> {
-            /* Shiftキーが押されているとき */
-            if (state.shiftState != ShiftState.LOWERCASE) {
-                if (state.skkState != SkkState.NORMAL) return false
-
-                /* NORMALモード中 */
+            /* Shiftキーが押されている、かつNORMALモード中 */
+            if (state.shiftState != ShiftState.LOWERCASE && state.skkState == SkkState.NORMAL) {
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.MIDASHI,
