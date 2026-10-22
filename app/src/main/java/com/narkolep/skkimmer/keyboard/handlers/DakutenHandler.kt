@@ -21,8 +21,8 @@ fun dakutenHandler(
 ) {
     val state = stateFlow.value
 
-    /* 辞書登録モードの解除 */
-    if (state.tourokuFlag.isNotEmpty()) {
+    /* 登録する文字列がないとき、辞書登録モードを解除する */
+    if (state.tourokuFlag.isNotEmpty() && state.tourokuFlag.substringAfter(":").isEmpty()) {
         backspaceHandler(stateFlow, inputCommitter)
     }
 

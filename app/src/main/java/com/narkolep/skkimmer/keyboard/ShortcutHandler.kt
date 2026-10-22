@@ -19,8 +19,8 @@ fun handleCTRL(
 ): String? {
     if (!state.isCtrlPressed) return key
 
-    when (key) {
-        "j" -> {
+    when (key[0]) {
+        'j' -> {
             /* Japanese input */
             stateFlow.update { it.copy(
                 inputMode = InputMode.HIRAGANA,
@@ -28,7 +28,7 @@ fun handleCTRL(
             ) }
             return null
         }
-        "e" -> {
+        'e' -> {
             /* Emoji */
             stateFlow.update { it.copy(
                 keyboardType = KeyboardType.EMOJI,
@@ -37,7 +37,7 @@ fun handleCTRL(
             outputManager.commit()
             return null
         }
-        "k" -> {
+        'k' -> {
             /* switching Keyboards */
             stateFlow.update { it.copy(
                 isFlick = !state.isFlick,
@@ -49,7 +49,7 @@ fun handleCTRL(
             ) }
             return null
         }
-        "n" -> {
+        'n' -> {
             /* Numeric keypad */
             stateFlow.update { it.copy(
                 keyboardType = KeyboardType.NUMERIC,
@@ -59,22 +59,22 @@ fun handleCTRL(
             outputManager.commit()
             return null
         }
-        "a" -> {
+        'a' -> {
             /* select All */
             inputCommitter.selectAll()
             return null
         }
-        "x" -> {
+        'x' -> {
             /* Cut */
             inputCommitter.cut()
             return null
         }
-        "c" -> {
+        'c' -> {
             /* Copy */
             inputCommitter.copy()
             return null
         }
-        "v" -> {
+        'v' -> {
             /* Paste */
             return service.getClipboardText()
         }

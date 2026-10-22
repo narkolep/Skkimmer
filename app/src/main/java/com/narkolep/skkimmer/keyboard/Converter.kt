@@ -103,10 +103,10 @@ fun romajiConverter(
 /**
  * inputModeに合わせた仮名を返す
  */
-private fun getOutputString(definition: KanaDefinition, inputMode: InputMode): String {
+fun getOutputString(definition: KanaDefinition, inputMode: InputMode): String {
     return when (inputMode) {
         InputMode.KATAKANA -> definition.kata
-        InputMode.HALF_KATAKANA -> definition.halfkata
+        InputMode.HALF_KATAKANA -> definition.halfKata
         else -> definition.hira
     }
 }

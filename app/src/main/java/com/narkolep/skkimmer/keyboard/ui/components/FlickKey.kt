@@ -3,11 +3,7 @@ package com.narkolep.skkimmer.keyboard.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -21,13 +17,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,16 +38,13 @@ enum class FlickDirection {
 
 @Composable
 fun FlickKey(
-    config: FlickKanaMap.FlickKeyConfig,
     modifier: Modifier = Modifier,
-    displayText: String = "",
-    keyColor: Color = Color.Black,
-    textColor: Color = Color.Gray,
-    backgroundColor: Color = Color.LightGray,
+    config: FlickKanaMap.FlickKeyConfig,
+    displayText: FlickKanaMap.Position = config.flickPosition,
+    keyColor: Color,
+    textColor: Color,
     iconResId: Int? = null,
-    isFlickMode: Boolean = true,
-    isNumberKeyboard: Boolean = false,
-    isCtrlPressed: Boolean = false,
+    isNumberKeyboard: Boolean = false, // テンキーの場合、記号を表示する
     onInput: (String) -> Unit
 ) {
     var currentDir by remember { mutableStateOf(FlickDirection.NONE) }
@@ -72,9 +63,7 @@ fun FlickKey(
 
     val paddingDp = 3.dp
     val paddingPx = with(density) { paddingDp.roundToPx() }
-
     val offsetDp: Dp = if (isNumberKeyboard) (-4).dp else 0.dp
-    val currentIsCtrlActive by rememberUpdatedState(isCtrlPressed)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -90,19 +79,15 @@ fun FlickKey(
 
                 yOffset = 0
                 xOffset = 0
-                if (config.up.isEmpty()) yOffset += (keyHeightPx*0.5 + paddingPx*0.5).toInt()
-                if (config.down.isEmpty()) yOffset -= (keyHeightPx*0.5 + paddingPx*0.5).toInt()
-                if (config.left.isEmpty()) xOffset += (keyWidthPx*0.5 + paddingPx).toInt()
-                if (config.right.isEmpty()) xOffset -= (keyWidthPx*0.5 + paddingPx).toInt()
+                if (config.flickPosition.up.isEmpty()) yOffset += (keyHeightPx*0.5 + paddingPx*0.5).toInt()
+                if (config.flickPosition.down.isEmpty()) yOffset -= (keyHeightPx*0.5 + paddingPx*0.5).toInt()
+                if (config.flickPosition.left.isEmpty()) xOffset += (keyWidthPx*0.5 + paddingPx).toInt()
+                if (config.flickPosition.right.isEmpty()) xOffset -= (keyWidthPx*0.5 + paddingPx).toInt()
             }
-            .pointerInput(isFlickMode) {
-                if (!isFlickMode) return@pointerInput
-
+            .pointerInput(Unit) {
                 awaitEachGesture {
                     val downEvent = awaitFirstDown()
-                    if (config.consonant.isNotEmpty()) onInput(config.consonant)
 
-                    // 指が触れたら表示
                     isDragging = true
                     currentDir = FlickDirection.CENTER
 
@@ -126,34 +111,31 @@ fun FlickKey(
                         }
                     } while (event.changes.any { it.pressed })
 
-                    // 指が離れたら非表示
                     isDragging = false
                     val output = when(currentDir) {
-                        FlickDirection.CENTER -> config.center
-                        FlickDirection.LEFT -> config.left
-                        FlickDirection.RIGHT -> config.right
-                        FlickDirection.UP -> config.up
-                        FlickDirection.DOWN -> config.down
-                        else -> config.center
+                        FlickDirection.LEFT -> config.flickPosition.left
+                        FlickDirection.RIGHT -> config.flickPosition.right
+                        FlickDirection.UP -> config.flickPosition.up
+                        FlickDirection.DOWN -> config.flickPosition.down
+                        else -> config.flickPosition.center
                     }
                     currentDir = FlickDirection.NONE
 
-                    val shouldSkipVowel = currentIsCtrlActive && config.consonant.isNotEmpty()
-                    if (!shouldSkipVowel && output.isNotEmpty()) onInput(output)
+                    if (output.isNotEmpty()) onInput(config.consonant + output)
                 }
             }
     ) {
         if (iconResId != null) {
             Icon(
                 painter = painterResource(id = iconResId),
-                contentDescription = displayText,
+                contentDescription = config.label,
                 modifier = Modifier.size(24.dp),
                 tint = textColor
             )
         } else {
             if (isNumberKeyboard) {
                 Text(
-                    text = config.left + config.up + config.down + config.right,
+                    text = displayText.left + displayText.up + displayText.down + displayText.right,
                     fontSize = 10.sp,
                     color = textColor.copy(alpha = 0.6f),
                     modifier = Modifier
@@ -163,7 +145,7 @@ fun FlickKey(
             }
 
             Text(
-                text = displayText,
+                text = displayText.center,
                 color = textColor,
                 fontSize = 26.sp,
                 modifier = Modifier.offset(y = offsetDp)
@@ -177,97 +159,12 @@ fun FlickKey(
                 offset = IntOffset(x = xOffset, y = yOffset)
             ) {
                 FlickPopup(
-                    config = config,
+                    flickText = displayText,
                     currentDir = currentDir,
                     paddingDp = paddingDp,
                     keyWidth = keyWidth + paddingDp,
-                    keyHeight = keyHeight + paddingDp,
-                    activeBgColor = keyColor,
-                    activeTextColor = textColor,
-                    inactiveBgColor = backgroundColor,
-                    inactiveTextColor = textColor
+                    keyHeight = keyHeight + paddingDp
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun FlickPopup(
-    config: FlickKanaMap.FlickKeyConfig,
-    currentDir: FlickDirection,
-    paddingDp: Dp,
-    keyWidth: Dp,
-    keyHeight: Dp,
-    activeBgColor: Color = Color.Blue,
-    activeTextColor: Color = Color.White,
-    inactiveBgColor: Color = Color.LightGray,
-    inactiveTextColor: Color = Color.DarkGray
-) {
-    // 文字ブロックを描画する関数
-    @Composable
-    fun PopupChar(text: String, isActive: Boolean) {
-        if (text.isEmpty()) {
-            Spacer(
-                modifier = Modifier
-                    .size(width = keyWidth, height = keyHeight)
-                    .padding(paddingDp/3)
-            )
-            return
-        }
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(width = keyWidth, height = keyHeight)
-                .padding(paddingDp/3)
-                .background(
-                    color = if (isActive) activeBgColor else inactiveBgColor,
-                    shape = RoundedCornerShape(8.dp)
-                )
-        ) {
-            Text(
-                text = text,
-                color = if (isActive) activeTextColor else inactiveTextColor,
-                fontSize = 28.sp,
-                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal
-            )
-        }
-    }
-
-    // レイアウト
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(paddingDp)
-    ) {
-        // 上段
-        Row(horizontalArrangement = Arrangement.spacedBy(paddingDp)) {
-            if (config.up.isNotEmpty()) {
-                if (config.left.isNotEmpty()) PopupChar("", false)
-                PopupChar(
-                    text = config.up,
-                    isActive = currentDir == FlickDirection.UP
-                )
-                if (config.right.isNotEmpty()) PopupChar("", false)
-            }
-        }
-        // 中段
-        Row(horizontalArrangement = Arrangement.spacedBy(paddingDp)) {
-            if (config.left.isNotEmpty()) PopupChar(text = config.left, isActive = currentDir == FlickDirection.LEFT)
-            PopupChar(
-                text = config.center,
-                isActive = currentDir == FlickDirection.CENTER
-            )
-            if (config.right.isNotEmpty()) PopupChar(text = config.right, isActive = currentDir == FlickDirection.RIGHT)
-        }
-        // 下段
-        Row(horizontalArrangement = Arrangement.spacedBy(paddingDp*2)) {
-            if (config.down.isNotEmpty()) {
-                if (config.left.isNotEmpty()) PopupChar("", false)
-                PopupChar(
-                    text = config.down,
-                    isActive = currentDir == FlickDirection.DOWN
-                )
-                if (config.right.isNotEmpty()) PopupChar("", false)
             }
         }
     }

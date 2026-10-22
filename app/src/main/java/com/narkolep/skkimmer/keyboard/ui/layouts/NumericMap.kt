@@ -8,24 +8,24 @@ object NumericMap {
         /* 1段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "L",
+                label = "L",
                 action = KeyboardAction.ToggleWidth,
                 iconResId = R.drawable.lucide_ic_refresh_cw
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "1",
-                center = "1", left = "☆", up = "♪", right = "→", down = ""
+                label = "1",
+                flickPosition = FlickKanaMap.Position(center = "1", left = "☆", up = "♪", right = "→", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "2",
-                center = "2", left = "¥", up = "€", right = "$", down = ""
+                label = "2",
+                flickPosition = FlickKanaMap.Position(center = "2", left = "¥", up = "€", right = "$", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "3",
-                center = "3", left = "%", up = "°", right = "#", down = ""
+                label = "3",
+                flickPosition = FlickKanaMap.Position(center = "3", left = "%", up = "°", right = "#", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "BS",
+                label = "BS",
                 action = KeyboardAction.Backspace,
                 iconResId = R.drawable.lucide_ic_delete,
                 keyRepeat = true
@@ -35,25 +35,25 @@ object NumericMap {
         /* 2段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "Left",
+                label = "Left",
                 action = KeyboardAction.Left,
                 iconResId = R.drawable.lucide_ic_chevron_left,
                 keyRepeat = true
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "4",
-                center = "4", left = "○", up = "*", right = "・", down = ""
+                label = "4",
+                flickPosition = FlickKanaMap.Position(center = "4", left = "○", up = "*", right = "・", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "5",
-                center = "5", left = "+", up = "×", right = "÷", down = ""
+                label = "5",
+                flickPosition = FlickKanaMap.Position(center = "5", left = "+", up = "×", right = "÷", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "6",
-                center = "6", left = "<", up = "=", right = ">", down = ""
+                label = "6",
+                flickPosition = FlickKanaMap.Position(center = "6", left = "<", up = "=", right = ">", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "Right",
+                label = "Right",
                 action = KeyboardAction.Right,
                 iconResId = R.drawable.lucide_ic_chevron_right,
                 keyRepeat = true
@@ -63,24 +63,24 @@ object NumericMap {
         /* 3段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "Emoji",
+                label = "Emoji",
                 action = KeyboardAction.Emoji,
                 iconResId = R.drawable.lucide_ic_apple
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "7",
-                center = "7", left = "「", up = ":", right = "」", down = ""
+                label = "7",
+                flickPosition = FlickKanaMap.Position(center = "7", left = "「", up = ":", right = "」", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "8",
-                center = "8", left = "〒", up = "々", right = "〆", down = ""
+                label = "8",
+                flickPosition = FlickKanaMap.Position(center = "8", left = "〒", up = "々", right = "〆", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "9",
-                center = "9", left = "^", up = "|", right = """\""", down = ""
+                label = "9",
+                flickPosition = FlickKanaMap.Position(center = "9", left = "^", up = "|", right = """\""", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "Space",
+                label = "Space",
                 action = KeyboardAction.Space,
                 iconResId = R.drawable.lucide_ic_space
             )
@@ -89,24 +89,24 @@ object NumericMap {
         /* 4段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "Back",
+                label = "Back",
                 action = KeyboardAction.ToggleKeyboard,
                 iconResId = R.drawable.lucide_ic_earth
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "()[]",
-                center = "(", left = ")", up = "[", right = "]", down = "",
+                label = "()[]",
+                flickPosition = FlickKanaMap.Position(center = "(", left = ")", up = "[", right = "]", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "0",
-                center = "0", left = "~", up = "…", right = "@", down = ""
+                label = "0",
+                flickPosition = FlickKanaMap.Position(center = "0", left = "~", up = "…", right = "@", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = ".,-/",
-                center = ".", left = ",", up = "-", right = "/", down = ""
+                label = ".,-/",
+                flickPosition = FlickKanaMap.Position(center = ".", left = ",", up = "-", right = "/", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                hiraLabel = "Enter",
+                label = "Enter",
                 action = KeyboardAction.Enter,
                 iconResId = R.drawable.lucide_ic_corner_down_left
             )

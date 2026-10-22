@@ -4,7 +4,7 @@ object KanaMap {
     data class KanaDefinition(
         val hira: String,
         val kata: String,
-        val halfkata: String
+        val halfKata: String
     )
 
     val romajiToKana = mapOf(
@@ -289,7 +289,7 @@ object KanaMap {
         romajiToKana.values.associate { it.kata to it.hira }
     }
     val hiraToHalfMap by lazy {
-        romajiToKana.values.associate { it.hira to it.halfkata }
+        romajiToKana.values.associate { it.hira to it.halfKata }
     }
 
     enum class KanaType {
@@ -316,8 +316,8 @@ object KanaMap {
                     put(kanaDef.kata, RomajiAndType(romaji, KanaType.KATAKANA))
                 }
                 // ｶﾀｶﾅ
-                if (!containsKey(kanaDef.halfkata)) {
-                    put(kanaDef.halfkata, RomajiAndType(romaji, KanaType.HALF_KATAKANA))
+                if (!containsKey(kanaDef.halfKata)) {
+                    put(kanaDef.halfKata, RomajiAndType(romaji, KanaType.HALF_KATAKANA))
                 }
             }
         }

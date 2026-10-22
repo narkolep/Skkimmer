@@ -37,6 +37,8 @@ import com.composables.icons.lucide.R.drawable.lucide_ic_space
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_asterisk
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_dashed
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_library
+import com.narkolep.skkimmer.keyboard.getOutputString
+import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.ui.theme.LocalKeyboardColors
 
 @SuppressLint("FlowOperatorInvokedInComposition")
@@ -139,7 +141,7 @@ fun KeyboardLayout(
                                 }
 
                                 SkkKey(
-                                    mainText = config.hiraLabel,
+                                    mainText = config.label,
                                     modifier = Modifier.weight(1f),
                                     keyColor = keyColor,
                                     textColor = if (keyColor == colors.specialKeyBackground) colors.specialKeyText else colors.keyText,
@@ -151,18 +153,15 @@ fun KeyboardLayout(
                                 )
                             } else {
                                 FlickKey(
-                                    config = config,
                                     modifier = Modifier.weight(1f),
-                                    displayText = config.hiraLabel,
+                                    config = config,
                                     keyColor =
-                                        if (config.hiraLabel[0] in '0'..'9') colors.keyBackground
-                                        else colors.background,
+                                        if (config.label[0] in '0'..'9') colors.keyBackground
+                                        else Color.Transparent,
                                     textColor = colors.keyText,
-                                    backgroundColor = colors.background,
-                                    isNumberKeyboard = config.hiraLabel[0] in '0'..'9',
-                                    isCtrlPressed = uiState.isCtrlPressed,
+                                    isNumberKeyboard = config.label[0] in '0'..'9',
                                     onInput = { text ->
-                                        text.forEach { keyId -> onKeyClick(keyId.toString()) }
+                                        onKeyClick(text)
                                     }
                                 )
                             }
@@ -195,7 +194,7 @@ fun KeyboardLayout(
                                     } else config.iconResId
 
                                 SkkKey(
-                                    mainText = config.hiraLabel,
+                                    mainText = config.label,
                                     modifier = Modifier.weight(1f),
                                     keyColor = keyColor,
                                     textColor = if (keyColor == colors.specialKeyBackground) colors.specialKeyText else colors.keyText,
@@ -206,27 +205,28 @@ fun KeyboardLayout(
                                     onClick = { onActionClick(config.action) }
                                 )
                             } else {
+                                fun convert(value: String): String {
+                                    val key = config.consonant + value
+
+                                    return KanaMap.romajiToKana[key]?.let {
+                                        getOutputString(it, uiState.inputMode)
+                                    } ?: value
+                                }
+                                val displayText = config.flickPosition.map(::convert)
+
                                 FlickKey(
-                                    config = config,
                                     modifier = Modifier.weight(1f),
-                                    displayText =
-                                        when (uiState.inputMode) {
-                                            InputMode.KATAKANA -> config.kataLabel
-                                            InputMode.HALF_KATAKANA -> config.halfLabel
-                                            else -> config.hiraLabel
-                                        },
+                                    config = config,
+                                    displayText = displayText,
                                     keyColor =
-                                        when (config.hiraLabel) {
-                                            "Q" -> colors.background
+                                        when (config.label) {
+                                            "Q" -> Color.Transparent
                                             else -> colors.keyBackground
                                         },
                                     textColor = colors.keyText,
-                                    backgroundColor = colors.background,
                                     iconResId = config.iconResId,
-                                    isCtrlPressed = uiState.isCtrlPressed,
                                     onInput = { text ->
-                                        /* nnなど、複数文字の場合があるため */
-                                        text.forEach { keyId -> onKeyClick(keyId.toString()) }
+                                        onKeyClick(text)
                                     }
                                 )
                             }
@@ -251,16 +251,16 @@ fun KeyboardLayout(
                                     }
                                 }
                                 KeyboardAction.Space -> {
-                                    val jisyoKey = if (uiState.tourokuFlag.isNotEmpty()) "辞書登録 / " else ""
+                                    val dictKey = if (uiState.tourokuFlag.isNotEmpty()) "辞書登録 / " else ""
                                     mainText = when (uiState.inputMode) {
                                         InputMode.HALF_ASCII -> "半角英数"
                                         InputMode.FULL_ASCII -> "全角英数"
                                         InputMode.HIRAGANA -> when (uiState.skkState) {
-                                            SkkState.NORMAL -> jisyoKey + "NORMAL"
-                                            SkkState.MIDASHI -> jisyoKey + "見出し語"
-                                            SkkState.OKURIGANA -> jisyoKey + "送り仮名"
-                                            SkkState.HENKAN -> jisyoKey + "変換"
-                                            SkkState.ABBREV -> jisyoKey + "abbreviation"
+                                            SkkState.NORMAL -> dictKey + "NORMAL"
+                                            SkkState.MIDASHI -> dictKey + "見出し語"
+                                            SkkState.OKURIGANA -> dictKey + "送り仮名"
+                                            SkkState.HENKAN -> dictKey + "変換"
+                                            SkkState.ABBREV -> dictKey + "abbreviation"
                                         }
                                         InputMode.KATAKANA -> "カタカナ"
                                         InputMode.HALF_KATAKANA -> "____ｶﾀｶﾅ"
@@ -295,7 +295,7 @@ fun KeyboardLayout(
                                 modifier = Modifier.weight(config.weight),
                                 keyColor = colors.keyBackground,
                                 textColor = colors.keyText,
-                                flickColor = colors.flickKeyBackground,
+                                flickColor = colors.flickKeyBackground.copy(alpha = 1.0f),
                                 keyboardHeight = keyboardHeight,
                                 spaceLeftRight = config.padding,
                                 weight = config.weight,

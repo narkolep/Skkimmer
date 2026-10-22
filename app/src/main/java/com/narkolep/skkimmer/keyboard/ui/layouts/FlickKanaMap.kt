@@ -4,53 +4,57 @@ import com.composables.icons.lucide.R
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 
 object FlickKanaMap {
-    data class FlickKeyConfig(
-        val hiraLabel: String,
-        val kataLabel: String = hiraLabel,
-        val halfLabel: String = hiraLabel,
-
-        val consonant: String = "", // 子音 (k, s, など)
+    data class Position(
         val center: String = "",    // 離した時：中央 (a など)
         val left: String = "",      // 離した時：左 (i など)
         val up: String = "",        // 離した時：上 (u など)
         val right: String = "",     // 離した時：右 (e など)
         val down: String = "",      // 離した時：下 (o など)
+    ) {
+        fun map(transform: (String) -> String): Position =
+            copy(
+                center = transform(center),
+                left = transform(left),
+                up = transform(up),
+                right = transform(right),
+                down = transform(down),
+            )
+    }
 
-        val action: KeyboardAction? = null,    // 機能キー
-        val keyRepeat: Boolean = false,        // 長押しした際のリピート
-        val iconResId: Int? = null             // アイコン
+    data class FlickKeyConfig(
+        val label: String,
+        val consonant: String = "", // 子音 (k, s, など)
+        val flickPosition: Position = Position(),
+
+        val action: KeyboardAction? = null, // 機能キー
+        val keyRepeat: Boolean = false, // 長押しした際のリピート
+        val iconResId: Int? = null // アイコン
     )
 
     val flickLayout = listOf(
         /* 1段目 */
         listOf(
             FlickKeyConfig(
-                hiraLabel = "Q",
-                center = "q", left = "", up = "/", right = "l", down = "x",
+                label = "Q",
+                flickPosition = Position(center = "q", left = "", up = "/", right = "l", down = "x"),
                 iconResId = R.drawable.lucide_ic_refresh_cw
             ),
             FlickKeyConfig(
-                hiraLabel = "あ",
-                kataLabel = "ア",
-                halfLabel = "ｱ",
-                center = "a", left = "i", up = "u", right = "e", down = "o"
+                label = "あ",
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                hiraLabel = "か",
-                kataLabel = "カ",
-                halfLabel = "ｶ",
+                label = "か",
                 consonant = "k",
-                center = "a", left = "i", up = "u", right = "e", down = "o"
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                hiraLabel = "さ",
-                kataLabel = "サ",
-                halfLabel = "ｻ",
+                label = "さ",
                 consonant = "s",
-                center = "a", left = "i", up = "u", right = "e", down = "o"
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                hiraLabel = "BS",
+                label = "BS",
                 action = KeyboardAction.Backspace,
                 iconResId = R.drawable.lucide_ic_delete,
                 keyRepeat = true
@@ -60,34 +64,28 @@ object FlickKanaMap {
         /* 2段目 */
         listOf(
             FlickKeyConfig(
-                hiraLabel = "LA",
+                label = "LA",
                 action = KeyboardAction.Left,
                 iconResId = R.drawable.lucide_ic_chevron_left,
                 keyRepeat = true
             ),
             FlickKeyConfig(
-                hiraLabel = "た",
-                kataLabel = "タ",
-                halfLabel = "ﾀ",
+                label = "た",
                 consonant = "t",
-                center = "a", left = "i", up = "u", right = "e", down = "o"
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                hiraLabel = "な",
-                kataLabel = "ナ",
-                halfLabel = "ﾅ",
+                label = "な",
                 consonant = "n",
-                center = "a", left = "i", up = "u", right = "e", down = "o"
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                hiraLabel = "は",
-                kataLabel = "ハ",
-                halfLabel = "ﾊ",
+                label = "は",
                 consonant = "h",
-                center = "a", left = "i", up = "u", right = "e", down = "o"
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                hiraLabel = "RA",
+                label = "RA",
                 action = KeyboardAction.Right,
                 iconResId = R.drawable.lucide_ic_chevron_right,
                 keyRepeat = true
@@ -97,33 +95,26 @@ object FlickKanaMap {
         // 3段目
         listOf(
             FlickKeyConfig(
-                hiraLabel = "Shift",
+                label = "Shift",
                 action = KeyboardAction.Shift,
                 iconResId = R.drawable.lucide_ic_arrow_big_up_dash
             ),
             FlickKeyConfig(
-                hiraLabel = "ま",
-                kataLabel = "マ",
-                halfLabel = "ﾏ",
+                label = "ま",
                 consonant = "m",
-                center = "a", left = "i", up = "u", right = "e", down = "o"
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                hiraLabel = "や",
-                kataLabel = "ヤ",
-                halfLabel = "ﾔ",
-                consonant = "y",
-                center = "a", left = "「", up = "u", right = "」", down = "o"
+                label = "や",
+                flickPosition = Position(center = "ya", left = "「", up = "yu", right = "」", down = "yo")
             ),
             FlickKeyConfig(
-                hiraLabel = "ら",
-                kataLabel = "ラ",
-                halfLabel = "ﾗ",
+                label = "ら",
                 consonant = "r",
-                center = "a", left = "i", up = "u", right = "e", down = "o"
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                hiraLabel = "Space",
+                label = "Space",
                 action = KeyboardAction.Space
             )
         ),
@@ -131,27 +122,24 @@ object FlickKanaMap {
         // 4段目
         listOf(
             FlickKeyConfig(
-                hiraLabel = "Ctrl",
+                label = "Ctrl",
                 action = KeyboardAction.Ctrl,
                 iconResId = R.drawable.lucide_ic_cog
             ),
             FlickKeyConfig(
-                hiraLabel = "ﾞﾟ",
+                label = "ﾞﾟ",
                 action = KeyboardAction.Dakuten
             ),
             FlickKeyConfig(
-                hiraLabel = "わ",
-                kataLabel = "ワ",
-                halfLabel = "ﾜ",
-                consonant = "w",
-                center = "a", left = "o", up = "nn", right = "-", down = ""
+                label = "わ",
+                flickPosition = Position(center = "wa", left = "wo", up = "nn", right = "-", down = "")
             ),
             FlickKeyConfig(
-                hiraLabel = "､｡",
-                center = ",", left = ".", up = "?", right = "!", down = ""
+                label = "､｡",
+                flickPosition = Position(center = ",", left = ".", up = "?", right = "!", down = "")
             ),
             FlickKeyConfig(
-                hiraLabel = "Enter",
+                label = "Enter",
                 action = KeyboardAction.Enter,
                 iconResId = R.drawable.lucide_ic_corner_down_left
             )
