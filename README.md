@@ -5,7 +5,7 @@
 
 ## 使用したサードパーティ製の素材
 - アイコン : composablehorizons/compose-icons (Licensed under MIT License)
-- 絵文字のデータ : Fantantonio/Emoji-List-Unicode
+- 絵文字のリスト : Fantantonio/Emoji-List-Unicode
 
 ## 仕様
 ### ショートカットキー一覧
@@ -22,6 +22,7 @@
 #### 日本語入力中
 - q : カタカナ
 - CTRL + q : 半角カタカナ
+- Shift + q : 見出しモード
 - l : 半角英数
 - L : 全角英数
 - x : 前の変換候補
