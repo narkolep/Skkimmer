@@ -1,10 +1,13 @@
 package com.narkolep.skkimmer.keyboard
 
-import android.R.color.black
 import android.content.ClipboardManager
+import android.graphics.Color
 import android.inputmethodservice.InputMethodService
+import android.os.Build
 import android.text.InputType
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,6 +37,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.getValue
+import androidx.core.graphics.drawable.toDrawable
+import java.util.function.Consumer
 
 class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     override val viewModelStore: ViewModelStore get() = store
@@ -53,6 +58,18 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private lateinit var outputManager: OutputManager
     private lateinit var keyProcessor: KeyProcessor
     private lateinit var actionProcessor: ActionProcessor
+
+    companion object {
+        // 単位は px。まずは 60～80 px 程度で試す
+        private const val BLUR_RADIUS_PX = 30
+    }
+
+    private var imeWindow: Window? = null
+    // ぼかし表示時は半透明、非対応時は不透明に近づける
+    private val windowBackground = Color.WHITE.toDrawable()
+    private val blurListener = Consumer<Boolean> { enabled ->
+        updateWindowBlur(enabled)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -82,6 +99,13 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                     outputManager.update()
                 }
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            imeWindow = window?.window
+
+            getSystemService(WindowManager::class.java)
+                .addCrossWindowBlurEnabledListener(blurListener)
+        }
     }
 
     override fun onCreateInputView(): View {
@@ -91,7 +115,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         if (win != null) {
             WindowCompat.setDecorFitsSystemWindows(win, false)
             win.isNavigationBarContrastEnforced = false
-            win.navigationBarColor = color@black
+            win.navigationBarColor = Color.TRANSPARENT
         }
 
         val decorView = win?.decorView
@@ -173,6 +197,13 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override fun onDestroy() {
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         viewModelStore.clear()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getSystemService(WindowManager::class.java)
+                .removeCrossWindowBlurEnabledListener(blurListener)
+        }
+
+        imeWindow = null
         super.onDestroy()
     }
 
@@ -210,6 +241,25 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
             else -> null
         }
+    }
+
+    /**
+     * 画面のぼかし
+     */
+    private fun updateWindowBlur(enabled: Boolean) {
+        val target = imeWindow ?: return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            target.setBackgroundBlurRadius(
+                if (enabled) BLUR_RADIUS_PX else 0
+            )
+        }
+
+        // 背景色の透明度を切り替える
+        // 白系キーボード用の例。ダークテーマでは色を調整する
+        windowBackground.alpha = if (enabled) 0 else 235
+
+        target.setBackgroundDrawable(windowBackground)
     }
 
     // bufferに該当するフィールドだけを抜き出した比較用スナップショット

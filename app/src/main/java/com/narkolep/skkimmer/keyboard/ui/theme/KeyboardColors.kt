@@ -22,7 +22,8 @@ fun keyboardColors(selectedColor: HSVColor): KeyboardColors {
     )
     val keyTextHSV: HSVColor = selectedColor.copy(
         saturation = (selectedColor.value - selectedColor.saturation * 0.5f).coerceIn(0f, 1f),
-        value = (1.5f - selectedColor.value * 1.5f).coerceIn(0f, 1f)
+        value = (1.5f - selectedColor.value * 1.5f).coerceIn(0f, 1f),
+        alpha = 1.0f
     )
     val flickKeyBackgroundHSV: HSVColor = selectedColor.copy(
         hue = (((selectedColor.hue - 20f) % 360f) + 360f) % 360f,
@@ -32,7 +33,9 @@ fun keyboardColors(selectedColor: HSVColor): KeyboardColors {
         saturation = (1.0f - selectedColor.saturation * 0.5f).coerceIn(0f, 1f),
         value = (1.5f - selectedColor.value).coerceIn(0f, 1f)
     )
-    val specialKeyTextHSV: HSVColor = selectedColor
+    val specialKeyTextHSV: HSVColor = selectedColor.copy(
+        alpha = 1.0f
+    )
 
     return KeyboardColors(
         background = backgroundHSV.toColor(),
