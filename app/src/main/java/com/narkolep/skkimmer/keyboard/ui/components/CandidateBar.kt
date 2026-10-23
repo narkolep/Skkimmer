@@ -23,6 +23,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 
 @Composable
 fun CandidateBar(
@@ -56,7 +57,7 @@ fun CandidateBar(
 
             // 注釈のパース処理
             val annotatedText = buildAnnotatedString {
-                val parts = candidate.split(";", limit = 2)
+                val parts = candidate.split(DICT_DELIMITER, limit = 2)
                 val mainText = parts[0]
                 val comment = if (parts.size > 1) parts[1] else null
 
@@ -67,8 +68,8 @@ fun CandidateBar(
                 if (comment != null) {
                     withStyle(
                         style = SpanStyle(
-                            color = textColor.copy(alpha = 0.4f), // 色を少し薄くする
-                            fontSize = 14.sp, // サイズを小さく
+                            color = textColor.copy(alpha = 0.4f),
+                            fontSize = 14.sp,
                         )
                     ) {
                         append(" $comment") // セミコロンの代わりにスペースを入れて追加

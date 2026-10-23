@@ -2,6 +2,8 @@ package com.narkolep.skkimmer.keyboard
 
 import android.view.inputmethod.InputConnection
 import com.narkolep.skkimmer.data.DictionaryManager
+import com.narkolep.skkimmer.keyboard.handlers.handleCTRL
+import com.narkolep.skkimmer.keyboard.handlers.handleKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -26,7 +28,14 @@ class KeyProcessor(
         ) }
 
         // ショートカット処理 その1
-        val newKey = handleCTRL(key, oldState, stateFlow, inputCommitter, outputManager, keyboardService) ?: return
+        val newKey = handleCTRL(
+            key,
+            oldState,
+            stateFlow,
+            inputCommitter,
+            outputManager,
+            keyboardService
+        ) ?: return
 
         // 英数字(直接出力)
         if (outputManager.asciiOutput(newKey, oldState)) return
@@ -55,7 +64,7 @@ class KeyProcessor(
     ) {
         if (!(state.inputMode == InputMode.HIRAGANA || state.inputMode == InputMode.KATAKANA)) return
         if (state.shiftState == ShiftState.LOWERCASE) return
-        if (!key.matches(Regex("^[a-z0-9]+$"))) return
+        if (!key.isAlphanumeric()) return
 
         if (state.skkState == SkkState.NORMAL) {
             stateFlow.update { it.copy(

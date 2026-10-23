@@ -5,6 +5,8 @@ import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.ShiftState
+import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
+import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.clear
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,7 +26,7 @@ fun spaceHandler(
             if (state.tourokuFlag.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
-                        tourokuFlag = state.tourokuFlag + "\u0020"
+                        tourokuFlag = state.tourokuFlag + HALF_SPACE
                     )
                 }
                 return
@@ -32,10 +34,10 @@ fun spaceHandler(
 
             if (state.shiftState == ShiftState.LOWERCASE) {
                 /* 半角スペース */
-                keyProcessor.handle("\u0020")
+                keyProcessor.handle(HALF_SPACE)
             } else {
                 /* 全角スペース */
-                keyProcessor.handle("\u3000")
+                keyProcessor.handle(FULL_SPACE)
             }
         }
 

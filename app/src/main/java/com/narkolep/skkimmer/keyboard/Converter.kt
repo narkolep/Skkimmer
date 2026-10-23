@@ -12,6 +12,11 @@ data class ConvertResult(
 )
 
 /**
+ * 拡張: アルファベットか数字である場合trueを返す
+ */
+fun String.isAlphanumeric(): Boolean = all { it in 'a'..'z' || it in '0'..'9' }
+
+/**
  * ローマ字入力の連結処理
  */
 fun romajiConverter(
@@ -21,8 +26,6 @@ fun romajiConverter(
 ): ConvertResult {
     /* 母音 + y */
     val vowels = setOf('a','i','u','e','o','y')
-    /* アルファベットか判定する */
-    val isAlphabet = key.matches(Regex("^[a-z0-9]+$"))
     /* 現在の未確定文字列 */
     var composingNow: String = composing + key
 
@@ -57,7 +60,7 @@ fun romajiConverter(
         }
 
         /* 促音 */
-        if (isAlphabet && composing == key) {
+        if (key.isAlphanumeric() && composing == key) {
             val kana = getOutputString(
                 KanaDefinition("っ", "ッ", "ｯ"),
                 inputMode

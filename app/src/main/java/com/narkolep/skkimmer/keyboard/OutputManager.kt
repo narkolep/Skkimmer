@@ -1,6 +1,9 @@
 package com.narkolep.skkimmer.keyboard
 
 import com.narkolep.skkimmer.data.DictionaryManager
+import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
+import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
+import com.narkolep.skkimmer.keyboard.SkkConstants.OKURI_MARK
 import com.narkolep.skkimmer.keyboard.handlers.getCandidatesAndChangeState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +34,7 @@ class OutputManager(
             InputMode.FULL_ASCII -> {
                 val fullChar = when (outChar.first().code) {
                     /* Space */
-                    0x20 -> "\u3000"
+                    0x20 -> FULL_SPACE
                     /* !から~までの半角英数字 */
                     in 0x21..0x7E -> (outChar.first().code + 0xFEE0).toChar().toString()
                     else -> outChar
@@ -159,8 +162,6 @@ class OutputManager(
     fun update() {
         val state = stateFlow.value
 
-        val okuriganaSymbol = "*"
-
         val displayText = when (state.skkState) {
             SkkState.NORMAL -> {
                 if (state.composingText.isEmpty() && state.tourokuFlag.isEmpty()) {
@@ -173,14 +174,16 @@ class OutputManager(
                 state.tourokuFlag + state.midashiText + state.composingText
             }
             SkkState.OKURIGANA -> {
-                state.tourokuFlag + state.midashiText + okuriganaSymbol + state.okuriganaText + state.composingText
+                state.tourokuFlag + state.midashiText + OKURI_MARK + state.okuriganaText + state.composingText
             }
             SkkState.HENKAN -> {
                 val displayOkuri =
-                    if (state.okuriganaText.isNotEmpty()) okuriganaSymbol + state.okuriganaText + state.composingText
+                    if (state.okuriganaText.isNotEmpty()) OKURI_MARK + state.okuriganaText + state.composingText
                     else ""
-                val candidates = state.candidates[state.selectedIndex].split(";")[0]
-                state.tourokuFlag + candidates + displayOkuri
+                val candidate = state.candidates.getOrNull(state.selectedIndex) ?: return
+                val word = candidate.split(DICT_DELIMITER)[0]
+
+                state.tourokuFlag + word + displayOkuri
             }
             SkkState.ABBREV -> {
                 state.tourokuFlag + state.midashiText.ifEmpty { state.composingText }
@@ -209,15 +212,17 @@ class OutputManager(
             SkkState.HENKAN -> {
                 /* 履歴を記録 */
                 val learnText = state.midashiText + state.okuriganaTrigger
+                val candidate = state.candidates.getOrNull(state.selectedIndex) ?: return
+
                 CoroutineScope(Dispatchers.IO).launch {
                     dictionaryManager.learnWord(
                         learnText,
-                        state.candidates[state.selectedIndex],
+                        candidate,
                         true
                     )
                 }
 
-                val word = state.candidates[state.selectedIndex].split(";")[0]
+                val word = candidate.split(DICT_DELIMITER)[0]
                 word + state.okuriganaText
             }
             SkkState.ABBREV -> {

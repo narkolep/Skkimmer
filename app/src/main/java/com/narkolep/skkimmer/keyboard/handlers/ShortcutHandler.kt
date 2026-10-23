@@ -1,6 +1,15 @@
-package com.narkolep.skkimmer.keyboard
+package com.narkolep.skkimmer.keyboard.handlers
 
-import com.narkolep.skkimmer.keyboard.handlers.convertString
+import com.narkolep.skkimmer.keyboard.ConvertResult
+import com.narkolep.skkimmer.keyboard.InputCommitter
+import com.narkolep.skkimmer.keyboard.InputMode
+import com.narkolep.skkimmer.keyboard.KeyboardService
+import com.narkolep.skkimmer.keyboard.KeyboardState
+import com.narkolep.skkimmer.keyboard.KeyboardType
+import com.narkolep.skkimmer.keyboard.OutputManager
+import com.narkolep.skkimmer.keyboard.ShiftState
+import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
+import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -18,8 +27,9 @@ fun handleCTRL(
     service: KeyboardService
 ): String? {
     if (!state.isCtrlPressed) return key
+    val firstChar = key.firstOrNull() ?: return key
 
-    when (key[0]) {
+    when (firstChar) {
         'j' -> {
             /* Japanese input */
             stateFlow.update { it.copy(
@@ -113,7 +123,7 @@ fun handleKey(
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.MIDASHI,
-                        composingText = "\u0020"
+                        composingText = HALF_SPACE
                     )
                 }
                 return true
@@ -193,7 +203,7 @@ fun handleKey(
                 it.copy(
                     skkState = SkkState.ABBREV,
                     isFlick = false,
-                    composingText = "\u0020"
+                    composingText = HALF_SPACE
                 )
             }
             return true

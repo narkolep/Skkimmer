@@ -3,6 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
+import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.tourokuClear
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,7 +76,7 @@ fun backspaceHandler(
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.ABBREV,
-                        composingText = "\u0020", // 半角スペース
+                        composingText = HALF_SPACE,
                         midashiText = state.oldMidashiText,
                         okuriganaText = "",
                         okuriganaTrigger = ""
@@ -99,7 +100,7 @@ fun backspaceHandler(
 
         SkkState.MIDASHI -> {
             /* " "のとき */
-            if (state.composingText == "\u0020") {
+            if (state.composingText == HALF_SPACE) {
                 stateFlow.update { it.clear() }
                 return
             }
@@ -111,7 +112,7 @@ fun backspaceHandler(
                 stateFlow.update {
                     it.copy(
                         composingText =
-                            if (newComposingText.isEmpty() && state.midashiText.isEmpty()) "\u0020"
+                            if (newComposingText.isEmpty() && state.midashiText.isEmpty()) HALF_SPACE
                             else newComposingText
                     )
                 }
@@ -126,7 +127,7 @@ fun backspaceHandler(
                     it.copy(
                         midashiText = newMidashiText,
                         composingText =
-                            if (newMidashiText.isEmpty()) "\u0020"
+                            if (newMidashiText.isEmpty()) HALF_SPACE
                             else state.composingText
                     )
                 }
@@ -189,7 +190,7 @@ fun backspaceHandler(
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.ABBREV,
-                        composingText = "\u0020", // 半角スペース
+                        composingText = HALF_SPACE,
                         candidates = emptyList(),
                         selectedIndex = -1
                     )
