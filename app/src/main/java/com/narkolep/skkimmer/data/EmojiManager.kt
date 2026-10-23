@@ -2,8 +2,11 @@ package com.narkolep.skkimmer.data
 
 import android.content.Context
 import androidx.compose.runtime.Immutable
+import androidx.room.withTransaction
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class EmojiManager(context: Context) {
 
@@ -19,14 +22,16 @@ class EmojiManager(context: Context) {
     private val db = AppDatabase.getDatabase(context)
     private val dao = db.emojiDao()
 
-    suspend fun loadEmojis(jsonString: String): List<Category> {
-        var allEmojis = dao.getAllEmojis()
-        if (allEmojis.isEmpty()) {
-            val entities = parseJsonToEntities(jsonString)
-            dao.insertAll(entities)
-            allEmojis = entities
+    suspend fun loadEmojis(jsonString: String): List<Category> = withContext(Dispatchers.IO) {
+        db.withTransaction {
+            var allEmojis = dao.getAllEmojis()
+            if (allEmojis.isEmpty()) {
+                val entities = parseJsonToEntities(jsonString)
+                dao.insertAll(entities)
+                allEmojis = entities
+            }
+            buildCategoryList(allEmojis)
         }
-        return buildCategoryList(allEmojis)
     }
 
     // JSONをRoom用のEntityに変換する処理
