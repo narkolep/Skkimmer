@@ -8,7 +8,7 @@ object NumericMap {
         /* 1段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
-                label = "L",
+                label = "Toggle width",
                 action = KeyboardAction.ToggleWidth,
                 iconResId = R.drawable.lucide_ic_refresh_cw
             ),
@@ -35,7 +35,7 @@ object NumericMap {
         /* 2段目 */
         listOf(
             FlickKanaMap.FlickKeyConfig(
-                label = "Left",
+                label = "Left arrow",
                 action = KeyboardAction.Left,
                 iconResId = R.drawable.lucide_ic_chevron_left,
                 keyRepeat = true
@@ -53,7 +53,7 @@ object NumericMap {
                 flickPosition = FlickKanaMap.Position(center = "6", left = "<", up = "=", right = ">", down = "")
             ),
             FlickKanaMap.FlickKeyConfig(
-                label = "Right",
+                label = "Right arrow",
                 action = KeyboardAction.Right,
                 iconResId = R.drawable.lucide_ic_chevron_right,
                 keyRepeat = true

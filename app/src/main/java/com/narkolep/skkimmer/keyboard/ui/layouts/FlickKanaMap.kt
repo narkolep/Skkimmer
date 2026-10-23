@@ -64,7 +64,7 @@ object FlickKanaMap {
         /* 2段目 */
         listOf(
             FlickKeyConfig(
-                label = "LA",
+                label = "Left arrow",
                 action = KeyboardAction.Left,
                 iconResId = R.drawable.lucide_ic_chevron_left,
                 keyRepeat = true
@@ -85,7 +85,7 @@ object FlickKanaMap {
                 flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
             ),
             FlickKeyConfig(
-                label = "RA",
+                label = "Right arrow",
                 action = KeyboardAction.Right,
                 iconResId = R.drawable.lucide_ic_chevron_right,
                 keyRepeat = true

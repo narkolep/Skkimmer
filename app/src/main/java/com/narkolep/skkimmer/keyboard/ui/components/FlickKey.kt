@@ -40,7 +40,7 @@ enum class FlickDirection {
 fun FlickKey(
     modifier: Modifier = Modifier,
     config: FlickKanaMap.FlickKeyConfig,
-    displayText: FlickKanaMap.Position = config.flickPosition,
+    displayText: FlickKanaMap.Position = FlickKanaMap.Position(),
     keyColor: Color,
     textColor: Color,
     iconResId: Int? = null,
@@ -135,7 +135,7 @@ fun FlickKey(
         } else {
             if (isNumberKeyboard) {
                 Text(
-                    text = displayText.left + displayText.up + displayText.down + displayText.right,
+                    text = config.flickPosition.left + config.flickPosition.up + config.flickPosition.down + config.flickPosition.right,
                     fontSize = 10.sp,
                     color = textColor.copy(alpha = 0.6f),
                     modifier = Modifier
@@ -145,7 +145,7 @@ fun FlickKey(
             }
 
             Text(
-                text = displayText.center,
+                text = if (displayText == FlickKanaMap.Position()) config.label else displayText.center,
                 color = textColor,
                 fontSize = 26.sp,
                 modifier = Modifier.offset(y = offsetDp)
@@ -159,7 +159,7 @@ fun FlickKey(
                 offset = IntOffset(x = xOffset, y = yOffset)
             ) {
                 FlickPopup(
-                    flickText = displayText,
+                    flickText = if (displayText == FlickKanaMap.Position()) config.flickPosition else displayText,
                     currentDir = currentDir,
                     paddingDp = paddingDp,
                     keyWidth = keyWidth + paddingDp,
