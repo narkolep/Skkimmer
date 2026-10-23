@@ -1,6 +1,5 @@
 package com.narkolep.skkimmer.ui.screens
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,6 +10,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity
 
-@SuppressLint("FlowOperatorInvokedInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -39,24 +38,32 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
 
     // 縦向きの高さ
-    val portraitHeight by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_HEIGHT_KEY] ?: 54f } // デフォルトは250dp
-        .collectAsState(initial = 54f)
+    val portraitHeight by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[KEYBOARD_HEIGHT_KEY] ?: 54f
+        }
+    }.collectAsState(initial = 54f)
 
     // 横向きの高さ
-    val landscapeHeight by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] ?: 44f }
-        .collectAsState(initial = 44f)
+    val landscapeHeight by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] ?: 44f
+        }
+    }.collectAsState(initial = 44f)
 
     // 下端のパディング
-    val bottomPadding by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_BOTTOM_PADDING_KEY] ?: 51f }
-        .collectAsState(initial = 51f)
+    val bottomPadding by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[KEYBOARD_BOTTOM_PADDING_KEY] ?: 51f
+        }
+    }.collectAsState(initial = 51f)
 
     // 左右のパディング
-    val sidePadding by context.dataStore.data
-        .map { preferences -> preferences[KEYBOARD_PADDING_KEY] ?: 0f }
-        .collectAsState(initial = 0f)
+    val sidePadding by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[KEYBOARD_PADDING_KEY] ?: 0f
+        }
+    }.collectAsState(initial = 0f)
 
     Scaffold(
         topBar = {

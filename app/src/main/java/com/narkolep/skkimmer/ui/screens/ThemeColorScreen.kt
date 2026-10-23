@@ -1,6 +1,5 @@
 package com.narkolep.skkimmer.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +15,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,19 +37,20 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
 fun ThemeColorScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     // DataStoreから現在のテーマを読み取る
-    val isCustomTheme by context.dataStore.data
-        .map { preferences -> preferences[THEME_SELECT_KEY] ?: false }
-        .collectAsState(initial = false)
+    val isCustomTheme by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[THEME_SELECT_KEY] ?: false
+        }
+    }.collectAsState(initial = false)
 
-    val currentHsv by context.dataStore.data
-        .map { preferences ->
+    val currentHsv by remember(context) {
+        context.dataStore.data.map { preferences ->
             HSVColor(
                 hue = preferences[HUE_KEY] ?: 0f,
                 saturation = preferences[SATURATION_KEY] ?: 0f,
@@ -57,7 +58,7 @@ fun ThemeColorScreen() {
                 alpha = preferences[ALPHA_KEY] ?: 1f,
             )
         }
-        .collectAsState(initial = HSVColor.Default)
+    }.collectAsState(initial = HSVColor.Default)
 
     val colors = LocalKeyboardColors.current
 

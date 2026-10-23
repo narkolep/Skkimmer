@@ -1,6 +1,5 @@
 package com.narkolep.skkimmer.keyboard.ui.theme
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.darkColorScheme
@@ -11,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
@@ -34,7 +34,6 @@ val LocalKeyboardColors = staticCompositionLocalOf {
     )
 }
 
-@SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
 fun KeyboardTheme(
     content: @Composable () -> Unit,
@@ -42,13 +41,15 @@ fun KeyboardTheme(
     val context = LocalContext.current
 
     /* カストムテーマを使用するかどうか */
-    val isCustomTheme by context.dataStore.data
-        .map { preferences -> preferences[THEME_SELECT_KEY] ?: false }
-        .collectAsState(initial = false)
+    val isCustomTheme by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[THEME_SELECT_KEY] ?: false
+        }
+    }.collectAsState(initial = false)
 
     /* カスタム色 */
-    val currentHsv by context.dataStore.data
-        .map { preferences ->
+    val currentHsv by remember(context) {
+        context.dataStore.data.map { preferences ->
             HSVColor(
                 hue = preferences[HUE_KEY] ?: 0f,
                 saturation = preferences[SATURATION_KEY] ?: 0f,
@@ -56,7 +57,7 @@ fun KeyboardTheme(
                 alpha = preferences[ALPHA_KEY] ?: 1f,
             )
         }
-        .collectAsState(initial = HSVColor.Default)
+    }.collectAsState(initial = HSVColor.Default)
 
     /* Material Color */
     val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
