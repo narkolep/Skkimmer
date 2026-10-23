@@ -1,5 +1,6 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
+import android.util.Log
 import android.view.inputmethod.EditorInfo
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.OutputManager
@@ -9,6 +10,7 @@ import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.tourokuClear
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +25,8 @@ fun enterHandler(
     inputCommitter: InputCommitter,
     dictionaryManager: DictionaryManager,
     outputManager: OutputManager,
-    editorInfo: EditorInfo?
+    editorInfo: EditorInfo?,
+    coroutineScope: CoroutineScope
 ) {
     val state = stateFlow.value
 
@@ -35,12 +38,19 @@ fun enterHandler(
 
             if (tourokuText.isNotEmpty()) {
                 /* ユーザー辞書として登録 */
-                CoroutineScope(Dispatchers.IO).launch {
-                    dictionaryManager.learnWord(
-                        state.oldMidashiText + state.oldOkuriganaTrigger,
-                        tourokuText,
-                        false
-                    )
+                val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                    Log.e("SKK_ERROR", "Error in enterHandler learnWord", throwable)
+                }
+                coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
+                    try {
+                        dictionaryManager.learnWord(
+                            state.oldMidashiText + state.oldOkuriganaTrigger,
+                            tourokuText,
+                            false
+                        )
+                    } catch (e: Exception) {
+                        Log.e("SKK_ERROR", "Exception learning word in enterHandler", e)
+                    }
                 }
 
                 stateFlow.update { it.tourokuClear() }

@@ -1,13 +1,14 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
+import android.util.Log
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
  */
 fun getCandidatesAndChangeState(
     stateFlow: MutableStateFlow<KeyboardState>,
-    dictionaryManager: DictionaryManager
+    dictionaryManager: DictionaryManager,
+    coroutineScope: CoroutineScope
 ) {
     val state = stateFlow.value
 
@@ -30,29 +32,37 @@ fun getCandidatesAndChangeState(
         if (state.skkState == SkkState.OKURIGANA) convertedMidashiText + state.okuriganaTrigger
         else convertedMidashiText
 
-    CoroutineScope(Dispatchers.Main).launch {
-        val candidatesList = dictionaryManager.getCandidates(keyText)
+    val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.e("SKK_ERROR", "Error in getCandidatesAndChangeState", throwable)
+    }
 
-        if (candidatesList.isNotEmpty()) {
-            stateFlow.update {
-                it.copy(
-                    midashiText = convertedMidashiText,
-                    skkState = SkkState.HENKAN,
-                    candidates = candidatesList,
-                    selectedIndex = 0
-                )
-            }
-        } else if (state.tourokuFlag.isEmpty()) {
-            stateFlow.update { it.clear() }
+    coroutineScope.launch(exceptionHandler) {
+        try {
+            val candidatesList = dictionaryManager.getCandidates(keyText)
 
-            stateFlow.update {
-                it.copy(
-                    oldMidashiText = convertedMidashiText,
-                    oldOkuriganaText = state.okuriganaText,
-                    oldOkuriganaTrigger = state.okuriganaTrigger,
-                    tourokuFlag = "[登録]$keyText:"
-                )
+            if (candidatesList.isNotEmpty()) {
+                stateFlow.update {
+                    it.copy(
+                        midashiText = convertedMidashiText,
+                        skkState = SkkState.HENKAN,
+                        candidates = candidatesList,
+                        selectedIndex = 0
+                    )
+                }
+            } else if (state.tourokuFlag.isEmpty()) {
+                stateFlow.update { it.clear() }
+
+                stateFlow.update {
+                    it.copy(
+                        oldMidashiText = convertedMidashiText,
+                        oldOkuriganaText = state.okuriganaText,
+                        oldOkuriganaTrigger = state.okuriganaTrigger,
+                        tourokuFlag = "[登録]$keyText:"
+                    )
+                }
             }
+        } catch (e: Exception) {
+            Log.e("SKK_ERROR", "Exception in getCandidatesAndChangeState", e)
         }
     }
 }

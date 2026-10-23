@@ -8,6 +8,7 @@ import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.clear
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -17,7 +18,8 @@ import kotlinx.coroutines.flow.update
 fun spaceHandler(
     stateFlow: MutableStateFlow<KeyboardState>,
     dictionaryManager: DictionaryManager,
-    keyProcessor: KeyProcessor
+    keyProcessor: KeyProcessor,
+    coroutineScope: CoroutineScope
 ) {
     val state = stateFlow.value
 
@@ -47,13 +49,13 @@ fun spaceHandler(
             /* 連結処理を実行 */
             keyProcessor.handle("")
 
-            getCandidatesAndChangeState(stateFlow, dictionaryManager)
+            getCandidatesAndChangeState(stateFlow, dictionaryManager, coroutineScope)
         }
 
         SkkState.OKURIGANA -> {
             if (state.okuriganaText.isEmpty()) return
 
-            getCandidatesAndChangeState(stateFlow, dictionaryManager)
+            getCandidatesAndChangeState(stateFlow, dictionaryManager, coroutineScope)
         }
 
         SkkState.HENKAN -> {
@@ -86,7 +88,7 @@ fun spaceHandler(
         SkkState.ABBREV -> {
             if (state.midashiText.isEmpty()) return
 
-            getCandidatesAndChangeState(stateFlow, dictionaryManager)
+            getCandidatesAndChangeState(stateFlow, dictionaryManager, coroutineScope)
         }
     }
 }

@@ -8,6 +8,7 @@ import com.narkolep.skkimmer.keyboard.handlers.dakutenHandler
 import com.narkolep.skkimmer.keyboard.handlers.enterHandler
 import com.narkolep.skkimmer.keyboard.handlers.shiftHandler
 import com.narkolep.skkimmer.keyboard.handlers.spaceHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -34,7 +35,8 @@ class ActionProcessor(
     private val inputCommitter: InputCommitter,
     private val keyProcessor: KeyProcessor,
     private val dictionaryManager: DictionaryManager,
-    private val editorInfo: EditorInfo?
+    private val editorInfo: EditorInfo?,
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * アクションキーの分岐
@@ -50,13 +52,13 @@ class ActionProcessor(
                 ctrlHandler(stateFlow)
             }
             KeyboardAction.Space -> {
-                spaceHandler(stateFlow, dictionaryManager, keyProcessor)
+                spaceHandler(stateFlow, dictionaryManager, keyProcessor, coroutineScope)
             }
             KeyboardAction.Backspace -> {
                 backspaceHandler(stateFlow, inputCommitter)
             }
             KeyboardAction.Enter -> {
-                enterHandler(stateFlow, inputCommitter, dictionaryManager, outputManager, editorInfo)
+                enterHandler(stateFlow, inputCommitter, dictionaryManager, outputManager, editorInfo, coroutineScope)
             }
             KeyboardAction.ToggleKeyboard -> {
                 stateFlow.update { it.copy(
@@ -84,7 +86,7 @@ class ActionProcessor(
             }
             KeyboardAction.Right -> {
                 if (stateFlow.value.skkState == SkkState.HENKAN) {
-                    spaceHandler(stateFlow, dictionaryManager, keyProcessor)
+                    spaceHandler(stateFlow, dictionaryManager, keyProcessor, coroutineScope)
                     return
                 }
 

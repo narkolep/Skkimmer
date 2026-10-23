@@ -14,7 +14,7 @@ data class ConvertResult(
 /**
  * 拡張: アルファベットか数字である場合trueを返す
  */
-fun String.isAlphanumeric(): Boolean = all { it in 'a'..'z' || it in '0'..'9' }
+fun String.isAlphabet(): Boolean = isNotEmpty() && all { it in 'a'..'z' }
 
 /**
  * ローマ字入力の連結処理
@@ -60,7 +60,7 @@ fun romajiConverter(
         }
 
         /* 促音 */
-        if (key.isAlphanumeric() && composing == key) {
+        if (key.isAlphabet() && composing == key) {
             val kana = getOutputString(
                 KanaDefinition("っ", "ッ", "ｯ"),
                 inputMode

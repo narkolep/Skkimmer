@@ -4,6 +4,7 @@ import android.view.inputmethod.InputConnection
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.handlers.handleCTRL
 import com.narkolep.skkimmer.keyboard.handlers.handleKey
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
@@ -12,9 +13,10 @@ class KeyProcessor(
     private val keyboardService: KeyboardService,
     dictionaryManager: DictionaryManager,
     connectionProvider: () -> InputConnection?,
+    coroutineScope: CoroutineScope
 ) {
     private val inputCommitter = InputCommitter(connectionProvider)
-    private val outputManager = OutputManager(stateFlow, inputCommitter, dictionaryManager)
+    private val outputManager = OutputManager(stateFlow, inputCommitter, dictionaryManager, coroutineScope)
 
     fun handle(key: String) {
         val oldState = stateFlow.value
@@ -64,7 +66,7 @@ class KeyProcessor(
     ) {
         if (!(state.inputMode == InputMode.HIRAGANA || state.inputMode == InputMode.KATAKANA)) return
         if (state.shiftState == ShiftState.LOWERCASE) return
-        if (!key.isAlphanumeric()) return
+        if (!key.isAlphabet()) return
 
         if (state.skkState == SkkState.NORMAL) {
             stateFlow.update { it.copy(

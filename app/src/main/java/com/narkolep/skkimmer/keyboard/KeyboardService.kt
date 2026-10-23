@@ -60,7 +60,6 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private lateinit var actionProcessor: ActionProcessor
 
     companion object {
-        // 単位は px。まずは 60～80 px 程度で試す
         private const val BLUR_RADIUS_PX = 30
     }
 
@@ -81,7 +80,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         outputManager = OutputManager(
             stateFlow = stateFlow,
             inputCommitter = InputCommitter { currentInputConnection },
-            dictionaryManager
+            dictionaryManager = dictionaryManager,
+            coroutineScope = lifecycleScope
         )
 
         lifecycleScope.launch {
@@ -174,7 +174,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             stateFlow = stateFlow,
             keyboardService = this,
             dictionaryManager = dictionaryManager,
-            connectionProvider = { currentInputConnection }
+            connectionProvider = { currentInputConnection },
+            coroutineScope = lifecycleScope
         )
 
         actionProcessor = ActionProcessor(
@@ -183,7 +184,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             editorInfo = currentEditorInfo,
             inputCommitter = InputCommitter { currentInputConnection },
             keyProcessor = keyProcessor,
-            dictionaryManager = dictionaryManager
+            dictionaryManager = dictionaryManager,
+            coroutineScope = lifecycleScope
         )
     }
 
@@ -256,7 +258,6 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         }
 
         // 背景色の透明度を切り替える
-        // 白系キーボード用の例。ダークテーマでは色を調整する
         windowBackground.alpha = if (enabled) 0 else 235
 
         target.setBackgroundDrawable(windowBackground)

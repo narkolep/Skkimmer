@@ -1,10 +1,12 @@
 package com.narkolep.skkimmer.keyboard
 
+import android.util.Log
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.OKURI_MARK
 import com.narkolep.skkimmer.keyboard.handlers.getCandidatesAndChangeState
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +16,8 @@ import kotlinx.coroutines.launch
 class OutputManager(
     private val stateFlow: MutableStateFlow<KeyboardState>,
     private val inputCommitter: InputCommitter,
-    private val dictionaryManager: DictionaryManager
+    private val dictionaryManager: DictionaryManager,
+    private val coroutineScope: CoroutineScope
 ) {
     /**
      * 確定入力
@@ -129,7 +132,7 @@ class OutputManager(
                     )
                 }
 
-                getCandidatesAndChangeState(stateFlow, dictionaryManager)
+                getCandidatesAndChangeState(stateFlow, dictionaryManager, coroutineScope)
             }
 
             SkkState.HENKAN -> {
@@ -214,12 +217,20 @@ class OutputManager(
                 val learnText = state.midashiText + state.okuriganaTrigger
                 val candidate = state.candidates.getOrNull(state.selectedIndex) ?: return
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    dictionaryManager.learnWord(
-                        learnText,
-                        candidate,
-                        true
-                    )
+                val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                    Log.e("SKK_ERROR", "Error in OutputManager learnWord", throwable)
+                }
+
+                coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
+                    try {
+                        dictionaryManager.learnWord(
+                            learnText,
+                            candidate,
+                            true
+                        )
+                    } catch (e: Exception) {
+                        Log.e("SKK_ERROR", "Exception learning word in OutputManager commit", e)
+                    }
                 }
 
                 val word = candidate.split(DICT_DELIMITER)[0]
