@@ -50,7 +50,7 @@ fun FlickPopup(
                 .size(width = keyWidth, height = keyHeight)
                 .padding(paddingDp/3)
                 .background(
-                    color = if (isActive) activeBgColor.copy(alpha = 1.0f) else inactiveBgColor.copy(alpha = 1.0f),
+                    color = if (isActive) activeBgColor else inactiveBgColor,
                     shape = RoundedCornerShape(8.dp)
                 )
         ) {
