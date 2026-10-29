@@ -127,6 +127,19 @@ fun App(dao: HistoryDao) {
                         targetOffsetX = { fullWidth -> fullWidth }, // 右端へ消えていく
                         animationSpec = tween(300)
                     ) + fadeOut(animationSpec = tween(300))
+                },
+                // 予測型 戻るアニメーション
+                predictivePopEnterTransition = {
+                    slideInHorizontally(
+                        initialOffsetX = { fullWidth -> -fullWidth / 3 }, // 左側から少し戻ってくる
+                        animationSpec = tween(300)
+                    ) + fadeIn(animationSpec = tween(300))
+                },
+                predictivePopExitTransition = {
+                    slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> fullWidth }, // 右端へ消えていく
+                        animationSpec = tween(300)
+                    ) + fadeOut(animationSpec = tween(300))
                 }
             ) {
                 composable("settings") {
