@@ -7,6 +7,7 @@ import com.narkolep.skkimmer.keyboard.OutputManager
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
+import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.tourokuClear
@@ -32,8 +33,8 @@ fun enterHandler(
 
     if (state.skkState == SkkState.NORMAL) {
         if (state.tourokuFlag.isNotEmpty()) {
-            val tourokuText = state.tourokuFlag.substringAfter(":")
-            val commitText = tourokuText.split(DICT_DELIMITER)[0] + state.oldOkuriganaText
+            val tourokuText = state.tourokuFlag.substringAfter(DICT_DELIMITER)
+            val commitText = tourokuText.split(DICT_ANNOTATION)[0] + state.oldOkuriganaText
             inputCommitter.commit(commitText)
 
             if (tourokuText.isNotEmpty()) {

@@ -3,6 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
+import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.tourokuClear
@@ -45,7 +46,7 @@ fun backspaceHandler(
                 return
             }
 
-            if (state.tourokuFlag.substringAfter(":").isNotEmpty()) {
+            if (state.tourokuFlag.substringAfter(DICT_DELIMITER).isNotEmpty()) {
                 /* 登録する文字列が存在するとき */
                 stateFlow.update {
                     it.copy(

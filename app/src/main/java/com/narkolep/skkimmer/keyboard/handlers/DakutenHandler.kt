@@ -10,6 +10,9 @@ import com.narkolep.skkimmer.keyboard.mappings.KanaMap.kanaToRomaji
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import android.util.Log
+import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
+import com.narkolep.skkimmer.keyboard.SkkConstants.OKURI_MARK
+import kotlin.text.substringAfter
 
 /**
  * カーソルの左側の文字を変換する
@@ -22,8 +25,12 @@ fun dakutenHandler(
     val state = stateFlow.value
 
     /* 登録する文字列がないとき、辞書登録モードを解除する */
-    if (state.tourokuFlag.isNotEmpty() && state.tourokuFlag.substringAfter(":").isEmpty()) {
-        backspaceHandler(stateFlow, inputCommitter)
+    if (state.tourokuFlag.isNotEmpty()) {
+        val displayText = state.tourokuFlag + state.midashiText + state.composingText
+
+        if (displayText.substringAfter(DICT_DELIMITER).isEmpty()) {
+            backspaceHandler(stateFlow, inputCommitter)
+        }
     }
 
     /* 文字の取得 */

@@ -5,6 +5,7 @@ import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.ShiftState
+import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.clear
@@ -80,7 +81,7 @@ fun spaceHandler(
                     oldMidashiText = state.midashiText,
                     oldOkuriganaText = state.okuriganaText,
                     oldOkuriganaTrigger = state.okuriganaTrigger,
-                    tourokuFlag = "[登録]" + state.midashiText + state.okuriganaTrigger + ":"
+                    tourokuFlag = "[登録]" + state.midashiText + state.okuriganaTrigger + DICT_DELIMITER
                 )
             }
         }

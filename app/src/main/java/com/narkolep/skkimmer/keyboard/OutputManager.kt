@@ -2,7 +2,7 @@ package com.narkolep.skkimmer.keyboard
 
 import android.util.Log
 import com.narkolep.skkimmer.data.DictionaryManager
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
+import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
 import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.OKURI_MARK
 import com.narkolep.skkimmer.keyboard.handlers.getCandidatesAndChangeState
@@ -184,7 +184,7 @@ class OutputManager(
                     if (state.okuriganaText.isNotEmpty()) OKURI_MARK + state.okuriganaText + state.composingText
                     else ""
                 val candidate = state.candidates.getOrNull(state.selectedIndex) ?: return
-                val word = candidate.split(DICT_DELIMITER)[0]
+                val word = candidate.split(DICT_ANNOTATION)[0]
 
                 state.tourokuFlag + word + displayOkuri
             }
@@ -233,7 +233,7 @@ class OutputManager(
                     }
                 }
 
-                val word = candidate.split(DICT_DELIMITER)[0]
+                val word = candidate.split(DICT_ANNOTATION)[0]
                 word + state.okuriganaText
             }
             SkkState.ABBREV -> {
