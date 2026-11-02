@@ -69,9 +69,10 @@ class EmojiManager(context: Context) {
                         subcategoryName = currentSubcategory,
                         categoryOrder = catOrder,
                         subcategoryOrder = subCatOrder,
-                        emojiOrder = emojiOrder++
+                        emojiOrder = emojiOrder
                     )
                 )
+                emojiOrder++
             }
         }
         return entities

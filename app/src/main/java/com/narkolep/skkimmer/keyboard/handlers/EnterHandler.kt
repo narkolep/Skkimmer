@@ -45,9 +45,9 @@ fun enterHandler(
                 coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
                     try {
                         dictionaryManager.learnWord(
-                            state.oldMidashiText + state.oldOkuriganaTrigger,
-                            tourokuText,
-                            false
+                            midashi = state.oldMidashiText + state.oldOkuriganaTrigger,
+                            candidate = tourokuText,
+                            isFromSystem = false
                         )
                     } catch (e: Exception) {
                         Log.e("SKK_ERROR", "Exception learning word in enterHandler", e)

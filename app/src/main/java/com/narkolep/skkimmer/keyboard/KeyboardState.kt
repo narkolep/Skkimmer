@@ -41,7 +41,7 @@ data class KeyboardState(
     val keyboardType: KeyboardType = KeyboardType.NORMAL,
     /* Shiftキーの状態 */
     val shiftState: ShiftState = ShiftState.LOWERCASE,
-    val lastShiftPressTime: Int = 0,
+    val lastShiftPressTime: Long = 0L,
     /* Controlキーの状態 */
     val isCtrlPressed: Boolean = false,
     /* フリック入力のON/OFF */

@@ -20,6 +20,7 @@ import com.narkolep.skkimmer.SATURATION_KEY
 import com.narkolep.skkimmer.THEME_SELECT_KEY
 import com.narkolep.skkimmer.VALUE_KEY
 import com.narkolep.skkimmer.dataStore
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 val LocalKeyboardColors = staticCompositionLocalOf {
@@ -44,7 +45,7 @@ fun KeyboardTheme(
     val isCustomTheme by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[THEME_SELECT_KEY] ?: false
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = false)
 
     /* カスタム色 */
@@ -56,7 +57,7 @@ fun KeyboardTheme(
                 value = preferences[VALUE_KEY] ?: 0f,
                 alpha = preferences[ALPHA_KEY] ?: 1f,
             )
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = HSVColor.Default)
 
     /* Material Color */

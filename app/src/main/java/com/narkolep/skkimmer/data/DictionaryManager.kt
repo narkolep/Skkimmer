@@ -28,18 +28,18 @@ class DictionaryManager(
         val charsets = listOf(Charsets.UTF_8, Charset.forName("EUC-JP"))
 
         for (charset in charsets) {
-            try {
+            val matched = try {
                 val decoder = charset
                     .newDecoder()
                     .onMalformedInput(CodingErrorAction.REPORT)
                     .onUnmappableCharacter(CodingErrorAction.REPORT)
 
                 decoder.decode(ByteBuffer.wrap(bytes))
-                return charset
+                charset
             } catch (_: CharacterCodingException) {
-                // エラーが発生した場合は、次の文字コードを試す
-                continue
+                null
             }
+            if (matched != null) return matched
         }
         return null
     }
@@ -50,29 +50,32 @@ class DictionaryManager(
     suspend fun importDictionaryFromUri(uri: Uri, fileName: String): Result<Int> =
         withContext(Dispatchers.IO) {
             runCatching {
-                db.withTransaction {
-                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val inputStream = context.contentResolver.openInputStream(uri)
+                    ?: throw IllegalStateException("ファイルを開けませんでした。")
 
-                        /* mark/resetが使えるようにBufferedInputStreamでラップ */
-                        val bufferedStream = inputStream.buffered()
+                inputStream.use { rawStream ->
+                    /* mark/resetが使えるようにBufferedInputStreamでラップ */
+                    val bufferedStream = rawStream.buffered()
 
-                        bufferedStream.mark(8192) // 先頭8KBまで巻き戻せるようにマーク
-                        val bytes = ByteArray(8192)
-                        val readCount = bufferedStream.read(bytes)
-                        bufferedStream.reset() // 読み込み位置を先頭に戻す
+                    bufferedStream.mark(8192) // 先頭8KBまで巻き戻せるようにマーク
+                    val bytes = ByteArray(8192)
+                    val readCount = bufferedStream.read(bytes)
+                    bufferedStream.reset() // 読み込み位置を先頭に戻す
 
-                        if (readCount <= 0) throw IllegalArgumentException("ファイルが空です。")
+                    if (readCount <= 0) throw IllegalArgumentException("ファイルが空です。")
 
-                        /* 実際に読み込めたサイズだけ切り出して文字コードを判定 */
-                        val actualBytes = bytes.copyOf(readCount)
-                        val charset = detectCharset(actualBytes)
-                            ?: throw IllegalArgumentException("EUC-JPまたはUTF-8形式のファイルを選択してください。")
+                    /* 実際に読み込めたサイズだけ切り出して文字コードを判定 */
+                    val actualBytes = bytes.copyOf(readCount)
+                    val charset = detectCharset(actualBytes)
+                        ?: throw IllegalArgumentException("EUC-JPまたはUTF-8形式のファイルを選択してください。")
 
-                        Log.d("SKK_DEBUG", "判定された文字コード: ${charset.name()}")
+                    Log.d("SKK_DEBUG", "判定された文字コード: ${charset.name()}")
 
-                        /* 辞書データの読み込み(判定された文字コードを使用) */
+                    /* 辞書データの読み込み(判定された文字コードを使用) */
+                    var totalCount = 0
+
+                    db.withTransaction {
                         val entries = mutableListOf<SystemDictEntry>()
-                        var totalCount = 0
 
                         bufferedStream.bufferedReader(charset).useLines { lines ->
                             lines.forEach { line ->
@@ -104,9 +107,10 @@ class DictionaryManager(
                                 entryCount = totalCount
                             )
                         )
+                    }
 
-                        Log.d("SKK_DEBUG", "外部辞書のインポート完了")
-                    } ?: throw IllegalStateException("ファイルを開けませんでした。")
+                    Log.d("SKK_DEBUG", "外部辞書のインポート完了")
+                    totalCount
                 }
             }
         }
@@ -161,14 +165,13 @@ class DictionaryManager(
                 /* 履歴全体が1000個を超えたら、最も古いシステム候補を削除 */
                 val totalCount = historyDao.getTotalCount()
                 if (totalCount >= 1000) {
-                    val oldestSystem = historyDao.getOldestSystemEntry()
-                    if (oldestSystem != null) {
+                    historyDao.getOldestSystemEntry()?.let { oldestSystem ->
                         historyDao.deleteEntry(oldestSystem)
                     }
                 }
 
                 /* 新しい履歴を挿入する */
-                val fromSystemFlag = (oldIsFromSystem != false && isFromSystem)
+                val fromSystemFlag = (oldIsFromSystem != false) && isFromSystem
                 val newEntry = HistoryEntry(
                     midashi = midashi,
                     candidate = candidate,

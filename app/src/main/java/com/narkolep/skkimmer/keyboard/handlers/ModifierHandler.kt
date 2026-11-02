@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.update
  */
 fun shiftHandler(stateFlow: MutableStateFlow<KeyboardState>) {
     val state = stateFlow.value
-    val now = System.currentTimeMillis().toInt()
-    val timing = now - state.lastShiftPressTime < 500
+    val now = System.currentTimeMillis()
+    val timing = now - state.lastShiftPressTime < 500L
     val isCapsLock: Boolean = state.inputMode == InputMode.HALF_ASCII || state.inputMode == InputMode.FULL_ASCII || state.skkState == SkkState.ABBREV
 
     val nextShift = when (state.shiftState) {

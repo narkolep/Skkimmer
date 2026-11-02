@@ -34,7 +34,7 @@ fun dakutenHandler(
     }
 
     /* 文字の取得 */
-    val text = inputCommitter.getText(1).toString()
+    val text = inputCommitter.getText(1)?.toString()?.takeIf { it.isNotEmpty() } ?: return
 
     /* ローマ字に変換 */
     val info = kanaToRomaji[text] ?: return

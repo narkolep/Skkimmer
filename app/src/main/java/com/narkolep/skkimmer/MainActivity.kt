@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.compose.animation.core.tween
@@ -83,17 +84,19 @@ fun App(dao: HistoryDao) {
     val useDarkTheme = isSystemInDarkTheme()
 
     // Factoryを1箇所で定義
-    val factory = object : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HistoryViewModel(dao) as T
+    val factory = remember(dao) {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return HistoryViewModel(dao) as T
+            }
         }
     }
 
     // ViewModelをApp内で作成する
     val historyViewModel: HistoryViewModel = viewModel(factory = factory)
 
-    AppTheme (useDarkTheme = useDarkTheme) {
+    AppTheme(useDarkTheme = useDarkTheme) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background

@@ -1,5 +1,6 @@
 package com.narkolep.skkimmer.keyboard.ui
 
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -57,25 +58,25 @@ fun KeyboardLayout(
     val portraitHeight by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[KEYBOARD_HEIGHT_KEY] ?: 54f
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = 54f)
 
     val landscapeHeight by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] ?: 44f
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = 44f)
 
     val sidePadding by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[KEYBOARD_PADDING_KEY] ?: 0f
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = 0f)
 
     val bottomPadding by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[KEYBOARD_BOTTOM_PADDING_KEY] ?: 51f
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = 51f)
 
     val keyboardHeight = if (isLandscape) landscapeHeight else portraitHeight
@@ -159,14 +160,15 @@ fun KeyboardLayout(
                                     onClick = { onActionClick(config.action) }
                                 )
                             } else {
+                                val isDigitKey = config.label.firstOrNull() in '0'..'9'
                                 FlickKey(
                                     modifier = Modifier.weight(1f),
                                     config = config,
                                     keyColor =
-                                        if (config.label[0] in '0'..'9') colors.keyBackground
+                                        if (isDigitKey) colors.keyBackground
                                         else Color.Transparent,
                                     textColor = colors.keyText,
-                                    isNumberKeyboard = config.label[0] in '0'..'9',
+                                    isNumberKeyboard = isDigitKey,
                                     onInput = { text ->
                                         onKeyClick(text)
                                     }

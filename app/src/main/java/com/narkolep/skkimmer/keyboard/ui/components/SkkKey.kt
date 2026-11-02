@@ -59,9 +59,9 @@ fun SkkKey(
     var currentPopupText by remember { mutableStateOf(mainText) }
 
     val density = LocalDensity.current
-    val flickHeightPx = with(density) { (keyboardHeight*0.8).dp.roundToPx() }
+    val flickHeightPx = with(density) { (keyboardHeight * 0.8).dp.roundToPx() }
 
-    var weight = weight
+    val actualWeight = if (spaceLeftRight.isNotEmpty()) weight - 0.5f else weight
 
     // バックグラウンドでタイマーを動かすためのスコープ
     val scope = rememberCoroutineScope()
@@ -142,7 +142,6 @@ fun SkkKey(
             }
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
-            if (spaceLeftRight.isNotEmpty()) weight -= 0.5f
             if (spaceLeftRight == "Left") {
                 Spacer(modifier = Modifier.weight(0.5f))
             }
@@ -150,7 +149,7 @@ fun SkkKey(
             Box(
                 modifier = Modifier
                     .padding(3.dp)
-                    .weight(weight)
+                    .weight(actualWeight)
                     .fillMaxHeight()
                     .background(
                         color = if (isPressed) keyColor.copy(alpha = 0.6f) else keyColor,

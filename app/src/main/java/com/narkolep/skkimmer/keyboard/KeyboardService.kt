@@ -42,8 +42,8 @@ import java.util.function.Consumer
 
 class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
     override val viewModelStore: ViewModelStore get() = store
-    override val lifecycle: Lifecycle
-        field = LifecycleRegistry(this)
+    private val lifecycleRegistry = LifecycleRegistry(this)
+    override val lifecycle: Lifecycle get() = lifecycleRegistry
     override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
 
     private val store = ViewModelStore()
@@ -55,6 +55,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
     }
     private lateinit var dictionaryManager: DictionaryManager
+    private lateinit var inputCommitter: InputCommitter
     private lateinit var outputManager: OutputManager
     private lateinit var keyProcessor: KeyProcessor
     private lateinit var actionProcessor: ActionProcessor
@@ -73,13 +74,14 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override fun onCreate() {
         super.onCreate()
         savedStateRegistryController.performRestore(null)
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
 
         dictionaryManager = DictionaryManager(this)
+        inputCommitter = InputCommitter { currentInputConnection }
 
         outputManager = OutputManager(
             stateFlow = stateFlow,
-            inputCommitter = InputCommitter { currentInputConnection },
+            inputCommitter = inputCommitter,
             dictionaryManager = dictionaryManager,
             coroutineScope = lifecycleScope
         )
@@ -144,8 +146,8 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             }
         }
 
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
         return composeView
     }
@@ -173,16 +175,15 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         keyProcessor = KeyProcessor(
             stateFlow = stateFlow,
             keyboardService = this,
-            dictionaryManager = dictionaryManager,
-            connectionProvider = { currentInputConnection },
-            coroutineScope = lifecycleScope
+            outputManager = outputManager,
+            inputCommitter = inputCommitter
         )
 
         actionProcessor = ActionProcessor(
             stateFlow = stateFlow,
             outputManager = outputManager,
             editorInfo = currentEditorInfo,
-            inputCommitter = InputCommitter { currentInputConnection },
+            inputCommitter = inputCommitter,
             keyProcessor = keyProcessor,
             dictionaryManager = dictionaryManager,
             coroutineScope = lifecycleScope
@@ -197,7 +198,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     }
 
     override fun onDestroy() {
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         viewModelStore.clear()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

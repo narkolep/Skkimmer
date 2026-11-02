@@ -12,21 +12,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
-sealed class KeyboardAction {
-    object Shift : KeyboardAction()
-    object Ctrl : KeyboardAction()
-    object Space : KeyboardAction()
-    object Backspace : KeyboardAction()
-    object Enter : KeyboardAction()
-    object ToggleKeyboard : KeyboardAction()
-    object ToggleWidth : KeyboardAction()
-    object Emoji : KeyboardAction()
-    object Left : KeyboardAction()
-    object Right : KeyboardAction()
-    object Dakuten : KeyboardAction()
+sealed interface KeyboardAction {
+    data object Shift : KeyboardAction
+    data object Ctrl : KeyboardAction
+    data object Space : KeyboardAction
+    data object Backspace : KeyboardAction
+    data object Enter : KeyboardAction
+    data object ToggleKeyboard : KeyboardAction
+    data object ToggleWidth : KeyboardAction
+    data object Emoji : KeyboardAction
+    data object Left : KeyboardAction
+    data object Right : KeyboardAction
+    data object Dakuten : KeyboardAction
     data class CandidateIndex(
         val index: Int
-    ) : KeyboardAction()
+    ) : KeyboardAction
 }
 
 class ActionProcessor(

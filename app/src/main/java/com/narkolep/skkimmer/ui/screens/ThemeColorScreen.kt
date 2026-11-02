@@ -33,6 +33,7 @@ import com.narkolep.skkimmer.ui.components.Divider
 import com.narkolep.skkimmer.ui.components.HarmonyColorPicker
 import com.narkolep.skkimmer.keyboard.ui.theme.HSVColor
 import com.narkolep.skkimmer.ui.components.SectionHeader
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -46,7 +47,7 @@ fun ThemeColorScreen() {
     val isCustomTheme by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[THEME_SELECT_KEY] ?: false
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = false)
 
     val currentHsv by remember(context) {
@@ -57,7 +58,7 @@ fun ThemeColorScreen() {
                 value = preferences[VALUE_KEY] ?: 0f,
                 alpha = preferences[ALPHA_KEY] ?: 1f,
             )
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = HSVColor.Default)
 
     val colors = LocalKeyboardColors.current

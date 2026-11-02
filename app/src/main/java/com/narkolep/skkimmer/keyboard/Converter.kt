@@ -2,7 +2,6 @@ package com.narkolep.skkimmer.keyboard
 
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap.KanaDefinition
-import kotlin.collections.contains
 
 data class ConvertResult(
     val composingNext: String,
@@ -25,16 +24,17 @@ fun romajiConverter(
     inputMode: InputMode
 ): ConvertResult {
     /* 母音 + y */
-    val vowels = setOf('a','i','u','e','o','y')
+    val vowels = setOf('a', 'i', 'u', 'e', 'o', 'y')
     /* 現在の未確定文字列 */
     var composingNow: String = composing + key
 
     /* マップに一致するまで、先頭から順に削除する */
     while (true) {
         /* 完全一致 */
-        if (KanaMap.romajiToKana.containsKey(composingNow)) {
+        val matchedKana = KanaMap.romajiToKana[composingNow]
+        if (matchedKana != null) {
             val kana = getOutputString(
-                KanaMap.romajiToKana[composingNow]!!,
+                matchedKana,
                 inputMode
             )
             val flag =

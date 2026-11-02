@@ -25,6 +25,7 @@ import com.narkolep.skkimmer.ui.components.Divider
 import com.narkolep.skkimmer.ui.components.DpSliderItem
 import com.narkolep.skkimmer.ui.components.SectionHeader
 import com.narkolep.skkimmer.ui.components.SettingItem
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity
@@ -41,28 +42,28 @@ fun SettingsScreen(
     val portraitHeight by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[KEYBOARD_HEIGHT_KEY] ?: 54f
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = 54f)
 
     // 横向きの高さ
     val landscapeHeight by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[KEYBOARD_HEIGHT_LANDSCAPE_KEY] ?: 44f
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = 44f)
 
     // 下端のパディング
     val bottomPadding by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[KEYBOARD_BOTTOM_PADDING_KEY] ?: 51f
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = 51f)
 
     // 左右のパディング
     val sidePadding by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[KEYBOARD_PADDING_KEY] ?: 0f
-        }
+        }.distinctUntilChanged()
     }.collectAsState(initial = 0f)
 
     Scaffold(

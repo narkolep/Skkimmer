@@ -29,17 +29,18 @@ class OutputManager(
     ): Boolean {
         val outChar = if (state.shiftState == ShiftState.LOWERCASE) key else key.uppercase()
 
+        val firstChar = outChar.firstOrNull() ?: return false
         when (state.inputMode) {
             InputMode.HALF_ASCII -> {
                 inputCommitter.commit(outChar)
                 return true
             }
             InputMode.FULL_ASCII -> {
-                val fullChar = when (outChar.first().code) {
+                val fullChar = when (val code = firstChar.code) {
                     /* Space */
                     0x20 -> FULL_SPACE
                     /* !から~までの半角英数字 */
-                    in 0x21..0x7E -> (outChar.first().code + 0xFEE0).toChar().toString()
+                    in 0x21..0x7E -> (code + 0xFEE0).toChar().toString()
                     else -> outChar
                 }
                 inputCommitter.commit(fullChar)
@@ -118,8 +119,9 @@ class OutputManager(
 
                 /* 候補を検索する */
                 var flag = result.okuriganaFlag
-                if (oldState.okuriganaText.firstOrNull() == 'ん' || oldState.okuriganaText.firstOrNull() == 'ン') flag = "n"
-                if (oldState.okuriganaText.firstOrNull() == 'っ' || oldState.okuriganaText.firstOrNull() == 'ッ') flag = "t"
+                val firstOkuri = oldState.okuriganaText.firstOrNull()
+                if (firstOkuri == 'ん' || firstOkuri == 'ン') flag = "n"
+                if (firstOkuri == 'っ' || firstOkuri == 'ッ') flag = "t"
 
                 stateFlow.update {
                     it.copy(
@@ -224,9 +226,9 @@ class OutputManager(
                 coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
                     try {
                         dictionaryManager.learnWord(
-                            learnText,
-                            candidate,
-                            true
+                            midashi = learnText,
+                            candidate = candidate,
+                            isFromSystem = true
                         )
                     } catch (e: Exception) {
                         Log.e("SKK_ERROR", "Exception learning word in OutputManager commit", e)
