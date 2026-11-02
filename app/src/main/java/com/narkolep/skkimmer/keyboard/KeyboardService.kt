@@ -52,7 +52,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private var emojiCategories: List<EmojiManager.Category> = emptyList()
     private var currentEditorInfo: EditorInfo? = null
     private val clipboardManager by lazy {
-        getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        getSystemService(ClipboardManager::class.java)
     }
     private lateinit var dictionaryManager: DictionaryManager
     private lateinit var inputCommitter: InputCommitter

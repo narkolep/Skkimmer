@@ -1,6 +1,5 @@
 package com.narkolep.skkimmer
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.content.Context
 import android.os.Build
@@ -75,7 +74,6 @@ class MainActivity : ComponentActivity() {
 /**
  * アプリ本体の定義
  * */
-@SuppressLint("FlowOperatorInvokedInComposition")
 @Composable
 fun App(dao: HistoryDao) {
     val navController = rememberNavController()

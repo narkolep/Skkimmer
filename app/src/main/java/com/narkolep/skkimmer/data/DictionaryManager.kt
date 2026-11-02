@@ -29,7 +29,10 @@ class DictionaryManager(
      * @return UTF-8 or EUC-JP or nullを返す
      */
     private fun detectCharset(bytes: ByteArray): Charset? {
-        // バイトのルールが厳密なUTF-8を先に試し、次にEUC-JPを試す
+        // 先頭のバッファ末尾でマルチバイト文字が途切れることによる検出失敗を防ぐため、
+        // 4バイト以上ある場合は末尾4バイトを除いた安全な範囲で判定を試みる
+        val testLength = if (bytes.size > 4) bytes.size - 4 else bytes.size
+
         for (charset in SUPPORTED_CHARSETS) {
             val matched = try {
                 val decoder = charset
@@ -37,7 +40,7 @@ class DictionaryManager(
                     .onMalformedInput(CodingErrorAction.REPORT)
                     .onUnmappableCharacter(CodingErrorAction.REPORT)
 
-                decoder.decode(ByteBuffer.wrap(bytes))
+                decoder.decode(ByteBuffer.wrap(bytes, 0, testLength))
                 charset
             } catch (_: CharacterCodingException) {
                 null
@@ -82,16 +85,24 @@ class DictionaryManager(
 
                         bufferedStream.bufferedReader(charset).useLines { lines ->
                             lines.forEach { line ->
-                                if (line.startsWith(";;")) return@forEach
-                                val parts = line.split(" /")
-                                if (parts.size >= 2) {
-                                    entries.add(
-                                        SystemDictEntry(
-                                            midashi = parts[0],
-                                            candidates = parts[1]
+                                val trimmed = line.trim()
+                                if (trimmed.isEmpty() || trimmed.startsWith(";;")) return@forEach
+
+                                // 最初の " /" の位置を探して見出し語と候補ブロックを確実に2分割する
+                                val separatorIndex = trimmed.indexOf(" /")
+                                if (separatorIndex > 0) {
+                                    val midashi = trimmed.substring(0, separatorIndex)
+                                    val candidates = trimmed.substring(separatorIndex + 2) // " /" の後ろすべて
+
+                                    if (midashi.isNotEmpty() && candidates.isNotEmpty()) {
+                                        entries.add(
+                                            SystemDictEntry(
+                                                midashi = midashi,
+                                                candidates = candidates
+                                            )
                                         )
-                                    )
-                                    totalCount++
+                                        totalCount++
+                                    }
                                 }
 
                                 if (entries.size >= 1000) {

@@ -1,6 +1,7 @@
 package com.narkolep.skkimmer.data
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.room.withTransaction
 import com.google.gson.Gson
@@ -27,8 +28,10 @@ class EmojiManager(context: Context) {
             var allEmojis = dao.getAllEmojis()
             if (allEmojis.isEmpty()) {
                 val entities = parseJsonToEntities(jsonString)
-                dao.insertAll(entities)
-                allEmojis = entities
+                if (entities.isNotEmpty()) {
+                    dao.insertAll(entities)
+                    allEmojis = entities
+                }
             }
             buildCategoryList(allEmojis)
         }
@@ -40,46 +43,59 @@ class EmojiManager(context: Context) {
 
     // JSONをRoom用のEntityに変換する処理
     private fun parseJsonToEntities(jsonString: String): List<EmojiEntity> {
-        val rawData: List<List<String>> = gson.fromJson(jsonString, object : TypeToken<List<List<String>>>() {}.type) ?: emptyList()
-        val entities = mutableListOf<EmojiEntity>()
+        return runCatching {
+            val rawData: List<List<String>>? = gson.fromJson(
+                jsonString,
+                object : TypeToken<List<List<String>>>() {}.type,
+            )
+            if (rawData.isNullOrEmpty()) return emptyList()
 
-        var currentCategory = "General"
-        var currentSubcategory = "General"
-        var catOrder = 0
-        var subCatOrder = 0
-        var emojiOrder = 0
+            val entities = mutableListOf<EmojiEntity>()
+            var currentCategory = "General"
+            var currentSubcategory = "General"
+            var catOrder = 0
+            var subCatOrder = 0
+            var emojiOrder = 0
 
-        for (i in rawData.indices) {
-            val row = rawData[i]
-            if (row.size == 1) {
-                val title = row[0]
-                val isNextHeader = (i + 1 < rawData.size && rawData[i + 1].size == 1)
+            for (i in rawData.indices) {
+                val row = rawData[i]
+                if (row.size == 1) {
+                    val title = row.getOrNull(0) ?: continue
+                    val isNextHeader = (i + 1 < rawData.size) && (rawData[i + 1].size == 1)
 
-                if (isNextHeader) {
-                    currentCategory = title
-                    catOrder++
-                } else {
-                    currentSubcategory = title
-                    subCatOrder++
-                }
-            } else if (row.size >= 4) {
-                entities.add(
-                    EmojiEntity(
-                        idStr = row[0],
-                        unicode = row[1],
-                        emoji = row[2],
-                        description = row[3],
-                        categoryName = currentCategory,
-                        subcategoryName = currentSubcategory,
-                        categoryOrder = catOrder,
-                        subcategoryOrder = subCatOrder,
-                        emojiOrder = emojiOrder
+                    if (isNextHeader) {
+                        currentCategory = title
+                        catOrder++
+                    } else {
+                        currentSubcategory = title
+                        subCatOrder++
+                    }
+                } else if (row.size >= 4) {
+                    val idStr = row.getOrNull(0) ?: continue
+                    val unicode = row.getOrNull(1) ?: continue
+                    val emoji = row.getOrNull(2) ?: continue
+                    val description = row.getOrNull(3) ?: ""
+
+                    entities.add(
+                        EmojiEntity(
+                            idStr = idStr,
+                            unicode = unicode,
+                            emoji = emoji,
+                            description = description,
+                            categoryName = currentCategory,
+                            subcategoryName = currentSubcategory,
+                            categoryOrder = catOrder,
+                            subcategoryOrder = subCatOrder,
+                            emojiOrder = emojiOrder
+                        )
                     )
-                )
-                emojiOrder++
+                    emojiOrder++
+                }
             }
-        }
-        return entities
+            entities
+        }.onFailure { exception ->
+            Log.e("EmojiManager", "絵文字JSONのパース処理中にエラーが発生しました", exception)
+        }.getOrDefault(emptyList())
     }
 
     // EntityをUI用の階層構造に変換する処理
