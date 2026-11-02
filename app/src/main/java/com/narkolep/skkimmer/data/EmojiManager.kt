@@ -34,9 +34,13 @@ class EmojiManager(context: Context) {
         }
     }
 
+    companion object {
+        private val gson = Gson()
+    }
+
     // JSONをRoom用のEntityに変換する処理
     private fun parseJsonToEntities(jsonString: String): List<EmojiEntity> {
-        val rawData: List<List<String>> = Gson().fromJson(jsonString, object : TypeToken<List<List<String>>>() {}.type)
+        val rawData: List<List<String>> = gson.fromJson(jsonString, object : TypeToken<List<List<String>>>() {}.type) ?: emptyList()
         val entities = mutableListOf<EmojiEntity>()
 
         var currentCategory = "General"

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import android.util.Log
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
-import com.narkolep.skkimmer.keyboard.SkkConstants.OKURI_MARK
 import kotlin.text.substringAfter
 
 /**
@@ -55,8 +54,8 @@ fun dakutenHandler(
         else info.romaji
 
     /* 子音を変換 */
-    val match = DakutenMap.flickConvert.find { it.consonantBefore == consonant }
-    if (match == null) {
+    val convertedConsonant = DakutenMap.flickConvertMap[consonant]
+    if (convertedConsonant == null) {
         Log.d("DAKUTEN", "match: 一致なし")
         return
     }
@@ -65,7 +64,7 @@ fun dakutenHandler(
         info.type != KanaMap.KanaType.HIRAGANA && consonant == "x" && vowel == "u" -> "v"
         consonant == "t" && vowel == "u" -> "xt"
         // 変換後の子音を代入
-        else -> match.consonantAfter
+        else -> convertedConsonant
     }
 
     /* 取得した文字に合わせて入力モードを変更 */

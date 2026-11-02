@@ -36,9 +36,9 @@ fun CandidateBar(
     // スクロール状態を管理するStateを作成
     val listState = rememberLazyListState()
 
-    LaunchedEffect(selectedIndex) {
-        selectedIndex?.let { index ->
-            listState.animateScrollToItem(index)
+    LaunchedEffect(selectedIndex, candidates.size) {
+        if (selectedIndex != null && selectedIndex in candidates.indices) {
+            listState.animateScrollToItem(selectedIndex)
         }
     }
 

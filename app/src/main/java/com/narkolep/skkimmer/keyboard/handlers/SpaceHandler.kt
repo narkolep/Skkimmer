@@ -65,7 +65,7 @@ fun spaceHandler(
             if (state.selectedIndex < state.candidates.size - 1) {
                 stateFlow.update {
                     it.copy(
-                        selectedIndex = state.selectedIndex + 1
+                        selectedIndex = it.selectedIndex + 1
                     )
                 }
                 return
@@ -75,9 +75,8 @@ fun spaceHandler(
             if (state.tourokuFlag.isNotEmpty()) return
 
             /* 登録モードではないとき、登録モードに入る */
-            stateFlow.update { it.clear() }
             stateFlow.update {
-                it.copy(
+                it.clear().copy(
                     oldMidashiText = state.midashiText,
                     oldOkuriganaText = state.okuriganaText,
                     oldOkuriganaTrigger = state.okuriganaTrigger,

@@ -35,9 +35,10 @@ class ActionProcessor(
     private val inputCommitter: InputCommitter,
     private val keyProcessor: KeyProcessor,
     private val dictionaryManager: DictionaryManager,
-    private val editorInfo: EditorInfo?,
+    private val editorInfoProvider: () -> EditorInfo?,
     private val coroutineScope: CoroutineScope
 ) {
+
     /**
      * アクションキーの分岐
      */
@@ -58,7 +59,7 @@ class ActionProcessor(
                 backspaceHandler(stateFlow, inputCommitter)
             }
             KeyboardAction.Enter -> {
-                enterHandler(stateFlow, inputCommitter, dictionaryManager, outputManager, editorInfo, coroutineScope)
+                enterHandler(stateFlow, inputCommitter, dictionaryManager, outputManager, editorInfoProvider(), coroutineScope)
             }
             KeyboardAction.ToggleKeyboard -> {
                 stateFlow.update { it.copy(

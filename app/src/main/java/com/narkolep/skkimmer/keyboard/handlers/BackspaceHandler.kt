@@ -6,6 +6,7 @@ import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.clear
+import com.narkolep.skkimmer.keyboard.resetAll
 import com.narkolep.skkimmer.keyboard.tourokuClear
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -23,8 +24,7 @@ fun backspaceHandler(
     if (inputCommitter.isSelected()) {
         inputCommitter.commit("")
 
-        stateFlow.update { it.tourokuClear() }
-        stateFlow.update { it.clear() }
+        stateFlow.update { it.resetAll() }
         return
     }
 
@@ -34,7 +34,7 @@ fun backspaceHandler(
                 /* composingTextが存在するとき */
                 stateFlow.update {
                     it.copy(
-                        composingText = state.composingText.dropLast(1)
+                        composingText = it.composingText.dropLast(1)
                     )
                 }
                 return
@@ -50,7 +50,7 @@ fun backspaceHandler(
                 /* 登録する文字列が存在するとき */
                 stateFlow.update {
                     it.copy(
-                        tourokuFlag = state.tourokuFlag.dropLast(1)
+                        tourokuFlag = it.tourokuFlag.dropLast(1)
                     )
                 }
                 return
@@ -58,9 +58,8 @@ fun backspaceHandler(
 
             if (state.oldOkuriganaTrigger.isNotEmpty()) {
                 /* 登録する文字列が空で、送り仮名があるとき */
-                stateFlow.update { it.tourokuClear() }
                 stateFlow.update {
-                    it.copy(
+                    it.tourokuClear().copy(
                         skkState = SkkState.OKURIGANA,
                         composingText = "",
                         midashiText = state.oldMidashiText,
@@ -73,9 +72,8 @@ fun backspaceHandler(
 
             if (state.oldMidashiText.all { it.code in 0x21..0x7E }) {
                 /* 登録する文字列が空で、ABBREVモードから変換したとき */
-                stateFlow.update { it.tourokuClear() }
                 stateFlow.update {
-                    it.copy(
+                    it.tourokuClear().copy(
                         skkState = SkkState.ABBREV,
                         composingText = HALF_SPACE,
                         midashiText = state.oldMidashiText,
@@ -87,9 +85,8 @@ fun backspaceHandler(
             }
 
             /* OKURIGANAでもABBREVでもないとき */
-            stateFlow.update { it.tourokuClear() }
             stateFlow.update {
-                it.copy(
+                it.tourokuClear().copy(
                     skkState = SkkState.MIDASHI,
                     composingText = "",
                     midashiText = state.oldMidashiText,

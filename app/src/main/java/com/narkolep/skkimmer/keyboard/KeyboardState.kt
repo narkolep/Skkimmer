@@ -90,3 +90,22 @@ fun KeyboardState.tourokuClear(): KeyboardState {
         oldOkuriganaTrigger = ""
     )
 }
+
+/**
+ * 状態と辞書登録モードの一括初期化
+ */
+fun KeyboardState.resetAll(): KeyboardState {
+    return copy(
+        skkState = SkkState.NORMAL,
+        midashiText = "",
+        composingText = "",
+        okuriganaText = "",
+        okuriganaTrigger = "",
+        candidates = emptyList(),
+        selectedIndex = -1,
+        tourokuFlag = "",
+        oldMidashiText = "",
+        oldOkuriganaText = "",
+        oldOkuriganaTrigger = ""
+    )
+}

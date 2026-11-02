@@ -185,8 +185,9 @@ class OutputManager(
                 val displayOkuri =
                     if (state.okuriganaText.isNotEmpty()) OKURI_MARK + state.okuriganaText + state.composingText
                     else ""
-                val candidate = state.candidates.getOrNull(state.selectedIndex) ?: return
-                val word = candidate.split(DICT_ANNOTATION)[0]
+                val candidate = state.candidates.getOrNull(state.selectedIndex)
+                    ?: state.candidates.firstOrNull()
+                val word = candidate?.split(DICT_ANNOTATION)?.get(0) ?: state.midashiText
 
                 state.tourokuFlag + word + displayOkuri
             }
@@ -216,44 +217,51 @@ class OutputManager(
             }
             SkkState.HENKAN -> {
                 /* 履歴を記録 */
-                val learnText = state.midashiText + state.okuriganaTrigger
-                val candidate = state.candidates.getOrNull(state.selectedIndex) ?: return
+                val candidate = state.candidates.getOrNull(state.selectedIndex)
+                    ?: state.candidates.firstOrNull()
 
-                val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-                    Log.e("SKK_ERROR", "Error in OutputManager learnWord", throwable)
-                }
-
-                coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
-                    try {
-                        dictionaryManager.learnWord(
-                            midashi = learnText,
-                            candidate = candidate,
-                            isFromSystem = true
-                        )
-                    } catch (e: Exception) {
-                        Log.e("SKK_ERROR", "Exception learning word in OutputManager commit", e)
+                if (candidate != null) {
+                    val learnText = state.midashiText + state.okuriganaTrigger
+                    val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                        Log.e("SKK_ERROR", "Error in OutputManager learnWord", throwable)
                     }
-                }
 
-                val word = candidate.split(DICT_ANNOTATION)[0]
-                word + state.okuriganaText
+                    coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
+                        try {
+                            dictionaryManager.learnWord(
+                                midashi = learnText,
+                                candidate = candidate,
+                                isFromSystem = true
+                            )
+                        } catch (e: Exception) {
+                            Log.e("SKK_ERROR", "Exception learning word in OutputManager commit", e)
+                        }
+                    }
+
+                    val word = candidate.split(DICT_ANNOTATION)[0]
+                    word + state.okuriganaText
+                } else {
+                    state.midashiText + state.okuriganaText
+                }
             }
             SkkState.ABBREV -> {
                 state.midashiText
             }
         }
 
-        /* 状態をリセット */
-        stateFlow.update {
-            it.clear()
+        /* 状態をアトミックにリセット・更新 */
+        stateFlow.update { current ->
+            val cleared = current.clear()
+            if (state.tourokuFlag.isNotEmpty()) {
+                cleared.copy(tourokuFlag = state.tourokuFlag + commitText)
+            } else {
+                cleared
+            }
         }
 
-        /* リセットした後、フラグを更新 */
         if (state.tourokuFlag.isEmpty()) {
             inputCommitter.setComposingText("")
             if (commitText.isNotEmpty()) inputCommitter.commit(commitText)
-        } else {
-            stateFlow.update { it.copy(tourokuFlag = state.tourokuFlag + commitText) }
         }
     }
 }

@@ -31,4 +31,8 @@ object DakutenMap {
         FlickConvertConfig(")", "」"),
         FlickConvertConfig("」", ")"),
     )
+
+    val flickConvertMap: Map<String, String> by lazy {
+        flickConvert.associateBy({ it.consonantBefore }, { it.consonantAfter })
+    }
 }

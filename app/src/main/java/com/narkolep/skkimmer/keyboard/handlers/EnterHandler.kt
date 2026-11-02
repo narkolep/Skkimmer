@@ -9,8 +9,7 @@ import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
-import com.narkolep.skkimmer.keyboard.clear
-import com.narkolep.skkimmer.keyboard.tourokuClear
+import com.narkolep.skkimmer.keyboard.resetAll
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,8 +53,7 @@ fun enterHandler(
                     }
                 }
 
-                stateFlow.update { it.tourokuClear() }
-                stateFlow.update { it.clear() }
+                stateFlow.update { it.resetAll() }
             } else {
                 /* 登録モードから抜ける */
                 backspaceHandler(stateFlow, inputCommitter)

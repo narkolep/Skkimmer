@@ -7,8 +7,8 @@ import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -85,10 +85,9 @@ fun App(dao: HistoryDao) {
 
     // Factoryを1箇所で定義
     val factory = remember(dao) {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return HistoryViewModel(dao) as T
+        viewModelFactory {
+            initializer {
+                HistoryViewModel(dao)
             }
         }
     }

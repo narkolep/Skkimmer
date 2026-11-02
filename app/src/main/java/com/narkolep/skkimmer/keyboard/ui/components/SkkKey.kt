@@ -37,6 +37,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import kotlin.time.Duration.Companion.milliseconds
 
+import com.narkolep.skkimmer.keyboard.ui.layouts.KeySpacerPosition
+
 @Composable
 fun SkkKey(
     mainText: String, // 表示する文字
@@ -48,7 +50,7 @@ fun SkkKey(
     keyColor: Color,
     textColor: Color,
     flickColor: Color = Color.Black,
-    spaceLeftRight: String = "",
+    spaceLeftRight: KeySpacerPosition = KeySpacerPosition.NONE,
     weight: Float = 1f,
     cornerShape: Dp = 10.dp,
     keyRepeat: Boolean = false,
@@ -61,7 +63,7 @@ fun SkkKey(
     val density = LocalDensity.current
     val flickHeightPx = with(density) { (keyboardHeight * 0.8).dp.roundToPx() }
 
-    val actualWeight = if (spaceLeftRight.isNotEmpty()) weight - 0.5f else weight
+    val actualWeight = if (spaceLeftRight != KeySpacerPosition.NONE) weight - 0.5f else weight
 
     // バックグラウンドでタイマーを動かすためのスコープ
     val scope = rememberCoroutineScope()
@@ -142,7 +144,7 @@ fun SkkKey(
             }
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
-            if (spaceLeftRight == "Left") {
+            if (spaceLeftRight == KeySpacerPosition.LEFT) {
                 Spacer(modifier = Modifier.weight(0.5f))
             }
 
@@ -209,7 +211,7 @@ fun SkkKey(
                 }
             }
 
-            if (spaceLeftRight == "Right") {
+            if (spaceLeftRight == KeySpacerPosition.RIGHT) {
                 Spacer(modifier = Modifier.weight(0.5f))
             }
         }

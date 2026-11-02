@@ -84,7 +84,7 @@ fun FlickKey(
                 if (config.flickPosition.left.isEmpty()) xOffset += (keyWidthPx*0.5 + paddingPx).toInt()
                 if (config.flickPosition.right.isEmpty()) xOffset -= (keyWidthPx*0.5 + paddingPx).toInt()
             }
-            .pointerInput(Unit) {
+            .pointerInput(config, displayText) {
                 awaitEachGesture {
                     val downEvent = awaitFirstDown()
 

@@ -86,6 +86,23 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             coroutineScope = lifecycleScope
         )
 
+        keyProcessor = KeyProcessor(
+            stateFlow = stateFlow,
+            keyboardService = this,
+            outputManager = outputManager,
+            inputCommitter = inputCommitter
+        )
+
+        actionProcessor = ActionProcessor(
+            stateFlow = stateFlow,
+            outputManager = outputManager,
+            inputCommitter = inputCommitter,
+            keyProcessor = keyProcessor,
+            dictionaryManager = dictionaryManager,
+            editorInfoProvider = { currentEditorInfo },
+            coroutineScope = lifecycleScope
+        )
+
         lifecycleScope.launch {
             val parsedList = withContext(Dispatchers.IO) {
                 val jsonString = assets.open("all-emoji.json").bufferedReader().use { it.readText() }
@@ -171,30 +188,12 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     override fun onStartInput(attribute: EditorInfo?, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         currentEditorInfo = attribute
-
-        keyProcessor = KeyProcessor(
-            stateFlow = stateFlow,
-            keyboardService = this,
-            outputManager = outputManager,
-            inputCommitter = inputCommitter
-        )
-
-        actionProcessor = ActionProcessor(
-            stateFlow = stateFlow,
-            outputManager = outputManager,
-            editorInfo = currentEditorInfo,
-            inputCommitter = inputCommitter,
-            keyProcessor = keyProcessor,
-            dictionaryManager = dictionaryManager,
-            coroutineScope = lifecycleScope
-        )
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
         super.onFinishInputView(finishingInput)
 
-        stateFlow.update { it.tourokuClear() }
-        stateFlow.update { it.clear() }
+        stateFlow.update { it.resetAll() }
     }
 
     override fun onDestroy() {

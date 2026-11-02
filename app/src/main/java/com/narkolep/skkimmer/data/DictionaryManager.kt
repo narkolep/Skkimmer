@@ -19,15 +19,18 @@ class DictionaryManager(
     private val historyDao = db.historyDao()
     private val dictionaryInfoDao = db.dictionaryInfoDao()
 
+    companion object {
+        private val EUC_JP: Charset = Charset.forName("EUC-JP")
+        private val SUPPORTED_CHARSETS = listOf(Charsets.UTF_8, EUC_JP)
+    }
+
     /**
      * バイト配列がUTF-8かEUC-JPか判定する
      * @return UTF-8 or EUC-JP or nullを返す
      */
     private fun detectCharset(bytes: ByteArray): Charset? {
         // バイトのルールが厳密なUTF-8を先に試し、次にEUC-JPを試す
-        val charsets = listOf(Charsets.UTF_8, Charset.forName("EUC-JP"))
-
-        for (charset in charsets) {
+        for (charset in SUPPORTED_CHARSETS) {
             val matched = try {
                 val decoder = charset
                     .newDecoder()

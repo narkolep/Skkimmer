@@ -42,6 +42,7 @@ class InputCommitter(
     }
 
     fun delete(count: Int = 1) {
+        if (count <= 0) return
         val textBefore = getText(16 * count) ?: return
         if (textBefore.isEmpty()) return
 
@@ -50,7 +51,10 @@ class InputCommitter(
             boundary = boundaryBefore(textBefore, boundary)
         }
 
-        connectionProvider()?.deleteSurroundingText(textBefore.length - boundary, 0)
+        val deleteLength = (textBefore.length - boundary).coerceAtLeast(0)
+        if (deleteLength > 0) {
+            connectionProvider()?.deleteSurroundingText(deleteLength, 0)
+        }
     }
 
     fun moveCursor(offset: Int) {
@@ -58,8 +62,9 @@ class InputCommitter(
 
         val extracted = connectionProvider()?.getExtractedText(ExtractedTextRequest(), 0) ?: return
         val text = extracted.text ?: return
+        if (text.isEmpty()) return
 
-        var newPos = extracted.selectionStart
+        var newPos = extracted.selectionStart.coerceIn(0, text.length)
         val direction = if (offset > 0) 1 else -1
 
         repeat(abs(offset)) {

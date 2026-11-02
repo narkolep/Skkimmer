@@ -2,6 +2,12 @@ package com.narkolep.skkimmer.keyboard.ui.layouts
 
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 
+enum class KeySpacerPosition {
+    NONE,
+    LEFT,
+    RIGHT
+}
+
 object QwertyMap {
     data class KeyDef(
         val main: String,
@@ -10,7 +16,7 @@ object QwertyMap {
         val action: KeyboardAction? = null,
         val keyRepeat: Boolean = false,
         val weight: Float = 1f,
-        val padding: String = "",
+        val padding: KeySpacerPosition = KeySpacerPosition.NONE,
         val textSize: Float = 22f
     )
 
@@ -45,7 +51,7 @@ object QwertyMap {
 
         // 3段目
         listOf(
-            KeyDef("a", "!", "|", weight = 1.5f, padding = "Left"),
+            KeyDef("a", "!", "|", weight = 1.5f, padding = KeySpacerPosition.LEFT),
             KeyDef("s", "?", "*"),
             KeyDef("d", "#", "_"),
             KeyDef("f", "$", "+"),
@@ -53,7 +59,7 @@ object QwertyMap {
             KeyDef("h", "&", "^"),
             KeyDef("j", "-", "~"),
             KeyDef("k", ":", ";"),
-            KeyDef("l", "@", "@", weight = 1.5f, padding = "Right")
+            KeyDef("l", "@", "@", weight = 1.5f, padding = KeySpacerPosition.RIGHT)
         ),
 
         // 4段目
