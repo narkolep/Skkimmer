@@ -21,11 +21,11 @@ fun dakutenHandler(
     inputCommitter: InputCommitter,
     keyProcessor: KeyProcessor
 ) {
-    val state = stateFlow.value
+    val capturedState = stateFlow.value
 
     /* 登録する文字列がないとき、辞書登録モードを解除する */
-    if (state.tourokuFlag.isNotEmpty()) {
-        val displayText = state.tourokuFlag + state.midashiText + state.composingText
+    if (capturedState.tourokuFlag.isNotEmpty()) {
+        val displayText = capturedState.tourokuFlag + capturedState.midashiText + capturedState.composingText
 
         if (displayText.substringAfter(DICT_DELIMITER).isEmpty()) {
             backspaceHandler(stateFlow, inputCommitter)
@@ -83,7 +83,7 @@ fun dakutenHandler(
     /* inputModeを元に戻す */
     stateFlow.update {
         it.copy(
-            inputMode = state.inputMode
+            inputMode = capturedState.inputMode
         )
     }
 }

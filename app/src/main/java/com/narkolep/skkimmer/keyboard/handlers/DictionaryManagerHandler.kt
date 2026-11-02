@@ -53,8 +53,8 @@ fun getCandidatesAndChangeState(
                 stateFlow.update {
                     it.clear().copy(
                         oldMidashiText = convertedMidashiText,
-                        oldOkuriganaText = state.okuriganaText,
-                        oldOkuriganaTrigger = state.okuriganaTrigger,
+                        oldOkuriganaText = it.okuriganaText,
+                        oldOkuriganaTrigger = it.okuriganaTrigger,
                         tourokuFlag = "[登録]$keyText:"
                     )
                 }

@@ -62,9 +62,9 @@ fun backspaceHandler(
                     it.tourokuClear().copy(
                         skkState = SkkState.OKURIGANA,
                         composingText = "",
-                        midashiText = state.oldMidashiText,
-                        okuriganaText = state.oldOkuriganaText,
-                        okuriganaTrigger = state.oldOkuriganaTrigger,
+                        midashiText = it.oldMidashiText,
+                        okuriganaText = it.oldOkuriganaText,
+                        okuriganaTrigger = it.oldOkuriganaTrigger,
                     )
                 }
                 return
@@ -76,7 +76,7 @@ fun backspaceHandler(
                     it.tourokuClear().copy(
                         skkState = SkkState.ABBREV,
                         composingText = HALF_SPACE,
-                        midashiText = state.oldMidashiText,
+                        midashiText = it.oldMidashiText,
                         okuriganaText = "",
                         okuriganaTrigger = ""
                     )
@@ -89,7 +89,7 @@ fun backspaceHandler(
                 it.tourokuClear().copy(
                     skkState = SkkState.MIDASHI,
                     composingText = "",
-                    midashiText = state.oldMidashiText,
+                    midashiText = it.oldMidashiText,
                     okuriganaText = "",
                     okuriganaTrigger = ""
                 )
@@ -105,12 +105,12 @@ fun backspaceHandler(
 
             /* composingTextが存在するとき */
             if (state.composingText.isNotEmpty()) {
-                val newComposingText = state.composingText.dropLast(1)
-
                 stateFlow.update {
+                    val newComposingText = it.composingText.dropLast(1)
+
                     it.copy(
                         composingText =
-                            if (newComposingText.isEmpty() && state.midashiText.isEmpty()) HALF_SPACE
+                            if (newComposingText.isEmpty() && it.midashiText.isEmpty()) HALF_SPACE
                             else newComposingText
                     )
                 }
@@ -119,14 +119,14 @@ fun backspaceHandler(
 
             /* 見出し文字列が存在するとき */
             if (state.midashiText.isNotEmpty()) {
-                val newMidashiText = state.midashiText.dropLast(1)
-
                 stateFlow.update {
+                    val newMidashiText = it.midashiText.dropLast(1)
+
                     it.copy(
                         midashiText = newMidashiText,
                         composingText =
                             if (newMidashiText.isEmpty()) HALF_SPACE
-                            else state.composingText
+                            else it.composingText
                     )
                 }
                 return
@@ -141,7 +141,7 @@ fun backspaceHandler(
             if (state.composingText.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
-                        composingText = state.composingText.dropLast(1)
+                        composingText = it.composingText.dropLast(1)
                     )
                 }
                 return
@@ -151,7 +151,7 @@ fun backspaceHandler(
             if (state.okuriganaText.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
-                        okuriganaText = state.okuriganaText.dropLast(1)
+                        okuriganaText = it.okuriganaText.dropLast(1)
                     )
                 }
                 return
@@ -174,7 +174,7 @@ fun backspaceHandler(
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.OKURIGANA,
-                        okuriganaText = state.okuriganaText.dropLast(1),
+                        okuriganaText = it.okuriganaText.dropLast(1),
                         composingText = "",
                         candidates = emptyList(),
                         selectedIndex = -1
@@ -211,7 +211,7 @@ fun backspaceHandler(
             if (state.midashiText.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
-                        midashiText = state.midashiText.dropLast(1)
+                        midashiText = it.midashiText.dropLast(1)
                     )
                 }
                 return

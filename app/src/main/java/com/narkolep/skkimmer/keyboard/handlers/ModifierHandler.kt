@@ -39,11 +39,9 @@ fun shiftHandler(stateFlow: MutableStateFlow<KeyboardState>) {
  * Ctrlキーが押されたときの処理
  */
 fun ctrlHandler(stateFlow: MutableStateFlow<KeyboardState>) {
-    val state = stateFlow.value
-
     stateFlow.update {
         it.copy(
-            isCtrlPressed = !state.isCtrlPressed
+            isCtrlPressed = !it.isCtrlPressed
         )
     }
 }
