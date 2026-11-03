@@ -43,8 +43,6 @@ class ActionProcessor(
      * アクションキーの分岐
      */
     fun handle(action: KeyboardAction) {
-        val state = stateFlow.value
-
         when(action) {
             KeyboardAction.Shift -> {
                 shiftHandler(stateFlow)
@@ -70,7 +68,7 @@ class ActionProcessor(
             KeyboardAction.ToggleWidth -> {
                 stateFlow.update { it.copy(
                     inputMode =
-                        if (state.inputMode == InputMode.FULL_ASCII) InputMode.HALF_ASCII
+                        if (it.inputMode == InputMode.FULL_ASCII) InputMode.HALF_ASCII
                         else InputMode.FULL_ASCII
                 ) }
             }

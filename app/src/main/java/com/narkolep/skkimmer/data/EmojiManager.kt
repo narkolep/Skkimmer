@@ -6,6 +6,8 @@ import androidx.compose.runtime.Immutable
 import androidx.room.withTransaction
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.narkolep.skkimmer.data.db.AppDatabase
+import com.narkolep.skkimmer.data.db.entity.EmojiEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

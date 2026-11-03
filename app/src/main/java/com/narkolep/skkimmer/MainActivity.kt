@@ -30,8 +30,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 
 /* data */
 import com.narkolep.skkimmer.data.HistoryViewModel
-import com.narkolep.skkimmer.data.HistoryDao
-import com.narkolep.skkimmer.data.AppDatabase
+import com.narkolep.skkimmer.data.db.AppDatabase
+import com.narkolep.skkimmer.data.db.dao.HistoryDao
 
 /* screens */
 import com.narkolep.skkimmer.ui.screens.DictionaryListScreen

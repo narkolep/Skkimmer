@@ -2,6 +2,8 @@ package com.narkolep.skkimmer.data
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.narkolep.skkimmer.data.db.dao.HistoryDao
+import com.narkolep.skkimmer.data.db.entity.HistoryEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +19,7 @@ class HistoryViewModel(
     private val query = MutableStateFlow("")
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val histories: StateFlow<List<HistoryEntry>> =
+    val histories: StateFlow<List<HistoryEntity>> =
         query
             .flatMapLatest { q ->
                 if (q.isBlank()) {
@@ -36,7 +38,7 @@ class HistoryViewModel(
         query.value = newQuery
     }
 
-    fun delete(entry: HistoryEntry) {
+    fun delete(entry: HistoryEntity) {
         viewModelScope.launch {
             dao.deleteEntry(entry)
         }

@@ -48,7 +48,7 @@ class OutputManager(
             }
             else -> {
                 if (state.skkState == SkkState.ABBREV) {
-                    stateFlow.update { it.copy(midashiText = state.midashiText + outChar) }
+                    stateFlow.update { it.copy(midashiText = it.midashiText + outChar) }
                     return true
                 }
             }
@@ -163,15 +163,29 @@ class OutputManager(
 
     /**
      * 表示する未確定文字列の更新
+     * stateFlow.value のスナップショットを1回だけ取得して処理する
      */
     fun update() {
         val state = stateFlow.value
 
-        val displayText = when (state.skkState) {
+        val displayText = buildDisplayText(state)
+        if (displayText == null) {
+            inputCommitter.commit("")
+            return
+        }
+
+        inputCommitter.setComposingText(displayText)
+    }
+
+    /**
+     * state から表示テキストを構築する純粋関数
+     * NORMAL かつ空の場合は null を返す
+     */
+    private fun buildDisplayText(state: KeyboardState): String? {
+        return when (state.skkState) {
             SkkState.NORMAL -> {
                 if (state.composingText.isEmpty() && state.tourokuFlag.isEmpty()) {
-                    inputCommitter.commit("")
-                    return
+                    return null
                 }
                 state.tourokuFlag + state.composingText
             }
@@ -187,7 +201,7 @@ class OutputManager(
                     else ""
                 val candidate = state.candidates.getOrNull(state.selectedIndex)
                     ?: state.candidates.firstOrNull()
-                val word = candidate?.split(DICT_ANNOTATION)?.get(0) ?: state.midashiText
+                val word = candidate?.split(DICT_ANNOTATION)?.first() ?: state.midashiText
 
                 state.tourokuFlag + word + displayOkuri
             }
@@ -195,17 +209,64 @@ class OutputManager(
                 state.tourokuFlag + state.midashiText.ifEmpty { state.composingText }
             }
         }
-
-        inputCommitter.setComposingText(displayText)
     }
 
     /**
      * 未確定文字列を確定する
      */
     fun commit() {
-        val state = stateFlow.value
+        // stateFlow.update 内でスナップショットの読み取りとクリアを実行
+        var capturedState: KeyboardState? = null
+        var commitText = ""
 
-        val commitText = when (state.skkState) {
+        stateFlow.update { current ->
+            capturedState = current
+            val text = buildCommitText(current)
+            commitText = text
+
+            val cleared = current.clear()
+            if (current.tourokuFlag.isNotEmpty()) {
+                cleared.copy(tourokuFlag = current.tourokuFlag + text)
+            } else {
+                cleared
+            }
+        }
+
+        val state = capturedState ?: return
+
+        // 履歴の記録
+        // 非同期、状態に影響しない副作用
+        if (state.skkState == SkkState.HENKAN) {
+            val candidate = state.candidates.getOrNull(state.selectedIndex)
+                ?: state.candidates.firstOrNull()
+
+            if (candidate != null) {
+                val learnText = state.midashiText + state.okuriganaTrigger
+                val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                    Log.e("SKK_ERROR", "Error in OutputManager learnWord", throwable)
+                }
+
+                coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
+                    dictionaryManager.learnWord(
+                        midashi = learnText,
+                        candidate = candidate,
+                        isFromSystem = true
+                    )
+                }
+            }
+        }
+
+        if (state.tourokuFlag.isEmpty()) {
+            inputCommitter.setComposingText("")
+            if (commitText.isNotEmpty()) inputCommitter.commit(commitText)
+        }
+    }
+
+    /**
+     * state から確定テキストを構築する純粋関数
+     */
+    private fun buildCommitText(state: KeyboardState): String {
+        return when (state.skkState) {
             SkkState.NORMAL -> {
                 state.composingText
             }
@@ -216,29 +277,11 @@ class OutputManager(
                 state.midashiText + state.composingText
             }
             SkkState.HENKAN -> {
-                /* 履歴を記録 */
                 val candidate = state.candidates.getOrNull(state.selectedIndex)
                     ?: state.candidates.firstOrNull()
 
                 if (candidate != null) {
-                    val learnText = state.midashiText + state.okuriganaTrigger
-                    val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-                        Log.e("SKK_ERROR", "Error in OutputManager learnWord", throwable)
-                    }
-
-                    coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
-                        try {
-                            dictionaryManager.learnWord(
-                                midashi = learnText,
-                                candidate = candidate,
-                                isFromSystem = true
-                            )
-                        } catch (e: Exception) {
-                            Log.e("SKK_ERROR", "Exception learning word in OutputManager commit", e)
-                        }
-                    }
-
-                    val word = candidate.split(DICT_ANNOTATION)[0]
+                    val word = candidate.split(DICT_ANNOTATION).first()
                     word + state.okuriganaText
                 } else {
                     state.midashiText + state.okuriganaText
@@ -247,21 +290,6 @@ class OutputManager(
             SkkState.ABBREV -> {
                 state.midashiText
             }
-        }
-
-        /* 状態をアトミックにリセット・更新 */
-        stateFlow.update { current ->
-            val cleared = current.clear()
-            if (state.tourokuFlag.isNotEmpty()) {
-                cleared.copy(tourokuFlag = state.tourokuFlag + commitText)
-            } else {
-                cleared
-            }
-        }
-
-        if (state.tourokuFlag.isEmpty()) {
-            inputCommitter.setComposingText("")
-            if (commitText.isNotEmpty()) inputCommitter.commit(commitText)
         }
     }
 }

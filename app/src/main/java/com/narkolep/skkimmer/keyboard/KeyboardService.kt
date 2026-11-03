@@ -49,6 +49,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private val store = ViewModelStore()
     private val stateFlow = MutableStateFlow(KeyboardState())
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
+    @Volatile
     private var emojiCategories: List<EmojiManager.Category> = emptyList()
     private var currentEditorInfo: EditorInfo? = null
     private val clipboardManager by lazy {

@@ -35,8 +35,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import com.narkolep.skkimmer.data.AppDatabase
 import com.narkolep.skkimmer.data.DictionaryManager
+import com.narkolep.skkimmer.data.db.AppDatabase
 import com.narkolep.skkimmer.ui.components.ConfirmDialog
 import com.narkolep.skkimmer.ui.components.Divider
 import kotlinx.coroutines.launch

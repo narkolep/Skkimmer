@@ -29,7 +29,7 @@ fun spaceHandler(
             if (state.tourokuFlag.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
-                        tourokuFlag = state.tourokuFlag + HALF_SPACE
+                        tourokuFlag = it.tourokuFlag + HALF_SPACE
                     )
                 }
                 return
@@ -77,10 +77,10 @@ fun spaceHandler(
             /* 登録モードではないとき、登録モードに入る */
             stateFlow.update {
                 it.clear().copy(
-                    oldMidashiText = state.midashiText,
-                    oldOkuriganaText = state.okuriganaText,
-                    oldOkuriganaTrigger = state.okuriganaTrigger,
-                    tourokuFlag = "[登録]" + state.midashiText + state.okuriganaTrigger + DICT_DELIMITER
+                    oldMidashiText = it.midashiText,
+                    oldOkuriganaText = it.okuriganaText,
+                    oldOkuriganaTrigger = it.okuriganaTrigger,
+                    tourokuFlag = "[登録]" + it.midashiText + it.okuriganaTrigger + DICT_DELIMITER
                 )
             }
         }

@@ -4,6 +4,10 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.room.withTransaction
+import com.narkolep.skkimmer.data.db.AppDatabase
+import com.narkolep.skkimmer.data.db.entity.DictionaryInfoEntity
+import com.narkolep.skkimmer.data.db.entity.HistoryEntity
+import com.narkolep.skkimmer.data.db.entity.SystemDictEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
@@ -81,7 +85,7 @@ class DictionaryManager(
                     var totalCount = 0
 
                     db.withTransaction {
-                        val entries = mutableListOf<SystemDictEntry>()
+                        val entries = mutableListOf<SystemDictEntity>()
 
                         bufferedStream.bufferedReader(charset).useLines { lines ->
                             lines.forEach { line ->
@@ -96,7 +100,7 @@ class DictionaryManager(
 
                                     if (midashi.isNotEmpty() && candidates.isNotEmpty()) {
                                         entries.add(
-                                            SystemDictEntry(
+                                            SystemDictEntity(
                                                 midashi = midashi,
                                                 candidates = candidates
                                             )
@@ -116,7 +120,7 @@ class DictionaryManager(
                         }
 
                         dictionaryInfoDao.insert(
-                            DictionaryInfo(
+                            DictionaryInfoEntity(
                                 name = fileName,
                                 entryCount = totalCount
                             )
@@ -186,7 +190,7 @@ class DictionaryManager(
 
                 /* 新しい履歴を挿入する */
                 val fromSystemFlag = (oldIsFromSystem != false) && isFromSystem
-                val newEntry = HistoryEntry(
+                val newEntry = HistoryEntity(
                     midashi = midashi,
                     candidate = candidate,
                     isFromSystemDict = fromSystemFlag

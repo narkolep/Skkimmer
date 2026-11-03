@@ -69,10 +69,10 @@ fun enterHandler(
             val hasRequestedAction = action != EditorInfo.IME_ACTION_NONE && !noEnterAction
 
             if (hasRequestedAction) {
-                // 検索/送信/完了などのアクションが指定されている場合はそれを実行
+                /* アクションが指定されている場合はそれを実行 */
                 inputCommitter.performEditorAction(action)
             } else {
-                // 改行を挿入
+                /* 改行を挿入 */
                 inputCommitter.commit("\n")
             }
 
