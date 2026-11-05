@@ -129,6 +129,7 @@ fun KeyboardLayout(
                         selectedBackgroundColor = colors.keyBackground,
                         selectedTextColor = colors.keyText,
                         candidates = uiState.candidates,
+                        originalText = uiState.midashiText,
                         selectedIndex = uiState.selectedIndex,
                         onCandidateClick = { index -> onActionClick(KeyboardAction.CandidateIndex(index)) }
                     )

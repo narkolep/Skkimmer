@@ -23,6 +23,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import com.narkolep.skkimmer.keyboard.NumericEntryConverter
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
 
 @Composable
@@ -30,6 +31,7 @@ fun CandidateBar(
     selectedBackgroundColor: Color = Color.DarkGray,
     selectedTextColor: Color = Color.LightGray,
     candidates: List<String>,
+    originalText: String,
     selectedIndex: Int? = null,
     onCandidateClick: (Int) -> Unit
 ) {
@@ -52,12 +54,13 @@ fun CandidateBar(
     ) {
         // 候補を描画
         itemsIndexed(candidates) { index, candidate ->
+            val candidateString = NumericEntryConverter.replace(candidate, originalText)
             val isSelected = index == selectedIndex
             val textColor = if (isSelected) selectedTextColor else selectedTextColor.copy(alpha = 0.6f)
 
             // 注釈のパース処理
             val annotatedText = buildAnnotatedString {
-                val parts = candidate.split(DICT_ANNOTATION, limit = 2)
+                val parts = candidateString.split(DICT_ANNOTATION, limit = 2)
                 val mainText = parts[0]
                 val comment = if (parts.size > 1) parts[1] else null
 

@@ -147,16 +147,19 @@ class DictionaryManager(
      * 候補の取得（履歴を最優先にする）
      */
     suspend fun getCandidates(key: String): List<String> = withContext(Dispatchers.IO) {
-        // 履歴から取得
-        val history = historyDao.getHistoryByMidashi(key).map { it.candidate }
+        /* 半角数字を"#"に置き換える */
+        val keyString = replaceNumber(key)
 
-        // システム辞書から取得
-        val systemEntry = systemDictDao.getEntry(key)
+        /* 履歴から取得 */
+        val history = historyDao.getHistoryByMidashi(keyString).map { it.candidate }
+
+        /* システム辞書から取得 */
+        val systemEntry = systemDictDao.getEntry(keyString)
         val systemCandidates = systemEntry?.candidates
             ?.split("/")
             ?.filter { it.isNotEmpty() } ?: emptyList()
 
-        // マージして返す
+        /* マージして返す */
         return@withContext (history + systemCandidates).distinct()
     }
 
@@ -164,10 +167,13 @@ class DictionaryManager(
      * 確定時の学習（履歴保存）
      */
     suspend fun learnWord(midashi: String, candidate: String, isFromSystem: Boolean) {
+        /* 半角数字を"#"に置き換える */
+        val midashiString = replaceNumber(midashi)
+
         withContext(Dispatchers.IO) {
             db.withTransaction {
                 /* 既存のエントリーを取得する */
-                val existingEntries = historyDao.findEntry(midashi, candidate)
+                val existingEntries = historyDao.findEntry(midashiString, candidate)
                 val entry = existingEntries.firstOrNull()
                 val oldIsFromSystem = entry?.isFromSystemDict
 
@@ -175,12 +181,12 @@ class DictionaryManager(
                 existingEntries.forEach { historyDao.deleteEntry(it) }
 
                 /* 同じ見出しのシステム候補について、古いものを削除する */
-                val sameMidashiSystemEntries = historyDao.getOldSystemEntriesByMidashi(midashi)
+                val sameMidashiSystemEntries = historyDao.getOldSystemEntriesByMidashi(midashiString)
                 if (sameMidashiSystemEntries.size >= 3) {
                     historyDao.deleteEntry(sameMidashiSystemEntries[0])
                 }
 
-                /* 履歴全体が1000個を超えたら、最も古いシステム候補を削除 */
+                /* 古いシステム候補を削除 */
                 val totalCount = historyDao.getTotalCount()
                 if (totalCount >= 1000) {
                     historyDao.getOldestSystemEntry()?.let { oldestSystem ->
@@ -191,11 +197,32 @@ class DictionaryManager(
                 /* 新しい履歴を挿入する */
                 val fromSystemFlag = (oldIsFromSystem != false) && isFromSystem
                 val newEntry = HistoryEntity(
-                    midashi = midashi,
+                    midashi = midashiString,
                     candidate = candidate,
                     isFromSystemDict = fromSystemFlag
                 )
                 historyDao.insert(newEntry)
+            }
+        }
+    }
+
+    /**
+     * 半角数字を"#"に置き換える
+     */
+    private fun replaceNumber(text: String): String {
+        return buildString {
+            var inNumber = false
+
+            for (char in text) {
+                if (char in '0'..'9') {
+                    if (!inNumber) {
+                        append('#')
+                        inNumber = true
+                    }
+                } else {
+                    append(char)
+                    inNumber = false
+                }
             }
         }
     }

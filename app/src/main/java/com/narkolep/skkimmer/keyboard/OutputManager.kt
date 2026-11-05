@@ -201,9 +201,10 @@ class OutputManager(
                     else ""
                 val candidate = state.candidates.getOrNull(state.selectedIndex)
                     ?: state.candidates.firstOrNull()
-                val word = candidate?.split(DICT_ANNOTATION)?.first() ?: state.midashiText
+                val word = candidate?.split(DICT_ANNOTATION)?.first()
+                    ?: state.midashiText
 
-                state.tourokuFlag + word + displayOkuri
+                state.tourokuFlag + NumericEntryConverter.replace(word, state.midashiText) + displayOkuri
             }
             SkkState.ABBREV -> {
                 state.tourokuFlag + state.midashiText.ifEmpty { state.composingText }
@@ -279,12 +280,14 @@ class OutputManager(
             SkkState.HENKAN -> {
                 val candidate = state.candidates.getOrNull(state.selectedIndex)
                     ?: state.candidates.firstOrNull()
+                val originalText = state.midashiText + state.okuriganaText
 
                 if (candidate != null) {
                     val word = candidate.split(DICT_ANNOTATION).first()
-                    word + state.okuriganaText
+
+                    NumericEntryConverter.replace(word, originalText) + state.okuriganaText
                 } else {
-                    state.midashiText + state.okuriganaText
+                    originalText
                 }
             }
             SkkState.ABBREV -> {
