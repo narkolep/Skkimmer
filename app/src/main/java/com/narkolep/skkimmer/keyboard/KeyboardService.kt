@@ -12,6 +12,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -39,8 +40,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.getValue
-import androidx.core.graphics.drawable.toDrawable
 import java.util.function.Consumer
 
 class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
@@ -113,8 +112,10 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
         lifecycleScope.launch {
             val parsedList = withContext(Dispatchers.IO) {
-                val jsonString = assets.open("all-emoji.json").bufferedReader().use { it.readText() }
-                EmojiManager(this@KeyboardService).loadEmojis(jsonString)
+                runCatching {
+                    val jsonString = assets.open("all-emoji.json").bufferedReader().use { it.readText() }
+                    EmojiManager(this@KeyboardService).loadEmojis(jsonString)
+                }.getOrDefault(emptyList())
             }
             emojiCategories = parsedList
 
@@ -155,6 +156,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
             imeWindow = win
             WindowCompat.setDecorFitsSystemWindows(win, false)
             win.isNavigationBarContrastEnforced = false
+            @Suppress("DEPRECATION")
             win.navigationBarColor = Color.TRANSPARENT
             updateWindowBlur()
         }
@@ -220,11 +222,11 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     override fun onDestroy() {
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-        viewModelStore.clear()
+        store.clear()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             getSystemService(WindowManager::class.java)
-                .removeCrossWindowBlurEnabledListener(blurListener)
+                ?.removeCrossWindowBlurEnabledListener(blurListener)
         }
 
         imeWindow = null
@@ -272,9 +274,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
      */
     private fun updateWindowBlur() {
         val target = imeWindow ?: return
-        val shouldBlur = isBlurSettingEnabled && (
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) isCrossWindowBlurEnabled else false
-        )
+        val shouldBlur = isBlurSettingEnabled && isCrossWindowBlurEnabled
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             target.setBackgroundBlurRadius(

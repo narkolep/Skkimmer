@@ -33,7 +33,7 @@ fun enterHandler(
     if (state.skkState == SkkState.NORMAL) {
         if (state.tourokuFlag.isNotEmpty()) {
             val tourokuText = state.tourokuFlag.substringAfter(DICT_DELIMITER)
-            val commitText = tourokuText.split(DICT_ANNOTATION)[0] + state.oldOkuriganaText
+            val commitText = tourokuText.substringBefore(DICT_ANNOTATION) + state.oldOkuriganaText
             inputCommitter.commit(commitText)
 
             if (tourokuText.isNotEmpty()) {

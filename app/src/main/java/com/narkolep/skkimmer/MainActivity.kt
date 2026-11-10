@@ -1,11 +1,9 @@
 package com.narkolep.skkimmer
 
-import android.os.Bundle
 import android.content.Context
-import android.os.Build
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -65,7 +63,6 @@ val KEYBOARD_PADDING_KEY = floatPreferencesKey("keyboard_padding")
 val KEYBOARD_BOTTOM_PADDING_KEY = floatPreferencesKey("keyboard_bottom_padding")
 
 class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

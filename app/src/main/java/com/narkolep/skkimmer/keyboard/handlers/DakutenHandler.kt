@@ -1,17 +1,18 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
+import android.util.Log
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.KeyboardState
+import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.mappings.DakutenMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap.kanaToRomaji
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import android.util.Log
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
-import kotlin.text.substringAfter
+
+private val VOWELS = setOf('a', 'i', 'u', 'e', 'o')
 
 /**
  * カーソルの左側の文字を変換する
@@ -46,12 +47,9 @@ fun dakutenHandler(
     }
 
     /* 子音と母音に分ける */
-    val vowel =
-        if (info.romaji.takeLast(1) in setOf("a","i","u","e","o")) info.romaji.takeLast(1)
-        else ""
-    val consonant =
-        if (vowel.isNotEmpty()) info.romaji.dropLast(1)
-        else info.romaji
+    val lastChar = info.romaji.lastOrNull()
+    val vowel = if (lastChar != null && lastChar in VOWELS) lastChar.toString() else ""
+    val consonant = if (vowel.isNotEmpty()) info.romaji.dropLast(1) else info.romaji
 
     /* 子音を変換 */
     val convertedConsonant = DakutenMap.flickConvertMap[consonant]

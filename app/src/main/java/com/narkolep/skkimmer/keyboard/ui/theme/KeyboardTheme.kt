@@ -57,7 +57,7 @@ fun KeyboardTheme(
         }.distinctUntilChanged()
     }.collectAsState(initial = false)
 
-    val isDarkTheme = if (isCustomTheme) isSystemInDarkTheme() else useDarkMode
+    val isDarkTheme = if (!isCustomTheme) isSystemInDarkTheme() else useDarkMode
 
     /* ウィンドウぼかしが有効か */
     val isBlurEnabled by remember(context) {

@@ -61,7 +61,7 @@ fun SkkKey(
     var currentPopupText by remember { mutableStateOf(mainText) }
 
     val density = LocalDensity.current
-    val flickHeightPx = with(density) { (keyboardHeight * 0.8).dp.roundToPx() }
+    val flickHeightPx = with(density) { (keyboardHeight * 0.8f).dp.roundToPx() }
 
     val actualWeight = if (spaceLeftRight != KeySpacerPosition.NONE) weight - 0.5f else weight
 

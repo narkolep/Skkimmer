@@ -11,7 +11,6 @@ import com.narkolep.skkimmer.data.db.entity.SystemDictEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
-import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
 
@@ -38,18 +37,17 @@ class DictionaryManager(
         val testLength = if (bytes.size > 4) bytes.size - 4 else bytes.size
 
         for (charset in SUPPORTED_CHARSETS) {
-            val matched = try {
+            try {
                 val decoder = charset
                     .newDecoder()
                     .onMalformedInput(CodingErrorAction.REPORT)
                     .onUnmappableCharacter(CodingErrorAction.REPORT)
 
                 decoder.decode(ByteBuffer.wrap(bytes, 0, testLength))
-                charset
-            } catch (_: CharacterCodingException) {
-                null
+                return charset
+            } catch (_: Exception) {
+                // デコード失敗時は次の文字コードを試す
             }
-            if (matched != null) return matched
         }
         return null
     }
@@ -188,7 +186,7 @@ class DictionaryManager(
                 /* 同じ見出しのシステム候補について、古いものを削除する */
                 val sameMidashiSystemEntries = historyDao.getOldSystemEntriesByMidashi(midashiString)
                 if (sameMidashiSystemEntries.size >= 3) {
-                    historyDao.deleteEntry(sameMidashiSystemEntries[0])
+                    sameMidashiSystemEntries.firstOrNull()?.let { historyDao.deleteEntry(it) }
                 }
 
                 /* 古いシステム候補を削除 */

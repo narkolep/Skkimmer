@@ -11,8 +11,8 @@ data class KeyboardColors(
     val specialKeyText: Color,
 )
 
-fun keyboardColors(selectedColor: HSVColor, isDark: Boolean? = null): KeyboardColors {
-    if (isDark == true) {
+fun keyboardColors(selectedColor: HSVColor, isDark: Boolean = false): KeyboardColors {
+    if (isDark) {
         val backgroundHSV: HSVColor = selectedColor.copy(
             saturation = selectedColor.saturation.times(0.25f),
             value = 0.12f

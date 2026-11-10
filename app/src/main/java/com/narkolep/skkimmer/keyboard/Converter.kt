@@ -15,6 +15,8 @@ data class ConvertResult(
  */
 fun String.isAlphabet(): Boolean = isNotEmpty() && all { it in 'a'..'z' }
 
+private val ROMAJI_VOWELS = setOf('a', 'i', 'u', 'e', 'o', 'y')
+
 /**
  * ローマ字入力の連結処理
  */
@@ -23,8 +25,6 @@ fun romajiConverter(
     key: String,
     inputMode: InputMode
 ): ConvertResult {
-    /* 母音 + y */
-    val vowels = setOf('a', 'i', 'u', 'e', 'o', 'y')
     /* 現在の未確定文字列 */
     var composingNow: String = composing + key
 
@@ -75,7 +75,7 @@ fun romajiConverter(
         }
 
         /* 撥音 */
-        if (composing == "n" && key.firstOrNull() !in vowels) {
+        if (composing == "n" && key.firstOrNull() !in ROMAJI_VOWELS) {
             val kana = getOutputString(
                 KanaDefinition("ん", "ン", "ﾝ"),
                 inputMode

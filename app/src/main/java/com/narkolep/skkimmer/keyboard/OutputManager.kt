@@ -120,8 +120,12 @@ class OutputManager(
                 /* 候補を検索する */
                 var flag = result.okuriganaFlag
                 val firstOkuri = oldState.okuriganaText.firstOrNull()
-                if (firstOkuri == 'ん' || firstOkuri == 'ン') flag = "n"
-                if (firstOkuri == 'っ' || firstOkuri == 'ッ') flag = "t"
+                if (firstOkuri == 'ん' || firstOkuri == 'ン') {
+                    flag = "n"
+                }
+                if (firstOkuri == 'っ' || firstOkuri == 'ッ') {
+                    flag = "t"
+                }
 
                 stateFlow.update {
                     it.copy(
@@ -201,7 +205,7 @@ class OutputManager(
                     else ""
                 val candidate = state.candidates.getOrNull(state.selectedIndex)
                     ?: state.candidates.firstOrNull()
-                val word = candidate?.split(DICT_ANNOTATION)?.first()
+                val word = candidate?.substringBefore(DICT_ANNOTATION)
                     ?: state.midashiText
                 val convertedWord = NumericEntryConverter.replace(
                     entry = LispEntryConverter.replace(word, state.midashiText),
@@ -287,7 +291,7 @@ class OutputManager(
                 val originalText = state.midashiText + state.okuriganaText
 
                 if (candidate != null) {
-                    val word = candidate.split(DICT_ANNOTATION).first()
+                    val word = candidate.substringBefore(DICT_ANNOTATION)
                     val convertedWord = NumericEntryConverter.replace(
                         entry = LispEntryConverter.replace(word, state.midashiText),
                         originalText = state.midashiText

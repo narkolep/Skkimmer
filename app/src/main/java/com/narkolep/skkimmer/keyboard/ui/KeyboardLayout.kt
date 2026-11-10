@@ -110,7 +110,7 @@ fun KeyboardLayout(
         /* キーボード */
         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
             /* 候補/数字バー */
-            Box(modifier = Modifier.fillMaxWidth().height((keyboardHeight * 0.8).dp)) {
+            Box(modifier = Modifier.fillMaxWidth().height((keyboardHeight * 0.8f).dp)) {
                 if (!uiState.isFlick && uiState.candidates.isEmpty() && uiState.keyboardType != KeyboardType.NUMERIC) {
                     Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
                         numericKeyDefinitions.forEach { config ->

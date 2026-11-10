@@ -55,14 +55,16 @@ fun DictionaryListScreen() {
 
     // ファイル名取得のためのヘルパー（Uriからファイル名を取り出す）
     fun getFileName(uri: Uri): String {
-        return context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (nameIndex != -1 && cursor.moveToFirst()) {
-                cursor.getString(nameIndex)
-            } else {
-                null
+        return runCatching {
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (nameIndex != -1 && cursor.moveToFirst()) {
+                    cursor.getString(nameIndex)
+                } else {
+                    null
+                }
             }
-        } ?: "不明な辞書"
+        }.getOrNull() ?: "不明な辞書"
     }
 
     val filePickerLauncher = rememberLauncherForActivityResult(

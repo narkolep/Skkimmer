@@ -67,9 +67,10 @@ fun CandidateBar(
 
             // 注釈のパース処理
             val annotatedText = buildAnnotatedString {
-                val parts = candidateString.split(DICT_ANNOTATION, limit = 2)
-                val mainText = parts[0]
-                val comment = if (parts.size > 1) parts[1] else null
+                val mainText = candidateString.substringBefore(DICT_ANNOTATION)
+                val comment = if (candidateString.contains(DICT_ANNOTATION)) {
+                    candidateString.substringAfter(DICT_ANNOTATION)
+                } else null
 
                 // 候補本体
                 append(mainText)
