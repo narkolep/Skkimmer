@@ -23,6 +23,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import com.narkolep.skkimmer.keyboard.LispEntryConverter
 import com.narkolep.skkimmer.keyboard.NumericEntryConverter
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
 
@@ -54,7 +55,13 @@ fun CandidateBar(
     ) {
         // 候補を描画
         itemsIndexed(candidates) { index, candidate ->
-            val candidateString = NumericEntryConverter.replace(candidate, originalText)
+            val candidateString = NumericEntryConverter.replace(
+                entry = LispEntryConverter.replace(
+                    entry = candidate,
+                    originalText = originalText
+                ),
+                originalText = originalText
+            )
             val isSelected = index == selectedIndex
             val textColor = if (isSelected) selectedTextColor else selectedTextColor.copy(alpha = 0.6f)
 

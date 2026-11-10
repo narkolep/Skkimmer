@@ -150,8 +150,10 @@ class DictionaryManager(
         /* 半角数字を"#"に置き換える */
         val keyString = replaceNumber(key)
 
-        /* 履歴から取得 */
-        val history = historyDao.getHistoryByMidashi(keyString).map { it.candidate }
+        /* 履歴から取得（"/" で分割して展開する） */
+        val history = historyDao.getHistoryByMidashi(keyString)
+            .flatMap { it.candidate.split("/") }
+            .filter { it.isNotEmpty() }
 
         /* システム辞書から取得 */
         val systemEntry = systemDictDao.getEntry(keyString)
@@ -159,8 +161,11 @@ class DictionaryManager(
             ?.split("/")
             ?.filter { it.isNotEmpty() } ?: emptyList()
 
+        /* 組み込み辞書から取得 */
+        val lispCandidates = LispDictionary.entries[keyString] ?: emptyList()
+
         /* マージして返す */
-        return@withContext (history + systemCandidates).distinct()
+        return@withContext (history + lispCandidates + systemCandidates).distinct()
     }
 
     /**

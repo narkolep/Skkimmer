@@ -203,8 +203,12 @@ class OutputManager(
                     ?: state.candidates.firstOrNull()
                 val word = candidate?.split(DICT_ANNOTATION)?.first()
                     ?: state.midashiText
+                val convertedWord = NumericEntryConverter.replace(
+                    entry = LispEntryConverter.replace(word, state.midashiText),
+                    originalText = state.midashiText
+                )
 
-                state.tourokuFlag + NumericEntryConverter.replace(word, state.midashiText) + displayOkuri
+                state.tourokuFlag + convertedWord + displayOkuri
             }
             SkkState.ABBREV -> {
                 state.tourokuFlag + state.midashiText.ifEmpty { state.composingText }
@@ -284,8 +288,12 @@ class OutputManager(
 
                 if (candidate != null) {
                     val word = candidate.split(DICT_ANNOTATION).first()
+                    val convertedWord = NumericEntryConverter.replace(
+                        entry = LispEntryConverter.replace(word, state.midashiText),
+                        originalText = state.midashiText
+                    )
 
-                    NumericEntryConverter.replace(word, originalText) + state.okuriganaText
+                    convertedWord + state.okuriganaText
                 } else {
                     originalText
                 }
