@@ -25,8 +25,11 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.narkolep.skkimmer.BLUR_ENABLED_KEY
+import com.narkolep.skkimmer.BLUR_RADIUS_KEY
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.data.EmojiManager
+import com.narkolep.skkimmer.dataStore
 import com.narkolep.skkimmer.keyboard.ui.KeyboardLayout
 import com.narkolep.skkimmer.keyboard.ui.theme.KeyboardTheme
 import kotlinx.coroutines.Dispatchers
@@ -62,14 +65,18 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     private lateinit var actionProcessor: ActionProcessor
 
     companion object {
-        private const val BLUR_RADIUS_PX = 30
+        const val DEFAULT_BLUR_RADIUS_PX = 30
     }
 
     private var imeWindow: Window? = null
     // ぼかし表示時は半透明、非対応時は不透明に近づける
     private val windowBackground = Color.WHITE.toDrawable()
+    private var isCrossWindowBlurEnabled = false
+    private var isBlurSettingEnabled = false
+    private var blurRadiusPx = DEFAULT_BLUR_RADIUS_PX
     private val blurListener = Consumer<Boolean> { enabled ->
-        updateWindowBlur(enabled)
+        isCrossWindowBlurEnabled = enabled
+        updateWindowBlur()
     }
 
     override fun onCreate() {
@@ -120,11 +127,23 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
                 }
         }
 
+        lifecycleScope.launch {
+            dataStore.data.map { preferences ->
+                val enabled = preferences[BLUR_ENABLED_KEY] ?: false
+                val radius = preferences[BLUR_RADIUS_KEY] ?: DEFAULT_BLUR_RADIUS_PX
+                enabled to radius
+            }.distinctUntilChanged().collect { (enabled, radius) ->
+                isBlurSettingEnabled = enabled
+                blurRadiusPx = radius
+                updateWindowBlur()
+            }
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             imeWindow = window?.window
-
-            getSystemService(WindowManager::class.java)
-                .addCrossWindowBlurEnabledListener(blurListener)
+            val windowManager = getSystemService(WindowManager::class.java)
+            isCrossWindowBlurEnabled = windowManager?.isCrossWindowBlurEnabled ?: false
+            windowManager?.addCrossWindowBlurEnabledListener(blurListener)
         }
     }
 
@@ -133,9 +152,11 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
         val win = window?.window
         if (win != null) {
+            imeWindow = win
             WindowCompat.setDecorFitsSystemWindows(win, false)
             win.isNavigationBarContrastEnforced = false
             win.navigationBarColor = Color.TRANSPARENT
+            updateWindowBlur()
         }
 
         val decorView = win?.decorView
@@ -249,17 +270,20 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     /**
      * 画面のぼかし
      */
-    private fun updateWindowBlur(enabled: Boolean) {
+    private fun updateWindowBlur() {
         val target = imeWindow ?: return
+        val shouldBlur = isBlurSettingEnabled && (
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) isCrossWindowBlurEnabled else false
+        )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             target.setBackgroundBlurRadius(
-                if (enabled) BLUR_RADIUS_PX else 0
+                if (shouldBlur) blurRadiusPx else 0
             )
         }
 
         // 背景色の透明度を切り替える
-        windowBackground.alpha = if (enabled) 0 else 235
+        windowBackground.alpha = if (shouldBlur) 0 else 235
 
         target.setBackgroundDrawable(windowBackground)
     }

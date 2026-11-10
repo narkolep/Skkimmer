@@ -15,6 +15,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import com.narkolep.skkimmer.ALPHA_KEY
+import com.narkolep.skkimmer.BLUR_ENABLED_KEY
+import com.narkolep.skkimmer.DARK_MODE_KEY
 import com.narkolep.skkimmer.HUE_KEY
 import com.narkolep.skkimmer.SATURATION_KEY
 import com.narkolep.skkimmer.THEME_SELECT_KEY
@@ -41,10 +43,26 @@ fun KeyboardTheme(
 ) {
     val context = LocalContext.current
 
-    /* カストムテーマを使用するかどうか */
+    /* カスタムテーマを使用するかどうか */
     val isCustomTheme by remember(context) {
         context.dataStore.data.map { preferences ->
             preferences[THEME_SELECT_KEY] ?: false
+        }.distinctUntilChanged()
+    }.collectAsState(initial = false)
+
+    /* ダークモードを使用するか */
+    val useDarkMode by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[DARK_MODE_KEY] ?: false
+        }.distinctUntilChanged()
+    }.collectAsState(initial = false)
+
+    val isDarkTheme = if (isCustomTheme) isSystemInDarkTheme() else useDarkMode
+
+    /* ウィンドウぼかしが有効か */
+    val isBlurEnabled by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[BLUR_ENABLED_KEY] ?: false
         }.distinctUntilChanged()
     }.collectAsState(initial = false)
 
@@ -62,13 +80,13 @@ fun KeyboardTheme(
 
     /* Material Color */
     val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        if (isSystemInDarkTheme()) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        if (isDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else {
-        if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
+        if (isDarkTheme) darkColorScheme() else lightColorScheme()
     }
 
-    val colors = if (isCustomTheme) {
-        keyboardColors(currentHsv)
+    val baseColors = if (isCustomTheme) {
+        keyboardColors(currentHsv, isDarkTheme)
     } else {
         KeyboardColors(
             background = colorScheme.surfaceDim,
@@ -79,6 +97,11 @@ fun KeyboardTheme(
             specialKeyText = colorScheme.onPrimary
         )
     }
+
+    val bgAlpha = if (isBlurEnabled) currentHsv.alpha else 1f
+    val colors = baseColors.copy(
+        background = baseColors.background.copy(alpha = bgAlpha)
+    )
 
     CompositionLocalProvider(
         LocalKeyboardColors provides colors,

@@ -14,8 +14,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -27,6 +31,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 /* data */
 import com.narkolep.skkimmer.data.HistoryViewModel
@@ -46,6 +52,9 @@ import com.narkolep.skkimmer.ui.theme.AppTheme
 val Context.dataStore by preferencesDataStore(name = "settings")
 
 val THEME_SELECT_KEY = booleanPreferencesKey("theme_select")
+val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
+val BLUR_ENABLED_KEY = booleanPreferencesKey("blur_enabled")
+val BLUR_RADIUS_KEY = intPreferencesKey("blur_radius")
 val HUE_KEY = floatPreferencesKey("theme_color_hue")
 val SATURATION_KEY = floatPreferencesKey("theme_color_saturation")
 val VALUE_KEY = floatPreferencesKey("theme_color_value")
@@ -77,9 +86,22 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App(dao: HistoryDao) {
     val navController = rememberNavController()
+    val context = LocalContext.current
 
     // ダークモードにするか判定
-    val useDarkTheme = isSystemInDarkTheme()
+    val isCustomTheme by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[THEME_SELECT_KEY] ?: false
+        }.distinctUntilChanged()
+    }.collectAsState(initial = false)
+
+    val useDarkMode by remember(context) {
+        context.dataStore.data.map { preferences ->
+            preferences[DARK_MODE_KEY] ?: false
+        }.distinctUntilChanged()
+    }.collectAsState(initial = false)
+
+    val useDarkTheme = if (!isCustomTheme) isSystemInDarkTheme() else useDarkMode
 
     // Factoryを1箇所で定義
     val factory = remember(dao) {
