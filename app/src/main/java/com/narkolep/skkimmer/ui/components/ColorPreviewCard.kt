@@ -36,7 +36,6 @@ import kotlin.math.roundToInt
 fun ColorPreviewCard(
     colors: KeyboardColors,
     isBlurEnabled: Boolean,
-    alpha: Float,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -61,7 +60,7 @@ fun ColorPreviewCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "キーボード外観プレビュー",
+                    text = "プレビュー",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -71,7 +70,7 @@ fun ColorPreviewCard(
                         color = MaterialTheme.colorScheme.primaryContainer
                     ) {
                         Text(
-                            text = "ぼかし有効 (${(alpha * 100).roundToInt()}%)",
+                            text = "ぼかし有効",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -95,11 +94,10 @@ fun ColorPreviewCard(
                 CheckerboardPattern(modifier = Modifier.matchParentSize())
 
                 // キーボード背景
-                val effectiveBg = colors.background.copy(alpha = if (isBlurEnabled) alpha else 1f)
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(effectiveBg)
+                        .background(colors.background)
                         .padding(10.dp)
                 ) {
                     Column(

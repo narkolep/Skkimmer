@@ -56,7 +56,7 @@ fun backspaceHandler(
                 return
             }
 
-            if (state.oldOkuriganaTrigger.isNotEmpty()) {
+            if (state.oldSkkState == SkkState.OKURIGANA) {
                 /* 登録する文字列が空で、送り仮名があるとき */
                 stateFlow.update {
                     it.tourokuClear().copy(
@@ -70,7 +70,7 @@ fun backspaceHandler(
                 return
             }
 
-            if (state.oldMidashiText.all { it.code in 0x21..0x7E }) {
+            if (state.oldSkkState == SkkState.ABBREV) {
                 /* 登録する文字列が空で、ABBREVモードから変換したとき */
                 stateFlow.update {
                     it.tourokuClear().copy(
@@ -132,7 +132,7 @@ fun backspaceHandler(
                 return
             }
 
-            /* 見出し文字列がなければ NORMAL に戻す */
+            /* 見出し文字列が空のとき */
             stateFlow.update { it.clear() }
         }
 
@@ -170,7 +170,7 @@ fun backspaceHandler(
 
         SkkState.HENKAN -> {
             /* 送り仮名があるとき */
-            if (state.okuriganaText.isNotEmpty()) {
+            if (state.previousSkkState == SkkState.OKURIGANA) {
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.OKURIGANA,
@@ -184,7 +184,7 @@ fun backspaceHandler(
             }
 
             /* 見出し文字列が半角英数字のみのとき */
-            if (state.midashiText.all { it.code in 0x21..0x7E }) {
+            if (state.previousSkkState == SkkState.ABBREV) {
                 stateFlow.update {
                     it.copy(
                         skkState = SkkState.ABBREV,

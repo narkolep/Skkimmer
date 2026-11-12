@@ -29,6 +29,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import com.google.android.gms.oss.licenses.v2.OssLicensesMenuActivity
+import com.narkolep.skkimmer.HAPTIC_ENABLED_KEY
+import com.narkolep.skkimmer.SOUND_ENABLED_KEY
+import com.narkolep.skkimmer.ui.components.SwitchSettingItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +69,20 @@ fun SettingsScreen(
         }.distinctUntilChanged()
     }.collectAsState(initial = 0f)
 
+    // ハプティクス
+    val hapticEnabled by remember(context) {
+        context.dataStore.data.map { prefs ->
+            prefs[HAPTIC_ENABLED_KEY] ?: true
+        }.distinctUntilChanged()
+    }.collectAsState(initial = true)
+
+    // 操作音
+    val soundEnabled by remember(context) {
+        context.dataStore.data.map { prefs ->
+            prefs[SOUND_ENABLED_KEY] ?: false
+        }.distinctUntilChanged()
+    }.collectAsState(initial = false)
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("設定") })
@@ -74,7 +91,6 @@ fun SettingsScreen(
 
         LazyColumn(modifier = Modifier.padding(padding)) {
 
-            item { Divider() }
             item { SectionHeader("辞書") }
             item {
                 SettingItem("辞書一覧", "辞書を追加できます") {
@@ -87,7 +103,6 @@ fun SettingsScreen(
                 }
             }
 
-            item { Divider() }
             item { SectionHeader("デザイン") }
             item {
                 SettingItem("テーマカラー", "キーボードの色をカスタマイズできます") {
@@ -155,7 +170,36 @@ fun SettingsScreen(
                 )
             }
 
-            item { Divider() }
+            item { SectionHeader("入力フィードバック") }
+            item {
+                SwitchSettingItem(
+                    title = "触覚フィードバック",
+                    subtitle = "入力時に振動します",
+                    checked = hapticEnabled,
+                    onCheckedChange = { enabled ->
+                        scope.launch {
+                            context.dataStore.edit { prefs ->
+                                prefs[HAPTIC_ENABLED_KEY] = enabled
+                            }
+                        }
+                    }
+                )
+            }
+            item {
+                SwitchSettingItem(
+                    title = "操作音",
+                    subtitle = "入力時にクリック音を再生します",
+                    checked = soundEnabled,
+                    onCheckedChange = { enabled ->
+                        scope.launch {
+                            context.dataStore.edit { prefs ->
+                                prefs[SOUND_ENABLED_KEY] = enabled
+                            }
+                        }
+                    }
+                )
+            }
+
             item { SectionHeader("このアプリについて") }
             item {
                 SettingItem("Open source licenses", "サードパーティのライセンスを確認できます") {

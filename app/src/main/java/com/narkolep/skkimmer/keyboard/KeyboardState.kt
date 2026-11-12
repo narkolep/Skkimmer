@@ -51,14 +51,17 @@ data class KeyboardState(
     /* 変換候補 */
     val candidates: List<String> = emptyList(),
     val selectedIndex: Int = -1,
+    val previousSkkState: SkkState = SkkState.NORMAL,
     /* 日本語入力中の文字列 */
     val composingText: String = "",
     val midashiText: String = "",
     val okuriganaText: String = "",
     val okuriganaTrigger: String = "",
+
     /* 辞書登録モードのトリガー */
     val tourokuFlag: String = "",
-    /* 辞書登録前の状態を保存しておく */
+    /* 辞書登録前の状態 */
+    val oldSkkState: SkkState = SkkState.NORMAL,
     val oldMidashiText: String = "",
     val oldOkuriganaText: String = "",
     val oldOkuriganaTrigger: String =""
@@ -75,7 +78,8 @@ fun KeyboardState.clear(): KeyboardState {
         okuriganaText = "",
         okuriganaTrigger = "",
         candidates = emptyList(),
-        selectedIndex = -1
+        selectedIndex = -1,
+        previousSkkState = SkkState.NORMAL
     )
 }
 
@@ -85,6 +89,7 @@ fun KeyboardState.clear(): KeyboardState {
 fun KeyboardState.tourokuClear(): KeyboardState {
     return copy(
         tourokuFlag = "",
+        oldSkkState = SkkState.NORMAL,
         oldMidashiText = "",
         oldOkuriganaText = "",
         oldOkuriganaTrigger = ""
@@ -103,7 +108,9 @@ fun KeyboardState.resetAll(): KeyboardState {
         okuriganaTrigger = "",
         candidates = emptyList(),
         selectedIndex = -1,
+        previousSkkState = SkkState.NORMAL,
         tourokuFlag = "",
+        oldSkkState = SkkState.NORMAL,
         oldMidashiText = "",
         oldOkuriganaText = "",
         oldOkuriganaTrigger = ""

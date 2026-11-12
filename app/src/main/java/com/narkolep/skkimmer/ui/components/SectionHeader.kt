@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun SectionHeader(title: String) {
+    Divider()
     Text(
         text = title,
         color = MaterialTheme.colorScheme.primary,

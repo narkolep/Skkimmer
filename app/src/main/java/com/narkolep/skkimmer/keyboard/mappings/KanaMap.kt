@@ -266,8 +266,8 @@ object KanaMap {
         "z*" to KanaDefinition("※", "※", "※"),
         "z," to KanaDefinition("‥", "‥", "‥"),
         "z." to KanaDefinition("…", "…", "…"),
-        "z-" to KanaDefinition("～", "～", "～"),
-        "z/" to KanaDefinition("・", "・", "・"),
+        "z-" to KanaDefinition("～", "～", "~"),
+        "z/" to KanaDefinition("・", "・", "･"),
         "z0" to KanaDefinition("○", "○", "○"),
         "z@" to KanaDefinition("◎", "◎", "◎"),
         // 句読点など

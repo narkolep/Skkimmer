@@ -1,5 +1,7 @@
 package com.narkolep.skkimmer.keyboard.ui.components
 
+import android.content.Context
+import android.media.AudioManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -24,10 +26,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Icon
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -35,15 +41,20 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import com.narkolep.skkimmer.HAPTIC_ENABLED_KEY
+import com.narkolep.skkimmer.SOUND_ENABLED_KEY
+import com.narkolep.skkimmer.dataStore
 import kotlin.time.Duration.Companion.milliseconds
 
 import com.narkolep.skkimmer.keyboard.ui.layouts.KeySpacerPosition
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun SkkKey(
     mainText: String, // 表示する文字
     modifier: Modifier = Modifier,
-    iconResId: Int? = null, // アイコン(svg)
+    iconResId: Int? = null,
     flickText: String = "",
     textSize: Float = 22f,
     keyboardHeight: Float,
@@ -57,6 +68,34 @@ fun SkkKey(
     onFlick: () -> Unit = {},
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val hapticFeedback = LocalHapticFeedback.current
+    val audioManager = remember {
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+
+    val hapticEnabled by remember(context) {
+        context.dataStore.data.map { prefs ->
+            prefs[HAPTIC_ENABLED_KEY] ?: true
+        }.distinctUntilChanged()
+    }.collectAsState(initial = true)
+
+    val soundEnabled by remember(context) {
+        context.dataStore.data.map { prefs ->
+            prefs[SOUND_ENABLED_KEY] ?: false
+        }.distinctUntilChanged()
+    }.collectAsState(initial = false)
+
+    // フィードバック発火関数
+    fun performFeedback() {
+        if (hapticEnabled) {
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.KeyboardTap)
+        }
+        if (soundEnabled) {
+            audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD)
+        }
+    }
+
     var isPressed by remember { mutableStateOf(false) }
     var currentPopupText by remember { mutableStateOf(mainText) }
 
@@ -79,6 +118,8 @@ fun SkkKey(
                 awaitEachGesture {
                     val downEvent = awaitFirstDown(requireUnconsumed = false)
 
+                    performFeedback()
+
                     downEvent.consume()
                     isPressed = true
 
@@ -92,10 +133,17 @@ fun SkkKey(
                             // リピート開始
                             if (keyRepeat) {
                                 repeatJob = scope.launch {
-                                    delay(initialDelay.milliseconds) // 最初は500ms待つ
+                                    // 最初は500ms待つ
+                                    delay(initialDelay.milliseconds)
+                                    // 触覚フィードバック
+                                    if (hapticEnabled) {
+                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    }
+
                                     while (isActive) {
-                                        onClick() // アクションを実行
-                                        delay(repeatInterval.milliseconds) // 100ms待ってからループ
+                                        // アクションを実行
+                                        onClick()
+                                        delay(repeatInterval.milliseconds)
                                     }
                                 }
                             }

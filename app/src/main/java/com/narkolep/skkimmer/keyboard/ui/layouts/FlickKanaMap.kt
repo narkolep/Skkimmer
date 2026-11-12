@@ -23,7 +23,7 @@ object FlickKanaMap {
 
     data class FlickKeyConfig(
         val label: String,
-        val consonant: String = "", // 子音 (k, s, など)
+        val consonant: String = "", // 子音 (k, s, ...)
         val flickPosition: Position = Position(),
 
         val action: KeyboardAction? = null, // 機能キー
@@ -136,7 +136,7 @@ object FlickKanaMap {
             ),
             FlickKeyConfig(
                 label = "､｡",
-                flickPosition = Position(center = ",", left = ".", up = "?", right = "!", down = "")
+                flickPosition = Position(center = ",", left = ".", up = "？", right = "！", down = "")
             ),
             FlickKeyConfig(
                 label = "Enter",

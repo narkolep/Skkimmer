@@ -71,12 +71,13 @@ fun spaceHandler(
                 return
             }
 
-            /* 既に登録モードになっているとき */
+            /* 既に登録モードになっているとき(再帰的な辞書登録はしない) */
             if (state.tourokuFlag.isNotEmpty()) return
 
             /* 登録モードではないとき、登録モードに入る */
             stateFlow.update {
                 it.clear().copy(
+                    oldSkkState = it.skkState,
                     oldMidashiText = it.midashiText,
                     oldOkuriganaText = it.okuriganaText,
                     oldOkuriganaTrigger = it.okuriganaTrigger,

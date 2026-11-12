@@ -14,18 +14,6 @@ fun Color.toHsv(): FloatArray {
     return hsv
 }
 
-fun hsvToColor(
-    hue: Float,
-    saturation: Float,
-    value: Float
-): Color {
-    return Color(
-        android.graphics.Color.HSVToColor(
-            floatArrayOf(hue, saturation, value)
-        )
-    )
-}
-
 fun Color.toHex(): String {
     return String.format(
         "#%06X",

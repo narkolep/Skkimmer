@@ -11,9 +11,10 @@ data class ConvertResult(
 )
 
 /**
- * 拡張: アルファベットか数字である場合trueを返す
+ * 拡張
  */
 fun String.isAlphabet(): Boolean = isNotEmpty() && all { it in 'a'..'z' }
+fun String.isNumber(): Boolean = isNotEmpty() && all { it in '0'..'9' }
 
 private val ROMAJI_VOWELS = setOf('a', 'i', 'u', 'e', 'o', 'y')
 

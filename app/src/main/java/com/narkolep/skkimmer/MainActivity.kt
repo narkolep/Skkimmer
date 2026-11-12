@@ -61,6 +61,8 @@ val KEYBOARD_HEIGHT_KEY = floatPreferencesKey("keyboard_height")
 val KEYBOARD_HEIGHT_LANDSCAPE_KEY = floatPreferencesKey("keyboard_height_landscape") // 横向き用
 val KEYBOARD_PADDING_KEY = floatPreferencesKey("keyboard_padding")
 val KEYBOARD_BOTTOM_PADDING_KEY = floatPreferencesKey("keyboard_bottom_padding")
+val HAPTIC_ENABLED_KEY = booleanPreferencesKey("haptic_enabled")
+val SOUND_ENABLED_KEY = booleanPreferencesKey("sound_enabled")
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

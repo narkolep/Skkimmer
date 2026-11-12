@@ -13,7 +13,8 @@ class KeyProcessor(
 ) {
 
     fun handle(key: String) {
-        // ShiftとCtrlのリセットをアトミックに行い、リセット前の状態をキャプチャする
+        // ShiftとCtrlのリセット
+        // リセット前の状態をキャプチャ
         var oldState: KeyboardState? = null
         stateFlow.update {
             oldState = it
@@ -26,7 +27,7 @@ class KeyProcessor(
         }
         val capturedOldState = oldState ?: return
 
-        // ショートカット処理 その1
+        // CTRL押下時のショートカット処理
         val newKey = handleCTRL(
             key,
             capturedOldState,
@@ -46,7 +47,7 @@ class KeyProcessor(
             inputMode = capturedOldState.inputMode
         )
 
-        // ショートカット処理 その2
+        // ショートカット処理
         if (handleKey(capturedOldState, stateFlow, result, outputManager)) return
 
         // shiftキーによる状態遷移
@@ -57,19 +58,25 @@ class KeyProcessor(
         outputManager.kanaOutput(newState, capturedOldState, result)
     }
 
+    /**
+     * Shiftキーが押されていたとき、
+     * 元のSkkStateから次のSkkStateを決定する
+     */
     private fun changeState(
         key: String,
         state: KeyboardState
     ) {
         if (state.inputMode != InputMode.HIRAGANA && state.inputMode != InputMode.KATAKANA) return
         if (state.shiftState == ShiftState.LOWERCASE) return
-        if (!key.isAlphabet()) return
+        if (!key.isAlphabet() && !key.isNumber()) return
 
         when (state.skkState) {
             SkkState.NORMAL -> {
                 stateFlow.update { it.copy(skkState = SkkState.MIDASHI) }
             }
             SkkState.MIDASHI -> {
+                /* key が数字である場合は何もしない */
+                if (key.isNumber()) return
                 if (state.midashiText.isNotEmpty()) {
                     stateFlow.update { it.copy(skkState = SkkState.OKURIGANA) }
                 }

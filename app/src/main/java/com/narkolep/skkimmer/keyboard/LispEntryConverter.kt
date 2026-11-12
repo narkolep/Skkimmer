@@ -80,7 +80,7 @@ object LispEntryConverter {
                 val converter = conversionMap[key]
 
                 if (converter != null) {
-                    // key の直後に続く連続する数字（例: #f1867 の 1867）を抽出する
+                    // key の直後に続く連続する数字（#f1867 の 1867）を抽出する
                     var numEnd = i + 2
                     while (numEnd < entry.length && entry[numEnd] in '0'..'9') {
                         numEnd++
@@ -148,7 +148,7 @@ object LispEntryConverter {
                 relativeDate.format(formatter)
             }
         } catch (_: Exception) {
-            // 明治（1868年）以前など和暦変換に非対応な日付の場合は西暦表記にフォールバック
+            /* 和暦変換に非対応な日付の場合は西暦表記にフォールバック */
             val fallbackFormatter = DateTimeFormatter.ofPattern("yyyy年M月d日", Locale.JAPAN)
             relativeDate.format(fallbackFormatter)
         }

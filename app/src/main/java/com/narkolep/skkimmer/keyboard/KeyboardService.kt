@@ -68,7 +68,6 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
     }
 
     private var imeWindow: Window? = null
-    // ぼかし表示時は半透明、非対応時は不透明に近づける
     private val windowBackground = Color.WHITE.toDrawable()
     private var isCrossWindowBlurEnabled = false
     private var isBlurSettingEnabled = false
@@ -295,11 +294,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         val composingText: String,
         val midashiText: String,
         val okuriganaText: String,
-        val okuriganaTrigger: String,
-        val tourokuFlag: String,
-        val oldMidashiText: String,
-        val oldOkuriganaText: String,
-        val oldOkuriganaTrigger: String,
+        val tourokuFlag: String
     )
 
     private fun KeyboardState.toBufferSnapshot() = BufferSnapshot(
@@ -308,11 +303,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         composingText = composingText,
         midashiText = midashiText,
         okuriganaText = okuriganaText,
-        okuriganaTrigger = okuriganaTrigger,
-        tourokuFlag = tourokuFlag,
-        oldMidashiText = oldMidashiText,
-        oldOkuriganaText = oldOkuriganaText,
-        oldOkuriganaTrigger = oldOkuriganaTrigger,
+        tourokuFlag = tourokuFlag
     )
 
     fun getClipboardText(): String? {

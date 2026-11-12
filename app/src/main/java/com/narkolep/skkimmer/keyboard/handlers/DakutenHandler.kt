@@ -58,9 +58,10 @@ fun dakutenHandler(
         return
     }
     val newConsonant = when {
-        // 例外
+        // 例外(ヴ、っ、ヵ、ヶ、など)
         info.type != KanaMap.KanaType.HIRAGANA && consonant == "x" && vowel == "u" -> "v"
         consonant == "t" && vowel == "u" -> "xt"
+        consonant == "k" && (vowel == "a" || vowel == "e") -> "xk"
         // 変換後の子音を代入
         else -> convertedConsonant
     }

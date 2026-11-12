@@ -11,6 +11,7 @@ object DakutenMap {
         FlickConvertConfig("x", ""),
         FlickConvertConfig("v", ""),
         FlickConvertConfig("k", "g"), // か
+        FlickConvertConfig("xk", "g"),
         FlickConvertConfig("g", "k"),
         FlickConvertConfig("s", "z"), // さ
         FlickConvertConfig("z", "s"),
@@ -22,11 +23,13 @@ object DakutenMap {
         FlickConvertConfig("p", "h"),
         FlickConvertConfig("y", "xy"), // や
         FlickConvertConfig("xy", "y"),
-        FlickConvertConfig(".", ","), // 記号
-        FlickConvertConfig(",", "."),
-        FlickConvertConfig("-", "z-"),
+        FlickConvertConfig(".", "z."), // "."
+        FlickConvertConfig("z.", "."),
+        FlickConvertConfig(",", "z,"), // ","
+        FlickConvertConfig("z,", ","),
+        FlickConvertConfig("-", "z-"), // "-"
         FlickConvertConfig("z-", "-"),
-        FlickConvertConfig("(", "「"),
+        FlickConvertConfig("(", "「"), // その他
         FlickConvertConfig("「", "("),
         FlickConvertConfig(")", "」"),
         FlickConvertConfig("」", ")"),

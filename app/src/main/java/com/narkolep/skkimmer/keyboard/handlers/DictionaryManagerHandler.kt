@@ -46,12 +46,14 @@ fun getCandidatesAndChangeState(
                         midashiText = convertedMidashiText,
                         skkState = SkkState.HENKAN,
                         candidates = candidatesList,
-                        selectedIndex = 0
+                        selectedIndex = 0,
+                        previousSkkState = it.skkState
                     )
                 }
             } else if (state.tourokuFlag.isEmpty()) {
                 stateFlow.update {
                     it.clear().copy(
+                        oldSkkState = it.skkState,
                         oldMidashiText = convertedMidashiText,
                         oldOkuriganaText = it.okuriganaText,
                         oldOkuriganaTrigger = it.okuriganaTrigger,

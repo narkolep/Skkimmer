@@ -15,7 +15,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import com.narkolep.skkimmer.ALPHA_KEY
-import com.narkolep.skkimmer.BLUR_ENABLED_KEY
 import com.narkolep.skkimmer.DARK_MODE_KEY
 import com.narkolep.skkimmer.HUE_KEY
 import com.narkolep.skkimmer.SATURATION_KEY
@@ -57,15 +56,6 @@ fun KeyboardTheme(
         }.distinctUntilChanged()
     }.collectAsState(initial = false)
 
-    val isDarkTheme = if (!isCustomTheme) isSystemInDarkTheme() else useDarkMode
-
-    /* ウィンドウぼかしが有効か */
-    val isBlurEnabled by remember(context) {
-        context.dataStore.data.map { preferences ->
-            preferences[BLUR_ENABLED_KEY] ?: false
-        }.distinctUntilChanged()
-    }.collectAsState(initial = false)
-
     /* カスタム色 */
     val currentHsv by remember(context) {
         context.dataStore.data.map { preferences ->
@@ -77,6 +67,8 @@ fun KeyboardTheme(
             )
         }.distinctUntilChanged()
     }.collectAsState(initial = HSVColor.Default)
+
+    val isDarkTheme = if (!isCustomTheme) isSystemInDarkTheme() else useDarkMode
 
     /* Material Color */
     val colorScheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -98,13 +90,8 @@ fun KeyboardTheme(
         )
     }
 
-    val bgAlpha = if (isBlurEnabled) currentHsv.alpha else 1f
-    val colors = baseColors.copy(
-        background = baseColors.background.copy(alpha = bgAlpha)
-    )
-
     CompositionLocalProvider(
-        LocalKeyboardColors provides colors,
+        LocalKeyboardColors provides baseColors,
         content = content
     )
 }

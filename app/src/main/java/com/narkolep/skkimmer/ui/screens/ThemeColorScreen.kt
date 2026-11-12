@@ -46,6 +46,7 @@ import com.narkolep.skkimmer.ui.components.InlineSliderItem
 import com.narkolep.skkimmer.ui.components.SectionHeader
 import com.narkolep.skkimmer.ui.components.SwitchSettingItem
 import com.narkolep.skkimmer.ui.components.colorpicker.ColorPickerDialog
+import com.narkolep.skkimmer.ui.components.colorpicker.toHex
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -129,21 +130,18 @@ fun ThemeColorScreen() {
         LazyColumn(modifier = Modifier.padding(padding)) {
 
             item { Divider() }
-            item { SectionHeader("プレビュー") }
             item {
                 ColorPreviewCard(
                     colors = colors,
-                    isBlurEnabled = isBlurEnabled,
-                    alpha = localAlpha
+                    isBlurEnabled = isBlurEnabled
                 )
             }
 
-            item { Divider() }
             item { SectionHeader("テーマ設定") }
             item {
                 SwitchSettingItem(
-                    title = "カスタムテーマを使用",
-                    subtitle = "有効化するとテーマを変更することができます",
+                    title = "カスタムテーマを使用する",
+                    subtitle = "キーボードの色を変更できます",
                     checked = isCustomTheme,
                     onCheckedChange = { enabled ->
                         scope.launch {
@@ -158,8 +156,8 @@ fun ThemeColorScreen() {
             if (isCustomTheme) {
                 item {
                     SwitchSettingItem(
-                        title = "ダークモードを使用",
-                        subtitle = if (useDarkMode) "ON: ダークモードを使用中" else "OFF: ライトモードを使用中",
+                        title = "ダークモードを使用する",
+                        subtitle = if (useDarkMode) "ON" else "OFF",
                         checked = useDarkMode,
                         onCheckedChange = { enabled ->
                             scope.launch {
@@ -177,10 +175,26 @@ fun ThemeColorScreen() {
                         onClick = { showColorPickerDialog = true }
                     )
                 }
+
+                item {
+                    InlineSliderItem(
+                        title = "背景の不透明度",
+                        valueText = "${(localAlpha * 100).roundToInt()}%",
+                        value = localAlpha,
+                        onValueChange = { localAlpha = it },
+                        onValueChangeFinished = {
+                            scope.launch {
+                                context.dataStore.edit { preferences ->
+                                    preferences[ALPHA_KEY] = localAlpha
+                                }
+                            }
+                        },
+                        valueRange = 0f..1f
+                    )
+                }
             }
 
-            item { Divider() }
-            item { SectionHeader("ぼかし・透明度") }
+            item { SectionHeader("その他") }
             item {
                 SwitchSettingItem(
                     title = "背景のぼかし",
@@ -197,23 +211,6 @@ fun ThemeColorScreen() {
             }
 
             if (isBlurEnabled) {
-                item {
-                    InlineSliderItem(
-                        title = "背景の透明度 (Alpha)",
-                        valueText = "${(localAlpha * 100).roundToInt()}%",
-                        value = localAlpha,
-                        onValueChange = { localAlpha = it },
-                        onValueChangeFinished = {
-                            scope.launch {
-                                context.dataStore.edit { preferences ->
-                                    preferences[ALPHA_KEY] = localAlpha
-                                }
-                            }
-                        },
-                        valueRange = 0f..1f
-                    )
-                }
-
                 item {
                     InlineSliderItem(
                         title = "ぼかしの強さ (Blur Radius)",
@@ -246,7 +243,7 @@ private fun ColorPickerLauncherItem(
 ) {
     ListItem(
         headlineContent = { Text("テーマカラーの選択") },
-        supportingContent = { Text("タップしてカラーピッカーを開く") },
+        supportingContent = { Text(currentColor.toHex()) },
         trailingContent = {
             Box(
                 modifier = Modifier
