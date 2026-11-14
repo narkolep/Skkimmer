@@ -29,18 +29,43 @@ class InputCommitter(
         )
     }
 
-    fun commit(text: String) {
-        connectionProvider()?.commitText(text, 1)
-    }
-
+    /**
+     * composingTextを設定する
+     */
     fun setComposingText(text: String) {
         connectionProvider()?.setComposingText(text, 1)
     }
 
+    /**
+     * composingTextをcommitTextに置き換える
+     */
+    fun commit(text: String) {
+        connectionProvider()?.commitText(text, 1)
+    }
+
+    /**
+     * 範囲選択されているか判定する
+     */
     fun isSelected(): Boolean {
         return !connectionProvider()?.getSelectedText(0).isNullOrEmpty()
     }
 
+    /**
+     * 選択範囲を削除する
+     */
+    fun deleteSelection() {
+        beginBatch()
+        try {
+            connectionProvider()?.finishComposingText()
+            commit("")
+        } finally {
+            endBatch()
+        }
+    }
+
+    /**
+     * カーソルの前の文字列を削除する
+     */
     fun delete(count: Int = 1) {
         if (count <= 0) return
         val textBefore = getText(16 * count) ?: return
@@ -57,6 +82,9 @@ class InputCommitter(
         }
     }
 
+    /**
+     * カーソルを移動する
+     */
     fun moveCursor(offset: Int) {
         if (offset == 0) return
 
@@ -104,7 +132,7 @@ class InputCommitter(
         connectionProvider()?.performEditorAction(action)
     }
 
-    fun getText(position: Int): CharSequence? {
+    fun getText(position: Int = 1): CharSequence? {
         return connectionProvider()?.getTextBeforeCursor(position, 0)?.toString()
     }
 

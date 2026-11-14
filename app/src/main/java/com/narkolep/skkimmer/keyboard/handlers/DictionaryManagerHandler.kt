@@ -1,7 +1,9 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
 import android.util.Log
+import com.narkolep.skkimmer.data.CandidateResolver
 import com.narkolep.skkimmer.data.DictionaryManager
+import com.narkolep.skkimmer.data.toRawCandidates
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
@@ -32,20 +34,31 @@ fun getCandidatesAndChangeState(
         if (state.skkState == SkkState.OKURIGANA) convertedMidashiText + state.okuriganaTrigger
         else convertedMidashiText
 
+    /* 数字を"#"に置き換える */
+    val result = replaceNumber(keyText)
+
+    val resolver = CandidateResolver()
+
     val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e("SKK_ERROR", "Error in getCandidatesAndChangeState", throwable)
     }
 
     coroutineScope.launch(exceptionHandler) {
         try {
-            val candidatesList = dictionaryManager.getCandidates(keyText)
+            val candidatesList = dictionaryManager.getCandidates(result.text)
 
             if (candidatesList.isNotEmpty()) {
+                val candidates = resolver.resolve(
+                    raws = candidatesList.toRawCandidates(),
+                    headword = keyText,
+                    numbers = result.numbers
+                )
+
                 stateFlow.update {
                     it.copy(
                         midashiText = convertedMidashiText,
                         skkState = SkkState.HENKAN,
-                        candidates = candidatesList,
+                        candidates = candidates,
                         selectedIndex = 0,
                         previousSkkState = it.skkState
                     )
@@ -57,7 +70,7 @@ fun getCandidatesAndChangeState(
                         oldMidashiText = convertedMidashiText,
                         oldOkuriganaText = it.okuriganaText,
                         oldOkuriganaTrigger = it.okuriganaTrigger,
-                        tourokuFlag = "[登録]$keyText:"
+                        tourokuFlag = "[登録]${result.text}:"
                     )
                 }
             }
@@ -94,4 +107,47 @@ fun convertString(text: String, map: Map<String, String>): String {
         i += 1
     }
     return sb.toString()
+}
+
+private data class NumberReplacement(
+    val text: String,
+    val numbers: List<String>
+)
+
+/**
+ * 数字を"#"に置き換える
+ * "#"に置き換えられた数字のリストも返す
+ */
+private fun replaceNumber(text: String): NumberReplacement {
+    val numbers = mutableListOf<String>()
+
+    val result = buildString {
+        var inNumber = false
+        val currentNumber = StringBuilder()
+
+        for (char in text) {
+            if (char in '0'..'9') {
+                currentNumber.append(char)
+
+                if (!inNumber) {
+                    append('#')
+                    inNumber = true
+                }
+            } else {
+                if (inNumber) {
+                    numbers.add(currentNumber.toString())
+                    currentNumber.clear()
+                }
+
+                append(char)
+                inNumber = false
+            }
+        }
+
+        if (inNumber) {
+            numbers.add(currentNumber.toString())
+        }
+    }
+
+    return NumberReplacement(result, numbers)
 }

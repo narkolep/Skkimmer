@@ -62,4 +62,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.oss.licenses)
     implementation(libs.icons.lucide.android)
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
 }

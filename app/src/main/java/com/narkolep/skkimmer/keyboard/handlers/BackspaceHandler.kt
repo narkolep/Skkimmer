@@ -22,7 +22,7 @@ fun backspaceHandler(
 
     /* 範囲選択されているときは空文字を出力 */
     if (inputCommitter.isSelected()) {
-        inputCommitter.commit("")
+        inputCommitter.deleteSelection()
 
         stateFlow.update { it.resetAll() }
         return

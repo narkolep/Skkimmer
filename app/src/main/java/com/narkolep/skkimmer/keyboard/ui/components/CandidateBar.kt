@@ -23,16 +23,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import com.narkolep.skkimmer.keyboard.LispEntryConverter
-import com.narkolep.skkimmer.keyboard.NumericEntryConverter
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
+import com.narkolep.skkimmer.data.Candidate
 
 @Composable
 fun CandidateBar(
     selectedBackgroundColor: Color = Color.DarkGray,
     selectedTextColor: Color = Color.LightGray,
-    candidates: List<String>,
-    originalText: String,
+    candidates: List<Candidate>,
     selectedIndex: Int? = null,
     onCandidateClick: (Int) -> Unit
 ) {
@@ -46,44 +43,34 @@ fun CandidateBar(
     }
 
     LazyRow(
-        state = listState, // 作成したStateを紐付け
+        state = listState,
         modifier = Modifier
             .fillMaxWidth()
             .height(45.dp)
-            .padding(horizontal = 0.dp),
+            .padding(top = 4.dp, start = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // 候補を描画
         itemsIndexed(candidates) { index, candidate ->
-            val candidateString = NumericEntryConverter.replace(
-                entry = LispEntryConverter.replace(
-                    entry = candidate,
-                    originalText = originalText
-                ),
-                originalText = originalText
-            )
             val isSelected = index == selectedIndex
             val textColor = if (isSelected) selectedTextColor else selectedTextColor.copy(alpha = 0.6f)
 
             // 注釈のパース処理
             val annotatedText = buildAnnotatedString {
-                val mainText = candidateString.substringBefore(DICT_ANNOTATION)
-                val comment = if (candidateString.contains(DICT_ANNOTATION)) {
-                    candidateString.substringAfter(DICT_ANNOTATION)
-                } else null
 
                 // 候補本体
-                append(mainText)
+                append(candidate.text)
 
                 // 注釈
-                if (comment != null) {
+                if (candidate.annotation != null) {
                     withStyle(
                         style = SpanStyle(
                             color = textColor.copy(alpha = 0.4f),
                             fontSize = 14.sp,
                         )
                     ) {
-                        append(" $comment") // セミコロンの代わりにスペースを入れて追加
+                        // セミコロンの代わりにスペースを入れて追加
+                        append(" ${candidate.annotation}")
                     }
                 }
             }
@@ -95,13 +82,12 @@ fun CandidateBar(
                 color = textColor,
                 modifier = Modifier
                     .fillMaxHeight()
-                    .padding(vertical = 4.dp, horizontal = 2.dp)
                     .background(
                         color = if (isSelected) selectedBackgroundColor else Color.Transparent,
                         shape = RoundedCornerShape(8.dp)
                     )
                     .clickable { onCandidateClick(index) }
-                    .padding(horizontal = 10.dp)
+                    .padding(horizontal = 12.dp)
                     .wrapContentHeight(Alignment.CenterVertically)
             )
         }

@@ -4,8 +4,8 @@
 (四角い)車輪の再発明。
 
 ## 使用したサードパーティ製の素材
-- アイコン : composablehorizons/compose-icons (Licensed under MIT License)
-- 絵文字のリスト : Fantantonio/Emoji-List-Unicode
+- アイコン : [composablehorizons/compose-icons](https://github.com/composablehorizons/compose-icons) (Licensed under MIT License)
+- 絵文字のリスト : [Fantantonio/Emoji-List-Unicode](https://github.com/Fantantonio/Emoji-List-Unicode)
 - - -
 
 ## ショートカットキー一覧
@@ -32,14 +32,9 @@
 - x : 前の変換候補
 - - -
 
-## EmacsLispへの対応
-「きょう」→ ○月○日
-のような変換には独自方式かつ部分的に対応済
-
-concatにはまだ対応してない
-
-## 数値変換への対応
-#0, #1, #2, #3, #5, #8 を含む候補に対応済
+## EmacsLispや数値変換への対応
+[emasaka/mlisj](https://github.com/emasaka/mlisj) を参考に、
+SKK-JISYO.LとSKK-JISYO.lispで使われている最低限のLisp式に対応
 
 ## 辞書
 設定画面から、SKKの辞書ファイルを読み込んで使用できます。

@@ -103,7 +103,7 @@ class OutputManager(
 
             SkkState.OKURIGANA -> {
                 if (result.output.isEmpty() || result.isIgnore) {
-                    /* outputが"ん"、"っ"、もしくは未確定のとき */
+                    /* outputが未確定のとき */
                     stateFlow.update {
                         it.copy(
                             composingText = result.composingNext,
@@ -118,13 +118,11 @@ class OutputManager(
                 }
 
                 /* 候補を検索する */
-                var flag = result.okuriganaFlag
                 val firstOkuri = oldState.okuriganaText.firstOrNull()
-                if (firstOkuri == 'ん' || firstOkuri == 'ン') {
-                    flag = "n"
-                }
-                if (firstOkuri == 'っ' || firstOkuri == 'ッ') {
-                    flag = "t"
+                val flag = when (firstOkuri) {
+                    'ん', 'ン' -> "n"
+                    'っ', 'ッ' -> "t"
+                    else -> result.okuriganaFlag
                 }
 
                 stateFlow.update {
@@ -160,7 +158,7 @@ class OutputManager(
             }
 
             SkkState.ABBREV -> {
-                // abbrevの場合は連結処理がないので、何もしない
+                /* abbrevの場合は連結処理がないので、何もしない */
             }
         }
     }
@@ -205,14 +203,10 @@ class OutputManager(
                     else ""
                 val candidate = state.candidates.getOrNull(state.selectedIndex)
                     ?: state.candidates.firstOrNull()
-                val word = candidate?.substringBefore(DICT_ANNOTATION)
+                val word = candidate?.text
                     ?: state.midashiText
-                val convertedWord = NumericEntryConverter.replace(
-                    entry = LispEntryConverter.replace(word, state.midashiText),
-                    originalText = state.midashiText
-                )
 
-                state.tourokuFlag + convertedWord + displayOkuri
+                state.tourokuFlag + word + displayOkuri
             }
             SkkState.ABBREV -> {
                 state.tourokuFlag + state.midashiText.ifEmpty { state.composingText }
@@ -258,7 +252,8 @@ class OutputManager(
                 coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
                     dictionaryManager.learnWord(
                         midashi = learnText,
-                        candidate = candidate,
+                        candidate = candidate.raw,
+                        annotation = candidate.annotation,
                         isFromSystem = true
                     )
                 }
@@ -291,13 +286,7 @@ class OutputManager(
                 val originalText = state.midashiText + state.okuriganaText
 
                 if (candidate != null) {
-                    val word = candidate.substringBefore(DICT_ANNOTATION)
-                    val convertedWord = NumericEntryConverter.replace(
-                        entry = LispEntryConverter.replace(word, state.midashiText),
-                        originalText = state.midashiText
-                    )
-
-                    convertedWord + state.okuriganaText
+                    candidate.text + state.okuriganaText
                 } else {
                     originalText
                 }

@@ -39,14 +39,14 @@ fun romajiConverter(
                 inputMode
             )
             val flag =
-                if (composingNow.firstOrNull() == 'x') composingNow.getOrElse(1) { 'x' }.toString()
+                if (kana == "っ" || kana == "ッ") "t"
                 else composingNow.firstOrNull().toString()
 
             return ConvertResult(
                 composingNext = "",
                 output = kana,
                 okuriganaFlag = flag,
-                isIgnore = composingNow.firstOrNull() == 'x'
+                isIgnore = false
             )
         }
 

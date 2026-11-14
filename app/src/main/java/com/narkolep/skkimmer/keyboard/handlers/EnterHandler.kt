@@ -46,6 +46,7 @@ fun enterHandler(
                         dictionaryManager.learnWord(
                             midashi = state.oldMidashiText + state.oldOkuriganaTrigger,
                             candidate = tourokuText,
+                            annotation = null,
                             isFromSystem = false
                         )
                     } catch (e: Exception) {

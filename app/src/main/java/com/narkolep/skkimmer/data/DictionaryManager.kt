@@ -8,6 +8,7 @@ import com.narkolep.skkimmer.data.db.AppDatabase
 import com.narkolep.skkimmer.data.db.entity.DictionaryInfoEntity
 import com.narkolep.skkimmer.data.db.entity.HistoryEntity
 import com.narkolep.skkimmer.data.db.entity.SystemDictEntity
+import com.narkolep.skkimmer.keyboard.skk_lisp.SkkQuote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
@@ -144,52 +145,55 @@ class DictionaryManager(
     /**
      * 候補の取得（履歴を最優先にする）
      */
-    suspend fun getCandidates(key: String): List<String> = withContext(Dispatchers.IO) {
-        /* 半角数字を"#"に置き換える */
-        val keyString = replaceNumber(key)
-
+    suspend fun getCandidates(
+        key: String
+    ): List<String> = withContext(Dispatchers.IO) {
         /* 履歴から取得（"/" で分割して展開する） */
-        val history = historyDao.getHistoryByMidashi(keyString)
+        val history = historyDao.getHistoryByMidashi(key)
             .flatMap { it.candidate.split("/") }
             .filter { it.isNotEmpty() }
 
         /* システム辞書から取得 */
-        val systemEntry = systemDictDao.getEntry(keyString)
-        val systemCandidates = systemEntry?.candidates
-            ?.split("/")
-            ?.filter { it.isNotEmpty() } ?: emptyList()
-
-        /* 組み込み辞書から取得 */
-        val lispCandidates = LispDictionary.entries[keyString] ?: emptyList()
+        val systemEntries = systemDictDao.getEntries(key)
+        val systemCandidates = systemEntries
+            .flatMap { it.candidates.split("/") }
+            .filter { it.isNotEmpty() }
 
         /* マージして返す */
-        return@withContext (history + lispCandidates + systemCandidates).distinct()
+        return@withContext (history + systemCandidates).distinct()
     }
 
     /**
      * 確定時の学習（履歴保存）
      */
-    suspend fun learnWord(midashi: String, candidate: String, isFromSystem: Boolean) {
+    suspend fun learnWord(
+        midashi: String,
+        candidate: String,
+        annotation: String?,
+        isFromSystem: Boolean
+    ) {
         /* 半角数字を"#"に置き換える */
         val midashiString = replaceNumber(midashi)
+        /* ユーザーが登録した候補の場合は、concatによるエスケープを実行する */
+        val candidateString =
+            if (isFromSystem) candidate + if (annotation.isNullOrEmpty()) "" else ";$annotation"
+            else SkkQuote.quoteCandidate(candidate)
 
         withContext(Dispatchers.IO) {
             db.withTransaction {
                 /* 既存のエントリーを取得する */
-                val existingEntries = historyDao.findEntry(midashiString, candidate)
+                val existingEntries = historyDao.findEntry(midashiString, candidateString)
                 val entry = existingEntries.firstOrNull()
                 val oldIsFromSystem = entry?.isFromSystemDict
 
-                /* 同一の見出し、漢字があれば古い方は削除する */
+                /* 見出しと漢字が一致する候補があるときは削除する */
                 existingEntries.forEach { historyDao.deleteEntry(it) }
 
-                /* 同じ見出しのシステム候補について、古いものを削除する */
+                /* 見出しが一致する候補があるとき、古いものから順に削除する */
                 val sameMidashiSystemEntries = historyDao.getOldSystemEntriesByMidashi(midashiString)
-                if (sameMidashiSystemEntries.size >= 3) {
+                if (sameMidashiSystemEntries.size >= 5) {
                     sameMidashiSystemEntries.firstOrNull()?.let { historyDao.deleteEntry(it) }
                 }
-
-                /* 古いシステム候補を削除 */
                 val totalCount = historyDao.getTotalCount()
                 if (totalCount >= 1000) {
                     historyDao.getOldestSystemEntry()?.let { oldestSystem ->
@@ -201,7 +205,7 @@ class DictionaryManager(
                 val fromSystemFlag = (oldIsFromSystem != false) && isFromSystem
                 val newEntry = HistoryEntity(
                     midashi = midashiString,
-                    candidate = candidate,
+                    candidate = candidateString,
                     isFromSystemDict = fromSystemFlag
                 )
                 historyDao.insert(newEntry)

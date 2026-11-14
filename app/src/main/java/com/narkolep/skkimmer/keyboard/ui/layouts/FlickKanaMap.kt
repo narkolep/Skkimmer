@@ -124,7 +124,7 @@ object FlickKanaMap {
             FlickKeyConfig(
                 label = "Ctrl",
                 action = KeyboardAction.Ctrl,
-                iconResId = R.drawable.lucide_ic_cog
+                iconResId = R.drawable.lucide_ic_circle
             ),
             FlickKeyConfig(
                 label = "ﾞﾟ",
@@ -132,11 +132,11 @@ object FlickKanaMap {
             ),
             FlickKeyConfig(
                 label = "わ",
-                flickPosition = Position(center = "wa", left = "wo", up = "nn", right = "-", down = "")
+                flickPosition = Position(center = "wa", left = "wo", up = "nn", right = "-", down = "z-")
             ),
             FlickKeyConfig(
                 label = "､｡",
-                flickPosition = Position(center = ",", left = ".", up = "？", right = "！", down = "")
+                flickPosition = Position(center = ",", left = ".", up = "？", right = "！", down = "z.")
             ),
             FlickKeyConfig(
                 label = "Enter",

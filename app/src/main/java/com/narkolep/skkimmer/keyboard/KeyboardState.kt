@@ -1,5 +1,7 @@
 package com.narkolep.skkimmer.keyboard
 
+import com.narkolep.skkimmer.data.Candidate
+
 enum class ShiftState {
     LOWERCASE,
     SHIFTED,
@@ -49,7 +51,7 @@ data class KeyboardState(
 
     /* === BUFFER === */
     /* 変換候補 */
-    val candidates: List<String> = emptyList(),
+    val candidates: List<Candidate> = emptyList(),
     val selectedIndex: Int = -1,
     val previousSkkState: SkkState = SkkState.NORMAL,
     /* 日本語入力中の文字列 */

@@ -11,8 +11,10 @@ import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap.kanaToRomaji
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlin.text.all
 
 private val VOWELS = setOf('a', 'i', 'u', 'e', 'o')
+private val DIACRITIC_MARKS = setOf('ﾞ', 'ﾟ', '゛', '゜', '゙', '゚')
 
 /**
  * カーソルの左側の文字を変換する
@@ -34,7 +36,10 @@ fun dakutenHandler(
     }
 
     /* 文字の取得 */
-    val text = inputCommitter.getText(1)?.toString()?.takeIf { it.isNotEmpty() } ?: return
+    var text = inputCommitter.getText()?.toString()?.takeIf { it.isNotEmpty() } ?: return
+    if (text.all { it in DIACRITIC_MARKS }) {
+        text = inputCommitter.getText(2)?.toString()?.takeIf { it.isNotEmpty() } ?: return
+    }
 
     /* ローマ字に変換 */
     val info = kanaToRomaji[text] ?: return
@@ -58,11 +63,11 @@ fun dakutenHandler(
         return
     }
     val newConsonant = when {
-        // 例外(ヴ、っ、ヵ、ヶ、など)
+        /* 例外(ヴ、っ、ヵ、ヶ、など) */
         info.type != KanaMap.KanaType.HIRAGANA && consonant == "x" && vowel == "u" -> "v"
         consonant == "t" && vowel == "u" -> "xt"
-        consonant == "k" && (vowel == "a" || vowel == "e") -> "xk"
-        // 変換後の子音を代入
+        info.type == KanaMap.KanaType.KATAKANA && consonant == "k" && (vowel == "a" || vowel == "e") -> "xk"
+        /* 変換後の子音を代入 */
         else -> convertedConsonant
     }
 

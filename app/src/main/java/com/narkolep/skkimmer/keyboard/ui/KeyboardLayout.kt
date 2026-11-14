@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import com.composables.icons.lucide.R
 import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKanaMap.flickLayout
 import com.narkolep.skkimmer.keyboard.ui.components.CandidateBar
 import com.narkolep.skkimmer.keyboard.ui.components.SkkKey
@@ -39,6 +40,7 @@ import com.composables.icons.lucide.R.drawable.lucide_ic_square_asterisk
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_dashed
 import com.composables.icons.lucide.R.drawable.lucide_ic_square_library
 import com.narkolep.skkimmer.keyboard.getOutputString
+import com.narkolep.skkimmer.keyboard.isNumber
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.ui.theme.LocalKeyboardColors
 
@@ -129,7 +131,6 @@ fun KeyboardLayout(
                         selectedBackgroundColor = colors.keyBackground,
                         selectedTextColor = colors.keyText,
                         candidates = uiState.candidates,
-                        originalText = uiState.midashiText,
                         selectedIndex = uiState.selectedIndex,
                         onCandidateClick = { index -> onActionClick(KeyboardAction.CandidateIndex(index)) }
                     )
@@ -161,15 +162,14 @@ fun KeyboardLayout(
                                     onClick = { onActionClick(config.action) }
                                 )
                             } else {
-                                val isDigitKey = config.label.firstOrNull() in '0'..'9'
                                 FlickKey(
                                     modifier = Modifier.weight(1f),
                                     config = config,
                                     keyColor =
-                                        if (isDigitKey) colors.keyBackground
+                                        if (config.label.isNumber()) colors.keyBackground
                                         else Color.Transparent,
                                     textColor = colors.keyText,
-                                    isNumberKeyboard = isDigitKey,
+                                    isNumberKeyboard = config.label.isNumber(),
                                     onInput = { text ->
                                         onKeyClick(text)
                                     }
@@ -194,14 +194,25 @@ fun KeyboardLayout(
                                     KeyboardAction.Dakuten -> colors.keyBackground
                                     else -> Color.Transparent
                                 }
-                                val actionIcon = if (config.action == KeyboardAction.Space) {
+
+                                val actionIcon = when (config.action) {
+                                    KeyboardAction.Space -> {
                                         when (uiState.skkState) {
                                             SkkState.MIDASHI -> lucide_ic_square_dashed
                                             SkkState.OKURIGANA -> lucide_ic_square_asterisk
                                             SkkState.HENKAN -> lucide_ic_square_library
                                             else -> lucide_ic_space
                                         }
-                                    } else config.iconResId
+                                    }
+                                    KeyboardAction.Shift -> {
+                                        when (uiState.shiftState) {
+                                            ShiftState.LOWERCASE -> R.drawable.lucide_ic_arrow_up
+                                            ShiftState.SHIFTED -> R.drawable.lucide_ic_arrow_up_from_dot
+                                            ShiftState.CAPS_LOCK -> R.drawable.lucide_ic_arrow_up_from_line
+                                        }
+                                    }
+                                    else -> config.iconResId
+                                }
 
                                 SkkKey(
                                     mainText = config.label,
@@ -251,46 +262,44 @@ fun KeyboardLayout(
                 Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
                     rowKeys.forEach { config ->
                         if (config.action != null) {
-                            var mainText = config.main
-                            when(config.action) {
-                                KeyboardAction.Shift -> {
-                                    mainText = when (uiState.shiftState) {
-                                        ShiftState.LOWERCASE -> "Shift"
-                                        ShiftState.SHIFTED -> "Shift"
-                                        ShiftState.CAPS_LOCK -> "Caps\nLock"
+                            val mainText = if (config.action == KeyboardAction.Space) {
+                                val dictKey = if (uiState.tourokuFlag.isNotEmpty()) "辞書登録 / " else ""
+                                when (uiState.inputMode) {
+                                    InputMode.HALF_ASCII -> "半角英数"
+                                    InputMode.FULL_ASCII -> "全角英数"
+                                    InputMode.HIRAGANA -> when (uiState.skkState) {
+                                        SkkState.NORMAL -> dictKey + "NORMAL"
+                                        SkkState.MIDASHI -> dictKey + "見出し語"
+                                        SkkState.OKURIGANA -> dictKey + "送り仮名"
+                                        SkkState.HENKAN -> dictKey + "変換"
+                                        SkkState.ABBREV -> dictKey + "abbrev"
                                     }
+
+                                    InputMode.KATAKANA -> "カタカナ"
+                                    InputMode.HALF_KATAKANA -> "ｶﾀｶﾅ"
                                 }
-                                KeyboardAction.Space -> {
-                                    val dictKey = if (uiState.tourokuFlag.isNotEmpty()) "辞書登録 / " else ""
-                                    mainText = when (uiState.inputMode) {
-                                        InputMode.HALF_ASCII -> "半角英数"
-                                        InputMode.FULL_ASCII -> "全角英数"
-                                        InputMode.HIRAGANA -> when (uiState.skkState) {
-                                            SkkState.NORMAL -> dictKey + "NORMAL"
-                                            SkkState.MIDASHI -> dictKey + "見出し語"
-                                            SkkState.OKURIGANA -> dictKey + "送り仮名"
-                                            SkkState.HENKAN -> dictKey + "変換"
-                                            SkkState.ABBREV -> dictKey + "abbreviation"
-                                        }
-                                        InputMode.KATAKANA -> "カタカナ"
-                                        InputMode.HALF_KATAKANA -> "____ｶﾀｶﾅ"
-                                    }
+                            } else config.main
+
+                            val iconResId = if (config.action == KeyboardAction.Shift) {
+                                when (uiState.shiftState) {
+                                    ShiftState.LOWERCASE -> R.drawable.lucide_ic_arrow_up
+                                    ShiftState.SHIFTED -> R.drawable.lucide_ic_arrow_up_from_dot
+                                    ShiftState.CAPS_LOCK -> R.drawable.lucide_ic_arrow_up_from_line
                                 }
-                                else -> {}
-                            }
+                            } else config.iconResId
 
                             val keyColor = when (config.action) {
                                 KeyboardAction.Shift -> if (isShifted) colors.specialKeyBackground else Color.Transparent
-                                KeyboardAction.Backspace -> Color.Transparent
                                 KeyboardAction.Ctrl -> if (uiState.isCtrlPressed) colors.specialKeyBackground else Color.Transparent
                                 KeyboardAction.Space -> colors.keyBackground
                                 KeyboardAction.Enter -> colors.specialKeyBackground
-                                else -> colors.keyBackground
+                                else -> Color.Transparent
                             }
 
                             SkkKey(
                                 mainText = mainText,
                                 modifier = Modifier.weight(config.weight),
+                                iconResId = iconResId,
                                 textSize = config.textSize,
                                 keyColor = keyColor,
                                 textColor = if (keyColor == colors.specialKeyBackground) colors.specialKeyText else colors.keyText,

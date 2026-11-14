@@ -33,7 +33,6 @@ fun EmojiPicker(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val currentCategory = categories.getOrNull(selectedTabIndex)
 
-    // Paintを準備（再利用のためremember）
     val density = LocalDensity.current
 
     val paint = remember(density, textColor) {
@@ -75,7 +74,7 @@ fun EmojiPicker(
                         selected = isSelected,
                         onClick = { selectedTabIndex = index },
                         modifier = Modifier
-                            .padding(top = 2.dp, start = 0.dp, end = 0.dp, bottom = 2.dp) // タブの上と横の隙間
+                            .padding(top = 2.dp, bottom = 2.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(color = if (isSelected) actionColor else Color.Transparent),
                         selectedContentColor = actionTextColor,

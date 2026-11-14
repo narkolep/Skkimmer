@@ -28,6 +28,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.narkolep.skkimmer.BLUR_ENABLED_KEY
 import com.narkolep.skkimmer.BLUR_RADIUS_KEY
+import com.narkolep.skkimmer.data.Candidate
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.data.EmojiManager
 import com.narkolep.skkimmer.dataStore
@@ -289,15 +290,17 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     // bufferに該当するフィールドだけを抜き出した比較用スナップショット
     private data class BufferSnapshot(
-        val candidates: List<String>,
+        val skkState: SkkState,
+        val candidates: List<Candidate>,
         val selectedIndex: Int,
         val composingText: String,
         val midashiText: String,
         val okuriganaText: String,
-        val tourokuFlag: String
+        val tourokuFlag: String,
     )
 
     private fun KeyboardState.toBufferSnapshot() = BufferSnapshot(
+        skkState = skkState,
         candidates = candidates,
         selectedIndex = selectedIndex,
         composingText = composingText,

@@ -3,6 +3,7 @@ package com.narkolep.skkimmer.keyboard.ui.components
 import android.content.Context
 import android.media.AudioManager
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -56,7 +58,7 @@ fun SkkKey(
     modifier: Modifier = Modifier,
     iconResId: Int? = null,
     flickText: String = "",
-    textSize: Float = 22f,
+    textSize: Float = 24f,
     keyboardHeight: Float,
     keyColor: Color,
     textColor: Color,
@@ -211,7 +213,7 @@ fun SkkKey(
                         painter = painterResource(id = iconResId),
                         contentDescription = mainText,
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(28.dp)
                             .align(Alignment.Center),
                         tint = textColor
                     )
@@ -219,7 +221,7 @@ fun SkkKey(
                     if (flickText.isNotEmpty()) {
                         Text(
                             text = flickText,
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                             color = textColor.copy(alpha = 0.6f),
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
@@ -244,8 +246,11 @@ fun SkkKey(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(width = 40.dp, height = (keyboardHeight * 0.9).dp)
-                                .background(flickColor, RoundedCornerShape(10.dp)),
+                                .size(width = 50.dp, height = keyboardHeight.dp)
+                                .shadow(4.dp, RoundedCornerShape(10.dp))
+                                .background(flickColor.copy(alpha = 0.95f), RoundedCornerShape(16.dp))
+                                .border(1.dp, textColor.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                                .padding(6.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(

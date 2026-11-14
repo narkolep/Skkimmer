@@ -34,6 +34,7 @@ fun handleCTRL(
             /* Japanese input */
             stateFlow.update { it.copy(
                 inputMode = InputMode.HIRAGANA,
+                skkState = SkkState.NORMAL,
                 shiftState = ShiftState.LOWERCASE
             ) }
             return null

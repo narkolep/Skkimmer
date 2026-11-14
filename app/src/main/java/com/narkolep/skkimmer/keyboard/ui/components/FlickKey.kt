@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -91,37 +90,18 @@ fun FlickKey(
     val threshold = 40f
 
     val density = LocalDensity.current
-    var keyWidth by remember { mutableStateOf(0.dp) }
     var keyHeight by remember { mutableStateOf(0.dp) }
-
     var keyHeightPx by remember { mutableIntStateOf(0) }
-    var keyWidthPx by remember { mutableIntStateOf(0) }
-
-    var yOffset by remember { mutableIntStateOf(0) }
-    var xOffset by remember { mutableIntStateOf(0) }
-
-    val paddingDp = 3.dp
-    val paddingPx = with(density) { paddingDp.roundToPx() }
-    val offsetDp: Dp = if (isNumberKeyboard) (-4).dp else 0.dp
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .padding(paddingDp)
+            .padding(3.dp)
             .fillMaxHeight()
             .background(color = keyColor, shape = RoundedCornerShape(10.dp))
             .onSizeChanged { size ->
-                keyWidth = with(density) { size.width.toDp() }
                 keyHeight = with(density) { size.height.toDp() }
-                keyWidthPx = size.width
                 keyHeightPx = size.height
-
-                yOffset = 0
-                xOffset = 0
-                if (config.flickPosition.up.isEmpty()) yOffset += (keyHeightPx*0.5 + paddingPx*0.5).toInt()
-                if (config.flickPosition.down.isEmpty()) yOffset -= (keyHeightPx*0.5 + paddingPx*0.5).toInt()
-                if (config.flickPosition.left.isEmpty()) xOffset += (keyWidthPx*0.5 + paddingPx).toInt()
-                if (config.flickPosition.right.isEmpty()) xOffset -= (keyWidthPx*0.5 + paddingPx).toInt()
             }
             .pointerInput(config, displayText) {
                 awaitEachGesture {
@@ -170,7 +150,7 @@ fun FlickKey(
             Icon(
                 painter = painterResource(id = iconResId),
                 contentDescription = config.label,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(28.dp),
                 tint = textColor
             )
         } else {
@@ -189,7 +169,7 @@ fun FlickKey(
                 text = if (displayText == FlickKanaMap.Position()) config.label else displayText.center,
                 color = textColor,
                 fontSize = 26.sp,
-                modifier = Modifier.offset(y = offsetDp)
+                modifier = Modifier.offset(y = if (isNumberKeyboard) (-4).dp else 0.dp)
             )
         }
 
@@ -197,14 +177,11 @@ fun FlickKey(
         if (isDragging) {
             Popup(
                 alignment = Alignment.Center,
-                offset = IntOffset(x = xOffset, y = yOffset)
+                offset = IntOffset(x = 0, y = (-1.8 * keyHeightPx).toInt()),
             ) {
                 FlickPopup(
                     flickText = if (displayText == FlickKanaMap.Position()) config.flickPosition else displayText,
-                    currentDir = currentDir,
-                    paddingDp = paddingDp,
-                    keyWidth = keyWidth + paddingDp,
-                    keyHeight = keyHeight + paddingDp
+                    currentDir = currentDir
                 )
             }
         }

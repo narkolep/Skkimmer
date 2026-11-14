@@ -1,5 +1,6 @@
 package com.narkolep.skkimmer.keyboard.ui.layouts
 
+import com.composables.icons.lucide.R
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 
 enum class KeySpacerPosition {
@@ -13,11 +14,13 @@ object QwertyMap {
         val main: String,
         val flick: String = "",
         val shiftFlick: String = "",
+
         val action: KeyboardAction? = null,
         val keyRepeat: Boolean = false,
         val weight: Float = 1f,
         val padding: KeySpacerPosition = KeySpacerPosition.NONE,
-        val textSize: Float = 22f
+        val textSize: Float = 24f,
+        val iconResId: Int? = null
     )
 
     val numericKeyDefinitions = listOf(
@@ -64,7 +67,12 @@ object QwertyMap {
 
         // 4段目
         listOf(
-            KeyDef("Shift", action = KeyboardAction.Shift, weight = 1.5f, textSize = 18f),
+            KeyDef(
+                "Shift",
+                action = KeyboardAction.Shift,
+                weight = 1.5f,
+                textSize = 18f
+            ),
             KeyDef("z", "<", "{"),
             KeyDef("x", ">", "}"),
             KeyDef("c", "(", "["),
@@ -72,14 +80,50 @@ object QwertyMap {
             KeyDef("b", ",", ","),
             KeyDef("n", ".", "."),
             KeyDef("m", "/", """\"""),
-            KeyDef("BS", action = KeyboardAction.Backspace, weight = 1.5f, textSize = 20f, keyRepeat = true)
+            KeyDef(
+                "BS",
+                action = KeyboardAction.Backspace,
+                weight = 1.5f,
+                textSize = 20f,
+                keyRepeat = true,
+                iconResId = R.drawable.lucide_ic_delete
+            ),
         ),
 
         // 5段目
         listOf(
-            KeyDef("Ctrl", action = KeyboardAction.Ctrl, weight = 2f),
-            KeyDef("Space", action = KeyboardAction.Space, weight = 6f, textSize = 18f),
-            KeyDef("Enter", action = KeyboardAction.Enter, weight = 2f)
+            KeyDef(
+                "Ctrl",
+                action = KeyboardAction.Ctrl,
+                weight = 1.5f,
+                iconResId = R.drawable.lucide_ic_circle
+            ),
+            KeyDef(
+                "Space",
+                action = KeyboardAction.Space,
+                weight = 5f,
+                textSize = 18f
+            ),
+            KeyDef(
+                "Left arrow",
+                action = KeyboardAction.Left,
+                weight = 1f,
+                keyRepeat = true,
+                iconResId = R.drawable.lucide_ic_chevron_left
+            ),
+            KeyDef(
+                "Right arrow",
+                action = KeyboardAction.Right,
+                weight = 1f,
+                keyRepeat = true,
+                iconResId = R.drawable.lucide_ic_chevron_right
+            ),
+            KeyDef(
+                "Enter",
+                action = KeyboardAction.Enter,
+                weight = 1.5f,
+                iconResId = R.drawable.lucide_ic_corner_down_left
+            )
         )
     )
 }
