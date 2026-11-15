@@ -16,7 +16,7 @@ android {
         minSdk = 29
         targetSdk = 37
         versionCode = 1
-        versionName = "1.3.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -62,6 +62,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.play.services.oss.licenses)
     implementation(libs.icons.lucide.android)
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.test)
 }

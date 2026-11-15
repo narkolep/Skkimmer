@@ -19,7 +19,6 @@ object QwertyMap {
         val keyRepeat: Boolean = false,
         val weight: Float = 1f,
         val padding: KeySpacerPosition = KeySpacerPosition.NONE,
-        val textSize: Float = 24f,
         val iconResId: Int? = null
     )
 
@@ -70,8 +69,7 @@ object QwertyMap {
             KeyDef(
                 "Shift",
                 action = KeyboardAction.Shift,
-                weight = 1.5f,
-                textSize = 18f
+                weight = 1.5f
             ),
             KeyDef("z", "<", "{"),
             KeyDef("x", ">", "}"),
@@ -84,7 +82,6 @@ object QwertyMap {
                 "BS",
                 action = KeyboardAction.Backspace,
                 weight = 1.5f,
-                textSize = 20f,
                 keyRepeat = true,
                 iconResId = R.drawable.lucide_ic_delete
             ),
@@ -101,8 +98,7 @@ object QwertyMap {
             KeyDef(
                 "Space",
                 action = KeyboardAction.Space,
-                weight = 5f,
-                textSize = 18f
+                weight = 5f
             ),
             KeyDef(
                 "Left arrow",

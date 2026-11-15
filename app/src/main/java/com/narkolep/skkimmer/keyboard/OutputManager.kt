@@ -4,6 +4,7 @@ import android.util.Log
 import com.narkolep.skkimmer.data.DictionaryManager
 import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
 import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
+import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.OKURI_MARK
 import com.narkolep.skkimmer.keyboard.handlers.getCandidatesAndChangeState
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -275,7 +276,9 @@ class OutputManager(
                 state.composingText
             }
             SkkState.MIDASHI -> {
-                state.midashiText + state.composingText
+                val composing = if (state.composingText == HALF_SPACE) "" else state.composingText
+
+                state.midashiText + composing
             }
             SkkState.OKURIGANA -> {
                 state.midashiText + state.composingText

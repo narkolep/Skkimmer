@@ -54,15 +54,16 @@ import kotlinx.coroutines.flow.map
 
 @Composable
 fun SkkKey(
-    mainText: String, // 表示する文字
     modifier: Modifier = Modifier,
-    iconResId: Int? = null,
+    mainText: String,
     flickText: String = "",
-    textSize: Float = 24f,
-    keyboardHeight: Float,
+    iconResId: Int? = null,
+
     keyColor: Color,
     textColor: Color,
-    flickColor: Color = Color.Black,
+    flickColor: Color = Color.Transparent,
+
+    keyboardHeight: Float,
     spaceLeftRight: KeySpacerPosition = KeySpacerPosition.NONE,
     weight: Float = 1f,
     cornerShape: Dp = 10.dp,
@@ -101,9 +102,6 @@ fun SkkKey(
     var isPressed by remember { mutableStateOf(false) }
     var currentPopupText by remember { mutableStateOf(mainText) }
 
-    val density = LocalDensity.current
-    val flickHeightPx = with(density) { (keyboardHeight * 0.8f).dp.roundToPx() }
-
     val actualWeight = if (spaceLeftRight != KeySpacerPosition.NONE) weight - 0.5f else weight
 
     // バックグラウンドでタイマーを動かすためのスコープ
@@ -115,7 +113,7 @@ fun SkkKey(
             .pointerInput(mainText, flickText) {
                 val flickThreshold = 40.dp.toPx()
                 val repeatInterval = 80L // 連続入力の間隔
-                val initialDelay = 500L   // 長押しと判定するまでの待機時間
+                val initialDelay = 500L // 長押しと判定するまでの待機時間
 
                 awaitEachGesture {
                     val downEvent = awaitFirstDown(requireUnconsumed = false)
@@ -125,7 +123,7 @@ fun SkkKey(
                     downEvent.consume()
                     isPressed = true
 
-                    var repeatJob: Job? = null // タイマーを管理する変数
+                    var repeatJob: Job? = null
 
                     try {
                         if (flickText.isEmpty()) {
@@ -135,7 +133,6 @@ fun SkkKey(
                             // リピート開始
                             if (keyRepeat) {
                                 repeatJob = scope.launch {
-                                    // 最初は500ms待つ
                                     delay(initialDelay.milliseconds)
                                     // 触覚フィードバック
                                     if (hapticEnabled) {
@@ -150,7 +147,7 @@ fun SkkKey(
                                 }
                             }
 
-                            // 確定させた後も、指が画面から完全に離れるまでは空回りさせて待機する
+                            // 指が画面から完全に離れるまで待機
                             do {
                                 val event = awaitPointerEvent()
                                 event.changes.forEach { it.consume() }
@@ -199,6 +196,7 @@ fun SkkKey(
             }
 
             Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .padding(3.dp)
                     .weight(actualWeight)
@@ -212,16 +210,14 @@ fun SkkKey(
                     Icon(
                         painter = painterResource(id = iconResId),
                         contentDescription = mainText,
-                        modifier = Modifier
-                            .size(28.dp)
-                            .align(Alignment.Center),
+                        modifier = Modifier.size(((keyboardHeight - 6f) * 0.5f).dp),
                         tint = textColor
                     )
                 } else {
                     if (flickText.isNotEmpty()) {
                         Text(
                             text = flickText,
-                            fontSize = 12.sp,
+                            fontSize = (keyboardHeight * 0.18f).sp,
                             color = textColor.copy(alpha = 0.6f),
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
@@ -231,10 +227,10 @@ fun SkkKey(
 
                     Text(
                         text = mainText,
-                        fontWeight = if (flickText.isNotEmpty()) FontWeight.SemiBold else FontWeight.Normal,
-                        fontSize = textSize.sp,
-                        color = textColor,
-                        modifier = Modifier.align(Alignment.Center)
+                        fontSize =
+                            if (flickText.isNotEmpty()) (keyboardHeight * 0.45f).sp
+                            else (keyboardHeight * 0.3f).sp,
+                        color = textColor
                     )
                 }
 
@@ -242,7 +238,12 @@ fun SkkKey(
                 if (isPressed && flickText.isNotEmpty()) {
                     Popup(
                         alignment = Alignment.Center,
-                        offset = IntOffset(x = 0, y = -flickHeightPx)
+                        offset = with(LocalDensity.current) {
+                            IntOffset(
+                                x = 0,
+                                y = (keyboardHeight * -1f).dp.roundToPx()
+                            )
+                        }
                     ) {
                         Box(
                             modifier = Modifier
@@ -256,7 +257,7 @@ fun SkkKey(
                             Text(
                                 text = currentPopupText,
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 28.sp,
+                                fontSize = (keyboardHeight * 0.55f).sp,
                                 color = textColor
                             )
                         }

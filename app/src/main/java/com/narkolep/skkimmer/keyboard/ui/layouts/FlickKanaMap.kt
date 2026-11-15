@@ -36,7 +36,7 @@ object FlickKanaMap {
         listOf(
             FlickKeyConfig(
                 label = "Q",
-                flickPosition = Position(center = "q", left = "", up = "/", right = "l", down = "x"),
+                flickPosition = Position(center = "q", left = "v", up = "/", right = "l", down = "x"),
                 iconResId = R.drawable.lucide_ic_refresh_cw
             ),
             FlickKeyConfig(

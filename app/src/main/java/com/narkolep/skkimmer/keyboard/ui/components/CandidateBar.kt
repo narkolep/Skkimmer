@@ -3,6 +3,7 @@ package com.narkolep.skkimmer.keyboard.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,6 +32,7 @@ fun CandidateBar(
     selectedTextColor: Color = Color.LightGray,
     candidates: List<Candidate>,
     selectedIndex: Int? = null,
+    keyHeight: Float,
     onCandidateClick: (Int) -> Unit
 ) {
     // スクロール状態を管理するStateを作成
@@ -45,9 +47,8 @@ fun CandidateBar(
     LazyRow(
         state = listState,
         modifier = Modifier
-            .fillMaxWidth()
-            .height(45.dp)
-            .padding(top = 4.dp, start = 3.dp),
+            .fillMaxSize()
+            .padding(vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // 候補を描画
@@ -55,7 +56,6 @@ fun CandidateBar(
             val isSelected = index == selectedIndex
             val textColor = if (isSelected) selectedTextColor else selectedTextColor.copy(alpha = 0.6f)
 
-            // 注釈のパース処理
             val annotatedText = buildAnnotatedString {
 
                 // 候補本体
@@ -66,10 +66,9 @@ fun CandidateBar(
                     withStyle(
                         style = SpanStyle(
                             color = textColor.copy(alpha = 0.4f),
-                            fontSize = 14.sp,
+                            fontSize = (keyHeight * 0.2f).sp,
                         )
                     ) {
-                        // セミコロンの代わりにスペースを入れて追加
                         append(" ${candidate.annotation}")
                     }
                 }
@@ -78,7 +77,7 @@ fun CandidateBar(
             Text(
                 text = annotatedText,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                fontSize = 20.sp,
+                fontSize = (keyHeight * 0.35f).sp,
                 color = textColor,
                 modifier = Modifier
                     .fillMaxHeight()
@@ -87,7 +86,7 @@ fun CandidateBar(
                         shape = RoundedCornerShape(8.dp)
                     )
                     .clickable { onCandidateClick(index) }
-                    .padding(horizontal = 12.dp)
+                    .padding(horizontal = (keyHeight * 0.2).dp)
                     .wrapContentHeight(Alignment.CenterVertically)
             )
         }

@@ -132,6 +132,7 @@ fun KeyboardLayout(
                         selectedTextColor = colors.keyText,
                         candidates = uiState.candidates,
                         selectedIndex = uiState.selectedIndex,
+                        keyHeight = keyboardHeight,
                         onCandidateClick = { index -> onActionClick(KeyboardAction.CandidateIndex(index)) }
                     )
                 }
@@ -300,7 +301,6 @@ fun KeyboardLayout(
                                 mainText = mainText,
                                 modifier = Modifier.weight(config.weight),
                                 iconResId = iconResId,
-                                textSize = config.textSize,
                                 keyColor = keyColor,
                                 textColor = if (keyColor == colors.specialKeyBackground) colors.specialKeyText else colors.keyText,
                                 keyboardHeight = keyboardHeight,
