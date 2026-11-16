@@ -1,15 +1,11 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
 import android.util.Log
-import com.narkolep.skkimmer.keyboard.InputCommitter
+import com.narkolep.skkimmer.keyboard.ActionProcessor
 import com.narkolep.skkimmer.keyboard.InputMode
-import com.narkolep.skkimmer.keyboard.KeyProcessor
-import com.narkolep.skkimmer.keyboard.KeyboardState
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.mappings.DakutenMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap.kanaToRomaji
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.text.all
 
@@ -17,22 +13,17 @@ private val VOWELS = setOf('a', 'i', 'u', 'e', 'o')
 private val DIACRITIC_MARKS = setOf('ﾞ', 'ﾟ', '゛', '゜', '゙', '゚')
 
 /**
- * カーソルの左側の文字を変換する
+ * カーソルの左側の文字を濁音/半濁音に変換する
  */
-fun dakutenHandler(
-    stateFlow: MutableStateFlow<KeyboardState>,
-    inputCommitter: InputCommitter,
-    keyProcessor: KeyProcessor
-) {
+internal fun ActionProcessor.handleDakuten() {
     val capturedState = stateFlow.value
 
     /* 登録する文字列がないとき、辞書登録モードを解除する */
-    if (capturedState.tourokuFlag.isNotEmpty()) {
-        val displayText = capturedState.tourokuFlag + capturedState.midashiText + capturedState.composingText
+    if (capturedState.isRegistering) {
+        val displayText =
+            capturedState.registrationKey.candidate + capturedState.midashiText + capturedState.composingText
 
-        if (displayText.substringAfter(DICT_DELIMITER).isEmpty()) {
-            backspaceHandler(stateFlow, inputCommitter)
-        }
+        if (displayText.isEmpty()) handleBackspace()
     }
 
     /* 文字の取得 */
@@ -80,7 +71,7 @@ fun dakutenHandler(
 
     /* 出力 */
     inputCommitter.beginBatch()
-    backspaceHandler(stateFlow, inputCommitter)
+    handleBackspace()
     keyProcessor.handle(newConsonant + vowel)
     inputCommitter.endBatch()
 

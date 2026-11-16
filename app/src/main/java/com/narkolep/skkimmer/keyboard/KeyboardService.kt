@@ -296,7 +296,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         val composingText: String,
         val midashiText: String,
         val okuriganaText: String,
-        val tourokuFlag: String,
+        val registrationKey: RegistrationKey,
     )
 
     private fun KeyboardState.toBufferSnapshot() = BufferSnapshot(
@@ -306,7 +306,7 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         composingText = composingText,
         midashiText = midashiText,
         okuriganaText = okuriganaText,
-        tourokuFlag = tourokuFlag
+        registrationKey = registrationKey
     )
 
     fun getClipboardText(): String? {

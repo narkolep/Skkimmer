@@ -31,8 +31,8 @@ import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkState
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.KeyboardType
-import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.keyDefinitions
-import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.numericKeyDefinitions
+import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.qwertyKeyLayout
+import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.numericQwertyKeyLayout
 import com.narkolep.skkimmer.keyboard.ui.layouts.NumericMap.numericLayout
 import com.narkolep.skkimmer.keyboard.ui.components.FlickKey
 import com.composables.icons.lucide.R.drawable.lucide_ic_space
@@ -115,7 +115,7 @@ fun KeyboardLayout(
             Box(modifier = Modifier.fillMaxWidth().height((keyboardHeight * 0.8f).dp)) {
                 if (!uiState.isFlick && uiState.candidates.isEmpty() && uiState.keyboardType != KeyboardType.NUMERIC) {
                     Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
-                        numericKeyDefinitions.forEach { config ->
+                        numericQwertyKeyLayout.forEach { config ->
                             SkkKey(
                                 mainText = config.main,
                                 modifier = Modifier.weight(1f),
@@ -259,12 +259,12 @@ fun KeyboardLayout(
             }
 
             /* qwerty キーボード */
-            keyDefinitions.forEach { rowKeys ->
+            qwertyKeyLayout.forEach { rowKeys ->
                 Row(modifier = Modifier.fillMaxWidth().height(keyboardHeight.dp)) {
                     rowKeys.forEach { config ->
                         if (config.action != null) {
                             val mainText = if (config.action == KeyboardAction.Space) {
-                                val dictKey = if (uiState.tourokuFlag.isNotEmpty()) "辞書登録 / " else ""
+                                val dictKey = if (uiState.isRegistering) "辞書登録 / " else ""
                                 when (uiState.inputMode) {
                                     InputMode.HALF_ASCII -> "半角英数"
                                     InputMode.FULL_ASCII -> "全角英数"

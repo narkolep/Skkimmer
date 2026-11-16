@@ -1,47 +1,24 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
-import com.narkolep.skkimmer.data.DictionaryManager
-import com.narkolep.skkimmer.keyboard.KeyProcessor
+import com.narkolep.skkimmer.keyboard.ActionProcessor
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.ShiftState
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
-import com.narkolep.skkimmer.keyboard.clear
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.narkolep.skkimmer.keyboard.tourokuInit
 import kotlinx.coroutines.flow.update
 
 /**
  * Spaceキーが押されたときの処理
  */
-fun spaceHandler(
-    stateFlow: MutableStateFlow<KeyboardState>,
-    dictionaryManager: DictionaryManager,
-    keyProcessor: KeyProcessor,
-    coroutineScope: CoroutineScope
-) {
+internal fun ActionProcessor.handleSpace() {
     val state = stateFlow.value
 
     when (state.skkState) {
         SkkState.NORMAL -> {
-            if (state.tourokuFlag.isNotEmpty()) {
-                stateFlow.update {
-                    it.copy(
-                        tourokuFlag = it.tourokuFlag + HALF_SPACE
-                    )
-                }
-                return
-            }
+            val space = if (state.shiftState == ShiftState.LOWERCASE) HALF_SPACE else FULL_SPACE
 
-            if (state.shiftState == ShiftState.LOWERCASE) {
-                /* 半角スペース */
-                keyProcessor.handle(HALF_SPACE)
-            } else {
-                /* 全角スペース */
-                keyProcessor.handle(FULL_SPACE)
-            }
+            keyProcessor.handle(space)
         }
 
         SkkState.MIDASHI -> {
@@ -50,13 +27,14 @@ fun spaceHandler(
             /* 連結処理を実行 */
             keyProcessor.handle("")
 
-            getCandidatesAndChangeState(stateFlow, dictionaryManager, coroutineScope)
+            /* 候補を取得してstateに保存する */
+            outputManager.getCandidatesAndChangeState()
         }
 
         SkkState.OKURIGANA -> {
             if (state.okuriganaText.isEmpty()) return
 
-            getCandidatesAndChangeState(stateFlow, dictionaryManager, coroutineScope)
+            outputManager.getCandidatesAndChangeState()
         }
 
         SkkState.HENKAN -> {
@@ -72,24 +50,19 @@ fun spaceHandler(
             }
 
             /* 既に登録モードになっているとき(再帰的な辞書登録はしない) */
-            if (state.tourokuFlag.isNotEmpty()) return
+            if (state.isRegistering) return
 
             /* 登録モードではないとき、登録モードに入る */
+            val key = formatString(state.midashiText + state.okuriganaTrigger)
             stateFlow.update {
-                it.clear().copy(
-                    oldSkkState = it.skkState,
-                    oldMidashiText = it.midashiText,
-                    oldOkuriganaText = it.okuriganaText,
-                    oldOkuriganaTrigger = it.okuriganaTrigger,
-                    tourokuFlag = "[登録]" + it.midashiText + it.okuriganaTrigger + DICT_DELIMITER
-                )
+                it.tourokuInit(key.lookupKey)
             }
         }
 
         SkkState.ABBREV -> {
             if (state.midashiText.isEmpty()) return
 
-            getCandidatesAndChangeState(stateFlow, dictionaryManager, coroutineScope)
+            outputManager.getCandidatesAndChangeState()
         }
     }
 }

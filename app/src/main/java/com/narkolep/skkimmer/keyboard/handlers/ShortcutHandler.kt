@@ -3,6 +3,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 import com.narkolep.skkimmer.keyboard.ConvertResult
 import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.InputMode
+import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.KeyboardService
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.KeyboardType
@@ -16,15 +17,11 @@ import kotlinx.coroutines.flow.update
 
 /**
  * CTRL押下時のキーボードショートカット
- * @return 一致するショートカットがあった場合は true を返す
+ * @return 入力する文字列
  **/
-fun handleCTRL(
+internal fun KeyProcessor.handleCtrl(
     key: String,
-    state: KeyboardState,
-    stateFlow: MutableStateFlow<KeyboardState>,
-    inputCommitter: InputCommitter,
-    outputManager: OutputManager,
-    service: KeyboardService
+    state: KeyboardState
 ): String? {
     if (!state.isCtrlPressed) return key
     val firstChar = key.firstOrNull() ?: return key
@@ -87,7 +84,7 @@ fun handleCTRL(
         }
         'v' -> {
             /* Paste */
-            return service.getClipboardText()
+            return keyboardService.getClipboardText()
         }
     }
 
@@ -96,13 +93,11 @@ fun handleCTRL(
 
 /**
  * 通常のキーボードショートカット
- * @return 一致するショートカットがあった場合は true を返す
+ * @return 一致するショートカットがあった場合は true
  **/
-fun handleKey(
+internal fun KeyProcessor.handleKey(
     state: KeyboardState,
-    stateFlow: MutableStateFlow<KeyboardState>,
-    resultList: ConvertResult,
-    outputManager: OutputManager
+    resultList: ConvertResult
 ): Boolean {
     val keyChar =
         if (resultList.composingNext.isNotEmpty()) resultList.composingNext.last()

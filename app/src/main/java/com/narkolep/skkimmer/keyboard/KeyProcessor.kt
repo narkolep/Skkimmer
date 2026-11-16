@@ -1,23 +1,24 @@
 package com.narkolep.skkimmer.keyboard
 
-import com.narkolep.skkimmer.keyboard.handlers.handleCTRL
+import com.narkolep.skkimmer.keyboard.handlers.handleCtrl
 import com.narkolep.skkimmer.keyboard.handlers.handleKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
 class KeyProcessor(
-    private val stateFlow: MutableStateFlow<KeyboardState>,
-    private val keyboardService: KeyboardService,
-    private val outputManager: OutputManager,
-    private val inputCommitter: InputCommitter
+    internal val stateFlow: MutableStateFlow<KeyboardState>,
+    internal val keyboardService: KeyboardService,
+    internal val outputManager: OutputManager,
+    internal val inputCommitter: InputCommitter
 ) {
 
     fun handle(key: String) {
-        // ShiftとCtrlのリセット
-        // リセット前の状態をキャプチャ
         var oldState: KeyboardState? = null
         stateFlow.update {
+            /* リセット前の状態をキャプチャ */
             oldState = it
+
+            /* ShiftとCtrlのリセット */
             it.copy(
                 shiftState =
                     if (it.shiftState == ShiftState.SHIFTED) ShiftState.LOWERCASE
@@ -28,13 +29,9 @@ class KeyProcessor(
         val capturedOldState = oldState ?: return
 
         // CTRL押下時のショートカット処理
-        val newKey = handleCTRL(
+        val newKey = handleCtrl(
             key,
             capturedOldState,
-            stateFlow,
-            inputCommitter,
-            outputManager,
-            keyboardService
         ) ?: return
 
         // 英数字(直接出力)
@@ -48,7 +45,7 @@ class KeyProcessor(
         )
 
         // ショートカット処理
-        if (handleKey(capturedOldState, stateFlow, result, outputManager)) return
+        if (handleKey(capturedOldState, result)) return
 
         // shiftキーによる状態遷移
         changeState(newKey, capturedOldState)

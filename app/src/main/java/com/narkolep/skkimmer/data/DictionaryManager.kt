@@ -66,10 +66,10 @@ class DictionaryManager(
                     /* mark/resetが使えるようにBufferedInputStreamでラップ */
                     val bufferedStream = rawStream.buffered()
 
-                    bufferedStream.mark(8192) // 先頭8KBまで巻き戻せるようにマーク
+                    bufferedStream.mark(8192)
                     val bytes = ByteArray(8192)
                     val readCount = bufferedStream.read(bytes)
-                    bufferedStream.reset() // 読み込み位置を先頭に戻す
+                    bufferedStream.reset()
 
                     if (readCount <= 0) throw IllegalArgumentException("ファイルが空です。")
 
@@ -167,22 +167,14 @@ class DictionaryManager(
      * 確定時の学習（履歴保存）
      */
     suspend fun learnWord(
-        midashi: String,
+        lookupKey: String,
         candidate: String,
-        annotation: String?,
         isFromSystem: Boolean
     ) {
-        /* 半角数字を"#"に置き換える */
-        val midashiString = replaceNumber(midashi)
-        /* ユーザーが登録した候補の場合は、concatによるエスケープを実行する */
-        val candidateString =
-            if (isFromSystem) candidate + if (annotation.isNullOrEmpty()) "" else ";$annotation"
-            else SkkQuote.quoteCandidate(candidate)
-
         withContext(Dispatchers.IO) {
             db.withTransaction {
                 /* 既存のエントリーを取得する */
-                val existingEntries = historyDao.findEntry(midashiString, candidateString)
+                val existingEntries = historyDao.findEntry(lookupKey, candidate)
                 val entry = existingEntries.firstOrNull()
                 val oldIsFromSystem = entry?.isFromSystemDict
 
@@ -190,7 +182,7 @@ class DictionaryManager(
                 existingEntries.forEach { historyDao.deleteEntry(it) }
 
                 /* 見出しが一致する候補があるとき、古いものから順に削除する */
-                val sameMidashiSystemEntries = historyDao.getOldSystemEntriesByMidashi(midashiString)
+                val sameMidashiSystemEntries = historyDao.getOldSystemEntriesByMidashi(lookupKey)
                 if (sameMidashiSystemEntries.size >= 5) {
                     sameMidashiSystemEntries.firstOrNull()?.let { historyDao.deleteEntry(it) }
                 }
@@ -204,32 +196,11 @@ class DictionaryManager(
                 /* 新しい履歴を挿入する */
                 val fromSystemFlag = (oldIsFromSystem != false) && isFromSystem
                 val newEntry = HistoryEntity(
-                    midashi = midashiString,
-                    candidate = candidateString,
+                    midashi = lookupKey,
+                    candidate = candidate,
                     isFromSystemDict = fromSystemFlag
                 )
                 historyDao.insert(newEntry)
-            }
-        }
-    }
-
-    /**
-     * 半角数字を"#"に置き換える
-     */
-    private fun replaceNumber(text: String): String {
-        return buildString {
-            var inNumber = false
-
-            for (char in text) {
-                if (char in '0'..'9') {
-                    if (!inNumber) {
-                        append('#')
-                        inNumber = true
-                    }
-                } else {
-                    append(char)
-                    inNumber = false
-                }
             }
         }
     }

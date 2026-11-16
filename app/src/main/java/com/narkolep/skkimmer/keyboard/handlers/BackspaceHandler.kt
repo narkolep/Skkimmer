@@ -1,23 +1,18 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
-import com.narkolep.skkimmer.keyboard.InputCommitter
+import com.narkolep.skkimmer.keyboard.ActionProcessor
+import com.narkolep.skkimmer.keyboard.RegistrationKey
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.KeyboardState
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.clear
 import com.narkolep.skkimmer.keyboard.resetAll
 import com.narkolep.skkimmer.keyboard.tourokuClear
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
- * 文字を削除する
+ * backspaceキーの処理
  */
-fun backspaceHandler(
-    stateFlow : MutableStateFlow<KeyboardState>,
-    inputCommitter: InputCommitter
-) {
+internal fun ActionProcessor.handleBackspace() {
     val state = stateFlow.value
 
     /* 範囲選択されているときは空文字を出力 */
@@ -40,17 +35,20 @@ fun backspaceHandler(
                 return
             }
 
-            if (state.tourokuFlag.isEmpty()) {
+            if (state.registrationKey.lookupKey.isEmpty()) {
                 /* 未確定の文字列がないとき */
                 inputCommitter.delete(1)
                 return
             }
 
-            if (state.tourokuFlag.substringAfter(DICT_DELIMITER).isNotEmpty()) {
+            if (state.registrationKey.candidate.isNotEmpty()) {
                 /* 登録する文字列が存在するとき */
                 stateFlow.update {
                     it.copy(
-                        tourokuFlag = it.tourokuFlag.dropLast(1)
+                        registrationKey = RegistrationKey(
+                            lookupKey = it.registrationKey.lookupKey,
+                            candidate = it.registrationKey.candidate.dropLast(1)
+                        )
                     )
                 }
                 return

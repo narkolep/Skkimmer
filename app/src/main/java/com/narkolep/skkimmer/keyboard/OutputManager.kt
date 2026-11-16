@@ -2,10 +2,10 @@ package com.narkolep.skkimmer.keyboard
 
 import android.util.Log
 import com.narkolep.skkimmer.data.DictionaryManager
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
 import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.OKURI_MARK
+import com.narkolep.skkimmer.keyboard.handlers.formatString
 import com.narkolep.skkimmer.keyboard.handlers.getCandidatesAndChangeState
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class OutputManager(
-    private val stateFlow: MutableStateFlow<KeyboardState>,
-    private val inputCommitter: InputCommitter,
-    private val dictionaryManager: DictionaryManager,
-    private val coroutineScope: CoroutineScope
+    internal val stateFlow: MutableStateFlow<KeyboardState>,
+    internal val inputCommitter: InputCommitter,
+    internal val dictionaryManager: DictionaryManager,
+    internal val coroutineScope: CoroutineScope
 ) {
     /**
      * 確定入力
@@ -69,11 +69,14 @@ class OutputManager(
     ) {
         when (newState.skkState) {
             SkkState.NORMAL -> {
-                if (newState.tourokuFlag.isNotEmpty()) {
+                if (newState.isRegistering) {
                     stateFlow.update {
                         it.copy(
                             composingText = result.composingNext,
-                            tourokuFlag = newState.tourokuFlag + result.output
+                            registrationKey = RegistrationKey(
+                                lookupKey = newState.registrationKey.lookupKey,
+                                candidate = newState.registrationKey.candidate + result.output
+                            )
                         )
                     }
                     return
@@ -96,7 +99,7 @@ class OutputManager(
                         composingText = result.composingNext,
                         midashiText = newState.midashiText + result.output,
                         oldOkuriganaTrigger =
-                            if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                            if (it.registrationKey.lookupKey.isEmpty()) result.okuriganaFlag
                             else it.oldOkuriganaTrigger
                     )
                 }
@@ -111,7 +114,7 @@ class OutputManager(
                             midashiText = newState.midashiText + if (oldState.skkState == SkkState.MIDASHI) result.output else "",
                             okuriganaText = newState.okuriganaText + if (oldState.skkState == SkkState.OKURIGANA) result.output else "",
                             oldOkuriganaTrigger =
-                                if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                                if (it.registrationKey.lookupKey.isEmpty()) result.okuriganaFlag
                                 else it.oldOkuriganaTrigger
                         )
                     }
@@ -132,12 +135,12 @@ class OutputManager(
                         okuriganaText = newState.okuriganaText + result.output,
                         okuriganaTrigger = flag,
                         oldOkuriganaTrigger =
-                            if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                            if (it.registrationKey.lookupKey.isEmpty()) result.okuriganaFlag
                             else it.oldOkuriganaTrigger
                     )
                 }
 
-                getCandidatesAndChangeState(stateFlow, dictionaryManager, coroutineScope)
+                getCandidatesAndChangeState()
             }
 
             SkkState.HENKAN -> {
@@ -152,7 +155,7 @@ class OutputManager(
                     it.copy(
                         composingText = result.composingNext,
                         oldOkuriganaTrigger =
-                            if (it.tourokuFlag.isEmpty()) result.okuriganaFlag
+                            if (it.registrationKey.lookupKey.isEmpty()) result.okuriganaFlag
                             else it.oldOkuriganaTrigger
                     )
                 }
@@ -182,35 +185,34 @@ class OutputManager(
 
     /**
      * state から表示テキストを構築する純粋関数
-     * NORMAL かつ空の場合は null を返す
+     * @return NORMAL かつ文字列が空の場合は null を返す
      */
     private fun buildDisplayText(state: KeyboardState): String? {
         return when (state.skkState) {
             SkkState.NORMAL -> {
-                if (state.composingText.isEmpty() && state.tourokuFlag.isEmpty()) {
+                if (state.composingText.isEmpty() && state.registrationKey.lookupKey.isEmpty()) {
                     return null
                 }
-                state.tourokuFlag + state.composingText
+
+                state.registrationKey.buildText() + state.composingText
             }
             SkkState.MIDASHI -> {
-                state.tourokuFlag + state.midashiText + state.composingText
+                state.registrationKey.buildText() + state.midashiText + state.composingText
             }
             SkkState.OKURIGANA -> {
-                state.tourokuFlag + state.midashiText + OKURI_MARK + state.okuriganaText + state.composingText
+                state.registrationKey.buildText() + state.midashiText + OKURI_MARK + state.okuriganaText + state.composingText
             }
             SkkState.HENKAN -> {
                 val displayOkuri =
                     if (state.okuriganaText.isNotEmpty()) OKURI_MARK + state.okuriganaText + state.composingText
                     else ""
-                val candidate = state.candidates.getOrNull(state.selectedIndex)
-                    ?: state.candidates.firstOrNull()
-                val word = candidate?.text
-                    ?: state.midashiText
+                val candidate = state.selectedCandidate
+                val word = candidate?.text ?: state.midashiText
 
-                state.tourokuFlag + word + displayOkuri
+                state.registrationKey.buildText() + word + displayOkuri
             }
             SkkState.ABBREV -> {
-                state.tourokuFlag + state.midashiText.ifEmpty { state.composingText }
+                state.registrationKey.buildText() + state.midashiText.ifEmpty { state.composingText }
             }
         }
     }
@@ -229,8 +231,13 @@ class OutputManager(
             commitText = text
 
             val cleared = current.clear()
-            if (current.tourokuFlag.isNotEmpty()) {
-                cleared.copy(tourokuFlag = current.tourokuFlag + text)
+            if (current.isRegistering) {
+                cleared.copy(
+                    registrationKey = RegistrationKey(
+                        lookupKey = current.registrationKey.lookupKey,
+                        candidate = current.registrationKey.candidate + text
+                    )
+                )
             } else {
                 cleared
             }
@@ -241,27 +248,26 @@ class OutputManager(
         // 履歴の記録
         // 非同期、状態に影響しない副作用
         if (state.skkState == SkkState.HENKAN) {
-            val candidate = state.candidates.getOrNull(state.selectedIndex)
-                ?: state.candidates.firstOrNull()
+            val candidate = state.selectedCandidate
 
             if (candidate != null) {
-                val learnText = state.midashiText + state.okuriganaTrigger
                 val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
                     Log.e("SKK_ERROR", "Error in OutputManager learnWord", throwable)
                 }
 
+                val key = formatString(state.midashiText + state.okuriganaTrigger)
+
                 coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
                     dictionaryManager.learnWord(
-                        midashi = learnText,
+                        lookupKey = key.lookupKey,
                         candidate = candidate.raw,
-                        annotation = candidate.annotation,
                         isFromSystem = true
                     )
                 }
             }
         }
 
-        if (state.tourokuFlag.isEmpty()) {
+        if (state.registrationKey.lookupKey.isEmpty()) {
             inputCommitter.setComposingText("")
             if (commitText.isNotEmpty()) inputCommitter.commit(commitText)
         }
@@ -284,8 +290,7 @@ class OutputManager(
                 state.midashiText + state.composingText
             }
             SkkState.HENKAN -> {
-                val candidate = state.candidates.getOrNull(state.selectedIndex)
-                    ?: state.candidates.firstOrNull()
+                val candidate = state.selectedCandidate
                 val originalText = state.midashiText + state.okuriganaText
 
                 if (candidate != null) {

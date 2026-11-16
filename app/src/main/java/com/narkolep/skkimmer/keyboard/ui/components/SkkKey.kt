@@ -46,9 +46,8 @@ import androidx.compose.ui.unit.Dp
 import com.narkolep.skkimmer.HAPTIC_ENABLED_KEY
 import com.narkolep.skkimmer.SOUND_ENABLED_KEY
 import com.narkolep.skkimmer.dataStore
-import kotlin.time.Duration.Companion.milliseconds
-
 import com.narkolep.skkimmer.keyboard.ui.layouts.KeySpacerPosition
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 

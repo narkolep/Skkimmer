@@ -31,12 +31,13 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKanaMap
 import kotlin.math.abs
 import androidx.compose.ui.res.painterResource
 import com.narkolep.skkimmer.HAPTIC_ENABLED_KEY
 import com.narkolep.skkimmer.SOUND_ENABLED_KEY
 import com.narkolep.skkimmer.dataStore
+import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKeyConfig
+import com.narkolep.skkimmer.keyboard.ui.layouts.Position
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
@@ -47,8 +48,8 @@ enum class FlickDirection {
 @Composable
 fun FlickKey(
     modifier: Modifier = Modifier,
-    config: FlickKanaMap.FlickKeyConfig,
-    displayText: FlickKanaMap.Position = FlickKanaMap.Position(),
+    config: FlickKeyConfig,
+    displayText: Position = Position(),
     keyColor: Color,
     textColor: Color,
     iconResId: Int? = null,
@@ -178,7 +179,7 @@ fun FlickKey(
                 }
             ) {
                 FlickPopup(
-                    flickText = if (displayText == FlickKanaMap.Position()) config.flickPosition else displayText,
+                    flickText = if (displayText == Position()) config.flickPosition else displayText,
                     currentDir = currentDir
                 )
             }

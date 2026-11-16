@@ -7,24 +7,24 @@ object NumericMap {
     val numericLayout = listOf(
         /* 1段目 */
         listOf(
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "Toggle width",
                 action = KeyboardAction.ToggleWidth,
                 iconResId = R.drawable.lucide_ic_refresh_cw
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "1",
-                flickPosition = FlickKanaMap.Position(center = "1", left = "☆", up = "♪", right = "→", down = "")
+                flickPosition = Position(center = "1", left = "☆", up = "♪", right = "→", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "2",
-                flickPosition = FlickKanaMap.Position(center = "2", left = "¥", up = "€", right = "$", down = "")
+                flickPosition = Position(center = "2", left = "¥", up = "€", right = "$", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "3",
-                flickPosition = FlickKanaMap.Position(center = "3", left = "%", up = "°", right = "#", down = "")
+                flickPosition = Position(center = "3", left = "%", up = "°", right = "#", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "BS",
                 action = KeyboardAction.Backspace,
                 iconResId = R.drawable.lucide_ic_delete,
@@ -34,25 +34,25 @@ object NumericMap {
 
         /* 2段目 */
         listOf(
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "Left arrow",
                 action = KeyboardAction.Left,
                 iconResId = R.drawable.lucide_ic_chevron_left,
                 keyRepeat = true
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "4",
-                flickPosition = FlickKanaMap.Position(center = "4", left = "○", up = "*", right = "・", down = "")
+                flickPosition = Position(center = "4", left = "○", up = "*", right = "・", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "5",
-                flickPosition = FlickKanaMap.Position(center = "5", left = "+", up = "×", right = "÷", down = "")
+                flickPosition = Position(center = "5", left = "+", up = "×", right = "÷", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "6",
-                flickPosition = FlickKanaMap.Position(center = "6", left = "<", up = "=", right = ">", down = "")
+                flickPosition = Position(center = "6", left = "<", up = "=", right = ">", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "Right arrow",
                 action = KeyboardAction.Right,
                 iconResId = R.drawable.lucide_ic_chevron_right,
@@ -62,24 +62,24 @@ object NumericMap {
 
         /* 3段目 */
         listOf(
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "Emoji",
                 action = KeyboardAction.Emoji,
                 iconResId = R.drawable.lucide_ic_apple
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "7",
-                flickPosition = FlickKanaMap.Position(center = "7", left = "「", up = ":", right = "」", down = "")
+                flickPosition = Position(center = "7", left = "「", up = ":", right = "」", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "8",
-                flickPosition = FlickKanaMap.Position(center = "8", left = "〒", up = "々", right = "〆", down = "")
+                flickPosition = Position(center = "8", left = "〒", up = "々", right = "〆", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "9",
-                flickPosition = FlickKanaMap.Position(center = "9", left = "^", up = "|", right = """\""", down = "")
+                flickPosition = Position(center = "9", left = "^", up = "|", right = """\""", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "Space",
                 action = KeyboardAction.Space,
                 iconResId = R.drawable.lucide_ic_space
@@ -88,24 +88,24 @@ object NumericMap {
 
         /* 4段目 */
         listOf(
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "Back",
                 action = KeyboardAction.ToggleKeyboard,
                 iconResId = R.drawable.lucide_ic_earth
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "()[]",
-                flickPosition = FlickKanaMap.Position(center = "(", left = ")", up = "[", right = "]", down = "")
+                flickPosition = Position(center = "(", left = ")", up = "[", right = "]", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "0",
-                flickPosition = FlickKanaMap.Position(center = "0", left = "~", up = "…", right = "@", down = "")
+                flickPosition = Position(center = "0", left = "~", up = "…", right = "@", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = ".,-/",
-                flickPosition = FlickKanaMap.Position(center = ".", left = ",", up = "-", right = "/", down = "")
+                flickPosition = Position(center = ".", left = ",", up = "-", right = "/", down = "")
             ),
-            FlickKanaMap.FlickKeyConfig(
+            FlickKeyConfig(
                 label = "Enter",
                 action = KeyboardAction.Enter,
                 iconResId = R.drawable.lucide_ic_corner_down_left

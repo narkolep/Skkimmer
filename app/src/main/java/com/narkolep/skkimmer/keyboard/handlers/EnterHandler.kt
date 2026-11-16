@@ -2,51 +2,42 @@ package com.narkolep.skkimmer.keyboard.handlers
 
 import android.util.Log
 import android.view.inputmethod.EditorInfo
-import com.narkolep.skkimmer.data.DictionaryManager
-import com.narkolep.skkimmer.keyboard.OutputManager
-import com.narkolep.skkimmer.keyboard.InputCommitter
+import com.narkolep.skkimmer.keyboard.ActionProcessor
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.KeyboardState
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_ANNOTATION
-import com.narkolep.skkimmer.keyboard.SkkConstants.DICT_DELIMITER
 import com.narkolep.skkimmer.keyboard.resetAll
+import com.narkolep.skkimmer.keyboard.skk_lisp.SkkQuote
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
  * Enterキーの処理
  */
-fun enterHandler(
-    stateFlow: MutableStateFlow<KeyboardState>,
-    inputCommitter: InputCommitter,
-    dictionaryManager: DictionaryManager,
-    outputManager: OutputManager,
-    editorInfo: EditorInfo?,
-    coroutineScope: CoroutineScope
-) {
+internal fun ActionProcessor.handleEnter() {
     val state = stateFlow.value
 
     if (state.skkState == SkkState.NORMAL) {
-        if (state.tourokuFlag.isNotEmpty()) {
-            val tourokuText = state.tourokuFlag.substringAfter(DICT_DELIMITER)
-            val commitText = tourokuText.substringBefore(DICT_ANNOTATION) + state.oldOkuriganaText
-            inputCommitter.commit(commitText)
+        if (state.isRegistering) {
+            if (state.registrationKey.candidate.isNotEmpty()) {
+                /* 文字列の確定 */
+                inputCommitter.commit(
+                    text = state.registrationKey.candidate + state.oldOkuriganaText
+                )
 
-            if (tourokuText.isNotEmpty()) {
-                /* ユーザー辞書として登録 */
                 val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
                     Log.e("SKK_ERROR", "Error in enterHandler learnWord", throwable)
                 }
+
+                /* concatによるエスケープ処理 */
+                val candidate = SkkQuote.quoteCandidate(state.registrationKey.candidate)
+
+                /* ユーザー辞書として登録 */
                 coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
                     try {
                         dictionaryManager.learnWord(
-                            midashi = state.oldMidashiText + state.oldOkuriganaTrigger,
-                            candidate = tourokuText,
-                            annotation = null,
+                            lookupKey = state.registrationKey.lookupKey,
+                            candidate = candidate,
                             isFromSystem = false
                         )
                     } catch (e: Exception) {
@@ -57,14 +48,14 @@ fun enterHandler(
                 stateFlow.update { it.resetAll() }
             } else {
                 /* 登録モードから抜ける */
-                backspaceHandler(stateFlow, inputCommitter)
+                handleBackspace()
             }
 
             return
         }
 
         if (state.composingText.isEmpty()) {
-            val imeOptions = editorInfo?.imeOptions ?: EditorInfo.IME_ACTION_NONE
+            val imeOptions = editorInfoProvider()?.imeOptions ?: EditorInfo.IME_ACTION_NONE
             val action = imeOptions and EditorInfo.IME_MASK_ACTION
             val noEnterAction = (imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0
             val hasRequestedAction = action != EditorInfo.IME_ACTION_NONE && !noEnterAction

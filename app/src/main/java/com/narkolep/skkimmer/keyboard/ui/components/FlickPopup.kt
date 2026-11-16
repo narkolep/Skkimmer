@@ -20,12 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKanaMap
+import com.narkolep.skkimmer.keyboard.ui.layouts.Position
 import com.narkolep.skkimmer.keyboard.ui.theme.LocalKeyboardColors
 
 @Composable
 fun FlickPopup(
-    flickText: FlickKanaMap.Position,
+    flickText: Position,
     currentDir: FlickDirection
 ) {
     val colors = LocalKeyboardColors.current

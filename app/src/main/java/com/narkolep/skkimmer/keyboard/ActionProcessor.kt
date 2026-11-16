@@ -2,41 +2,23 @@ package com.narkolep.skkimmer.keyboard
 
 import android.view.inputmethod.EditorInfo
 import com.narkolep.skkimmer.data.DictionaryManager
-import com.narkolep.skkimmer.keyboard.handlers.backspaceHandler
-import com.narkolep.skkimmer.keyboard.handlers.ctrlHandler
-import com.narkolep.skkimmer.keyboard.handlers.dakutenHandler
-import com.narkolep.skkimmer.keyboard.handlers.enterHandler
-import com.narkolep.skkimmer.keyboard.handlers.shiftHandler
-import com.narkolep.skkimmer.keyboard.handlers.spaceHandler
+import com.narkolep.skkimmer.keyboard.handlers.handleBackspace
+import com.narkolep.skkimmer.keyboard.handlers.handleDakuten
+import com.narkolep.skkimmer.keyboard.handlers.handleEnter
+import com.narkolep.skkimmer.keyboard.handlers.handleSpace
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
-sealed interface KeyboardAction {
-    data object Shift : KeyboardAction
-    data object Ctrl : KeyboardAction
-    data object Space : KeyboardAction
-    data object Backspace : KeyboardAction
-    data object Enter : KeyboardAction
-    data object ToggleKeyboard : KeyboardAction
-    data object ToggleWidth : KeyboardAction
-    data object Emoji : KeyboardAction
-    data object Left : KeyboardAction
-    data object Right : KeyboardAction
-    data object Dakuten : KeyboardAction
-    data class CandidateIndex(
-        val index: Int
-    ) : KeyboardAction
-}
 
 class ActionProcessor(
-    private val stateFlow: MutableStateFlow<KeyboardState>,
-    private val outputManager: OutputManager,
-    private val inputCommitter: InputCommitter,
-    private val keyProcessor: KeyProcessor,
-    private val dictionaryManager: DictionaryManager,
-    private val editorInfoProvider: () -> EditorInfo?,
-    private val coroutineScope: CoroutineScope
+    internal val stateFlow: MutableStateFlow<KeyboardState>,
+    internal val outputManager: OutputManager,
+    internal val inputCommitter: InputCommitter,
+    internal val keyProcessor: KeyProcessor,
+    internal val dictionaryManager: DictionaryManager,
+    internal val editorInfoProvider: () -> EditorInfo?,
+    internal val coroutineScope: CoroutineScope
 ) {
 
     /**
@@ -45,20 +27,14 @@ class ActionProcessor(
     fun handle(action: KeyboardAction) {
         when(action) {
             KeyboardAction.Shift -> {
-                shiftHandler(stateFlow)
+                stateFlow.update { it.processShift() }
             }
             KeyboardAction.Ctrl -> {
-                ctrlHandler(stateFlow)
+                stateFlow.update { it.copy(isCtrlPressed = !it.isCtrlPressed) }
             }
-            KeyboardAction.Space -> {
-                spaceHandler(stateFlow, dictionaryManager, keyProcessor, coroutineScope)
-            }
-            KeyboardAction.Backspace -> {
-                backspaceHandler(stateFlow, inputCommitter)
-            }
-            KeyboardAction.Enter -> {
-                enterHandler(stateFlow, inputCommitter, dictionaryManager, outputManager, editorInfoProvider(), coroutineScope)
-            }
+            KeyboardAction.Space -> handleSpace()
+            KeyboardAction.Backspace -> handleBackspace()
+            KeyboardAction.Enter -> handleEnter()
             KeyboardAction.ToggleKeyboard -> {
                 stateFlow.update { it.copy(
                     keyboardType = KeyboardType.NORMAL,
@@ -85,16 +61,16 @@ class ActionProcessor(
             }
             KeyboardAction.Right -> {
                 if (stateFlow.value.skkState == SkkState.HENKAN) {
-                    spaceHandler(stateFlow, dictionaryManager, keyProcessor, coroutineScope)
+                    handleSpace()
                     return
                 }
 
                 inputCommitter.moveCursor(1)
             }
             KeyboardAction.Dakuten -> {
-                // カーソルを末尾に移動してから濁点処理を実行する
+                /* カーソルを末尾に移動 */
                 outputManager.update()
-                dakutenHandler(stateFlow, inputCommitter, keyProcessor)
+                handleDakuten()
             }
             is KeyboardAction.CandidateIndex -> {
                 val index = action.index

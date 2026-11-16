@@ -3,82 +3,65 @@ package com.narkolep.skkimmer.keyboard.ui.layouts
 import com.composables.icons.lucide.R
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 
-enum class KeySpacerPosition {
-    NONE,
-    LEFT,
-    RIGHT
-}
-
 object QwertyMap {
-    data class KeyDef(
-        val main: String,
-        val flick: String = "",
-        val shiftFlick: String = "",
 
-        val action: KeyboardAction? = null,
-        val keyRepeat: Boolean = false,
-        val weight: Float = 1f,
-        val padding: KeySpacerPosition = KeySpacerPosition.NONE,
-        val iconResId: Int? = null
-    )
-
-    val numericKeyDefinitions = listOf(
+    val numericQwertyKeyLayout = listOf(
         // 1段目
-        KeyDef("1"),
-        KeyDef("2"),
-        KeyDef("3"),
-        KeyDef("4"),
-        KeyDef("5"),
-        KeyDef("6"),
-        KeyDef("7"),
-        KeyDef("8"),
-        KeyDef("9"),
-        KeyDef("0")
+        QwertyKeyConfig("1"),
+        QwertyKeyConfig("2"),
+        QwertyKeyConfig("3"),
+        QwertyKeyConfig("4"),
+        QwertyKeyConfig("5"),
+        QwertyKeyConfig("6"),
+        QwertyKeyConfig("7"),
+        QwertyKeyConfig("8"),
+        QwertyKeyConfig("9"),
+        QwertyKeyConfig("0")
     )
 
-    val keyDefinitions = listOf(
+    val qwertyKeyLayout = listOf(
         // 2段目
         listOf(
-            KeyDef("q", "'", "'"),
-            KeyDef("w", """"""", """""""),
-            KeyDef("e", "「", "『"),
-            KeyDef("r", "」", "』"),
-            KeyDef("t", "【", "《"),
-            KeyDef("y", "】", "》"),
-            KeyDef("u", "〔", "‘’"),
-            KeyDef("i", "〕", "°"),
-            KeyDef("o", "・", "‥"),
-            KeyDef("p", "…", "…")
+            QwertyKeyConfig("q", "'", "'"),
+            QwertyKeyConfig("w", """"""", """""""),
+            QwertyKeyConfig("e", "「", "『"),
+            QwertyKeyConfig("r", "」", "』"),
+            QwertyKeyConfig("t", "【", "《"),
+            QwertyKeyConfig("y", "】", "》"),
+            QwertyKeyConfig("u", "〔", "‘’"),
+            QwertyKeyConfig("i", "〕", "°"),
+            QwertyKeyConfig("o", "・", "‥"),
+            QwertyKeyConfig("p", "…", "…")
         ),
 
         // 3段目
         listOf(
-            KeyDef("a", "!", "|", weight = 1.5f, padding = KeySpacerPosition.LEFT),
-            KeyDef("s", "?", "*"),
-            KeyDef("d", "#", "_"),
-            KeyDef("f", "$", "+"),
-            KeyDef("g", "%", "="),
-            KeyDef("h", "&", "^"),
-            KeyDef("j", "-", "~"),
-            KeyDef("k", ":", ";"),
-            KeyDef("l", "@", "@", weight = 1.5f, padding = KeySpacerPosition.RIGHT)
+            QwertyKeyConfig("a", "!", "|", weight = 1.5f, padding = KeySpacerPosition.LEFT),
+            QwertyKeyConfig("s", "?", "*"),
+            QwertyKeyConfig("d", "#", "_"),
+            QwertyKeyConfig("f", "$", "+"),
+            QwertyKeyConfig("g", "%", "="),
+            QwertyKeyConfig("h", "&", "^"),
+            QwertyKeyConfig("j", "-", "~"),
+            QwertyKeyConfig("k", ":", ";"),
+            QwertyKeyConfig("l", "@", "@", weight = 1.5f, padding = KeySpacerPosition.RIGHT)
         ),
 
         // 4段目
         listOf(
-            KeyDef(
+            QwertyKeyConfig(
                 "Shift",
                 action = KeyboardAction.Shift,
                 weight = 1.5f
             ),
-            KeyDef("z", "<", "{"),
-            KeyDef("x", ">", "}"),
-            KeyDef("c", "(", "["),
-            KeyDef("v", ")", "]"),
-            KeyDef("b", ",", ","),
-            KeyDef("n", ".", "."),
-            KeyDef("m", "/", """\"""),
-            KeyDef(
+            QwertyKeyConfig("z", "<", "{"),
+            QwertyKeyConfig("x", ">", "}"),
+            QwertyKeyConfig("c", "(", "["),
+            QwertyKeyConfig("v", ")", "]"),
+            QwertyKeyConfig("b", ",", ","),
+            QwertyKeyConfig("n", ".", "."),
+            QwertyKeyConfig("m", "/", """\"""),
+            QwertyKeyConfig(
                 "BS",
                 action = KeyboardAction.Backspace,
                 weight = 1.5f,
@@ -89,32 +72,32 @@ object QwertyMap {
 
         // 5段目
         listOf(
-            KeyDef(
+            QwertyKeyConfig(
                 "Ctrl",
                 action = KeyboardAction.Ctrl,
                 weight = 1.5f,
                 iconResId = R.drawable.lucide_ic_circle
             ),
-            KeyDef(
+            QwertyKeyConfig(
                 "Space",
                 action = KeyboardAction.Space,
                 weight = 5f
             ),
-            KeyDef(
+            QwertyKeyConfig(
                 "Left arrow",
                 action = KeyboardAction.Left,
                 weight = 1f,
                 keyRepeat = true,
                 iconResId = R.drawable.lucide_ic_chevron_left
             ),
-            KeyDef(
+            QwertyKeyConfig(
                 "Right arrow",
                 action = KeyboardAction.Right,
                 weight = 1f,
                 keyRepeat = true,
                 iconResId = R.drawable.lucide_ic_chevron_right
             ),
-            KeyDef(
+            QwertyKeyConfig(
                 "Enter",
                 action = KeyboardAction.Enter,
                 weight = 1.5f,
