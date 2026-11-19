@@ -1,7 +1,5 @@
 package com.narkolep.skkimmer.keyboard.ui.components
 
-import android.content.Context
-import android.media.AudioManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -14,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -27,19 +24,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlin.math.abs
 import androidx.compose.ui.res.painterResource
-import com.narkolep.skkimmer.HAPTIC_ENABLED_KEY
-import com.narkolep.skkimmer.SOUND_ENABLED_KEY
-import com.narkolep.skkimmer.dataStore
 import com.narkolep.skkimmer.keyboard.ui.layouts.FlickKeyConfig
 import com.narkolep.skkimmer.keyboard.ui.layouts.Position
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 
 enum class FlickDirection {
     NONE, CENTER, LEFT, RIGHT, UP, DOWN
@@ -54,36 +43,9 @@ fun FlickKey(
     textColor: Color,
     iconResId: Int? = null,
     isNumberKeyboard: Boolean = false,
-    onInput: (String) -> Unit
+    onInput: (String) -> Unit,
+    onFeedback: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val hapticFeedback = LocalHapticFeedback.current
-    val audioManager = remember {
-        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    }
-
-    val hapticEnabled by remember(context) {
-        context.dataStore.data.map { prefs ->
-            prefs[HAPTIC_ENABLED_KEY] ?: true
-        }.distinctUntilChanged()
-    }.collectAsState(initial = true)
-
-    val soundEnabled by remember(context) {
-        context.dataStore.data.map { prefs ->
-            prefs[SOUND_ENABLED_KEY] ?: false
-        }.distinctUntilChanged()
-    }.collectAsState(initial = false)
-
-    /* フィードバック */
-    fun performFeedback() {
-        if (hapticEnabled) {
-            hapticFeedback.performHapticFeedback(HapticFeedbackType.KeyboardTap)
-        }
-        if (soundEnabled) {
-            audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD)
-        }
-    }
-
     var currentDir by remember { mutableStateOf(FlickDirection.NONE) }
     var isDragging by remember { mutableStateOf(false) }
     val threshold = 40f
@@ -101,7 +63,7 @@ fun FlickKey(
                 awaitEachGesture {
                     val downEvent = awaitFirstDown(requireUnconsumed = false)
 
-                    performFeedback()
+                    onFeedback()
 
                     isDragging = true
                     currentDir = FlickDirection.CENTER

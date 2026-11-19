@@ -2,10 +2,9 @@ package com.narkolep.skkimmer.keyboard.handlers
 
 import android.util.Log
 import com.narkolep.skkimmer.data.CandidateResolver
-import com.narkolep.skkimmer.keyboard.SkkState
+import com.narkolep.skkimmer.keyboard.SkkMode
 import com.narkolep.skkimmer.keyboard.OutputManager
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
-import com.narkolep.skkimmer.keyboard.tourokuInit
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -16,7 +15,9 @@ import kotlinx.coroutines.launch
 internal fun OutputManager.getCandidatesAndChangeState() {
     val state = stateFlow.value
 
-    val result = formatString(state.midashiText + state.okuriganaTrigger)
+    val result = formatString(
+        text = state.currentSkkState.midashiText + state.currentSkkState.okuriganaTrigger
+    )
 
     val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
         Log.e("SKK_ERROR", "Error in getCandidatesAndChangeState", throwable)
@@ -33,17 +34,23 @@ internal fun OutputManager.getCandidatesAndChangeState() {
                     numbers = result.numbers
                 )
 
-                stateFlow.update {
-                    it.copy(
-                        skkState = SkkState.HENKAN,
+                stateFlow.update { it
+                    .changeMode(
+                        mode = SkkMode.HENKAN
+                    )
+                    .copy(
+                        /* 変換候補 */
                         candidates = candidates,
                         selectedIndex = 0,
-                        previousSkkState = it.skkState
+                        /* 状態の更新 */
+                        savedSkkState = it.savedSkkState + it.currentSkkState
                     )
                 }
-            } else if (state.registrationKey.lookupKey.isEmpty()) {
+            } else {
                 stateFlow.update {
-                    it.tourokuInit(result.lookupKey)
+                    it.initRegistration(result.lookupKey).copy(
+                        savedSkkState = it.savedSkkState + it.currentSkkState
+                    )
                 }
             }
         } catch (e: Exception) {

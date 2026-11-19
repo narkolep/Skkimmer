@@ -51,6 +51,15 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     private val store = ViewModelStore()
     private val stateFlow = MutableStateFlow(KeyboardState())
+    /* デバッグ用表示 */
+//    init {
+//        CoroutineScope(Dispatchers.Main).launch {
+//            stateFlow.collect { state ->
+//                Log.d("KeyboardState", "current:${state.currentSkkState}, saved:${state.savedSkkState}, dictKey:${state.registrationKeyList}")
+//            }
+//        }
+//    }
+
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
     @Volatile
     private var emojiCategories: List<EmojiManager.Category> = emptyList()
@@ -199,9 +208,9 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
         /* 入力欄が切り替わるたびにキーボードタイプを決定する */
         val autoType = determineInputMode(info)
 
-        stateFlow.update {
-            it.copy(
-                skkState = SkkState.NORMAL,
+        stateFlow.update { it
+            .changeMode(SkkMode.NORMAL)
+            .copy(
                 keyboardType = autoType ?: KeyboardType.NORMAL,
                 inputMode = if (autoType == null) InputMode.HIRAGANA else InputMode.HALF_ASCII,
                 composingText = ""
@@ -290,23 +299,19 @@ class KeyboardService : InputMethodService(), LifecycleOwner, ViewModelStoreOwne
 
     // bufferに該当するフィールドだけを抜き出した比較用スナップショット
     private data class BufferSnapshot(
-        val skkState: SkkState,
         val candidates: List<Candidate>,
         val selectedIndex: Int,
         val composingText: String,
-        val midashiText: String,
-        val okuriganaText: String,
         val registrationKey: RegistrationKey,
+        val currentSkkState: SkkState
     )
 
     private fun KeyboardState.toBufferSnapshot() = BufferSnapshot(
-        skkState = skkState,
         candidates = candidates,
         selectedIndex = selectedIndex,
         composingText = composingText,
-        midashiText = midashiText,
-        okuriganaText = okuriganaText,
-        registrationKey = registrationKey
+        registrationKey = registrationKey,
+        currentSkkState = currentSkkState
     )
 
     fun getClipboardText(): String? {

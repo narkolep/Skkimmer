@@ -8,7 +8,6 @@ import com.narkolep.skkimmer.data.db.AppDatabase
 import com.narkolep.skkimmer.data.db.entity.DictionaryInfoEntity
 import com.narkolep.skkimmer.data.db.entity.HistoryEntity
 import com.narkolep.skkimmer.data.db.entity.SystemDictEntity
-import com.narkolep.skkimmer.keyboard.skk_lisp.SkkQuote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer

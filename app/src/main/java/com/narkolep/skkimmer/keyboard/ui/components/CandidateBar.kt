@@ -57,7 +57,7 @@ fun CandidateBar(
             val annotatedText = buildAnnotatedString {
 
                 // 候補本体
-                append(candidate.text)
+                append(candidate.text.replace("\n", " "))
 
                 // 注釈
                 if (candidate.annotation != null) {

@@ -23,7 +23,7 @@ enum class InputMode {
     HALF_KATAKANA
 }
 
-enum class SkkState {
+enum class SkkMode {
     NORMAL,
     MIDASHI,
     OKURIGANA,
@@ -34,11 +34,14 @@ enum class SkkState {
 data class RegistrationKey(
     val lookupKey: String = "",
     val candidate: String = ""
-) {
-    fun buildText(): String {
-        return if (lookupKey.isEmpty()) "" else "[登録]$lookupKey$DICT_DELIMITER$candidate"
-    }
-}
+)
+
+data class SkkState(
+    val skkMode: SkkMode = SkkMode.NORMAL,
+    val midashiText: String = "",
+    val okuriganaText: String = "",
+    val okuriganaTrigger: String = ""
+)
 
 /**
  * キーボードの状態
@@ -47,8 +50,6 @@ data class KeyboardState(
     /* === STATE === */
     /* 入力モード(英数/日本語など) */
     val inputMode: InputMode = InputMode.HIRAGANA,
-    /* 変換の状態 */
-    val skkState: SkkState = SkkState.NORMAL,
     /* キーボードのタイプ */
     val keyboardType: KeyboardType = KeyboardType.NORMAL,
     /* Shiftキーの状態 */
@@ -63,112 +64,118 @@ data class KeyboardState(
     /* 変換候補 */
     val candidates: List<Candidate> = emptyList(),
     val selectedIndex: Int = -1,
-    val previousSkkState: SkkState = SkkState.NORMAL,
-    /* 日本語入力中の文字列 */
+    /* 日本語入力の状態 */
     val composingText: String = "",
-    val midashiText: String = "",
-    val okuriganaText: String = "",
-    val okuriganaTrigger: String = "",
+    val currentSkkState: SkkState = SkkState(),
 
     /* 辞書登録のキーと候補 */
-    val registrationKey: RegistrationKey = RegistrationKey(),
-    /* 辞書登録前の状態 */
-    val oldSkkState: SkkState = SkkState.NORMAL,
-    val oldMidashiText: String = "",
-    val oldOkuriganaText: String = "",
-    val oldOkuriganaTrigger: String =""
+    val registrationKeyList: List<RegistrationKey> = emptyList(),
+    /* 変換前の状態 */
+    val savedSkkState: List<SkkState> = emptyList(),
 ) {
-    /* 登録モードであるか */
+    /* 登録モード */
     val isRegistering: Boolean
-        get() = registrationKey.lookupKey.isNotEmpty()
+        get() = registrationKeyList.lastOrNull()?.lookupKey?.isNotEmpty() ?: false
+    val registrationKey: RegistrationKey
+        get() = registrationKeyList.lastOrNull() ?: RegistrationKey()
+
+    /**
+     * 登録モードに入る
+     */
+    fun initRegistration(
+        keyText: String
+    ): KeyboardState {
+        return copy(
+            currentSkkState = SkkState(),
+            registrationKeyList = registrationKeyList + RegistrationKey(
+                lookupKey = keyText,
+                candidate = "",
+            ),
+        ).clear()
+    }
+
+    /**
+     * 辞書登録時の文字列を組み立てる
+     */
+    fun buildText(): String {
+        return buildString {
+            registrationKeyList.forEach { (lookupKey, candidate) ->
+                if (lookupKey.isNotEmpty()) {
+                    append("[登録]$lookupKey$DICT_DELIMITER$candidate")
+                }
+            }
+        }
+    }
 
     /* 選択されている候補 */
     val selectedCandidate: Candidate?
         get() = candidates.getOrNull(selectedIndex) ?: candidates.firstOrNull()
-}
 
-/**
- * 状態の初期化
- * (辞書登録関係は初期化しない)
- */
-fun KeyboardState.clear(): KeyboardState {
-    return copy(
-        skkState = SkkState.NORMAL,
-        midashiText = "",
-        composingText = "",
-        okuriganaText = "",
-        okuriganaTrigger = "",
-        candidates = emptyList(),
-        selectedIndex = -1,
-        previousSkkState = SkkState.NORMAL
-    )
-}
-
-/**
- * 登録モードに入る
- */
-fun KeyboardState.tourokuInit(
-    keyText: String
-): KeyboardState {
-    return copy(
-        /* 登録前の状態を保存 */
-        oldSkkState = skkState,
-        oldMidashiText = midashiText,
-        oldOkuriganaText = okuriganaText,
-        oldOkuriganaTrigger = okuriganaTrigger,
-        /* 登録モード */
-        registrationKey = RegistrationKey(
-            lookupKey = keyText,
-            candidate = ""
+    /**
+     *  currentSkkStateのモード切り換え
+     */
+    fun changeMode(mode: SkkMode): KeyboardState {
+        return copy(
+            currentSkkState = currentSkkState.copy(
+                skkMode = mode,
+            ),
         )
-    ).clear()
-}
-
-/**
- * 登録モード解除
- */
-fun KeyboardState.tourokuClear(): KeyboardState {
-    return copy(
-        oldSkkState = SkkState.NORMAL,
-        oldMidashiText = "",
-        oldOkuriganaText = "",
-        oldOkuriganaTrigger = "",
-        registrationKey = RegistrationKey()
-    )
-}
-
-/**
- * 状態と辞書登録モードの一括初期化
- */
-fun KeyboardState.resetAll(): KeyboardState {
-    return copy(
-        skkState = SkkState.NORMAL,
-        midashiText = "",
-        composingText = "",
-        okuriganaText = "",
-        okuriganaTrigger = "",
-        candidates = emptyList(),
-        selectedIndex = -1,
-        previousSkkState = SkkState.NORMAL,
-        oldSkkState = SkkState.NORMAL,
-        oldMidashiText = "",
-        oldOkuriganaText = "",
-        oldOkuriganaTrigger = "",
-        registrationKey = RegistrationKey()
-    )
-}
-
-/**
- * Shiftキーが押されたときの処理
- */
-fun KeyboardState.processShift(now: Long = System.currentTimeMillis()): KeyboardState {
-    val timing = now - lastShiftPressTime < 500L
-    val isCapsLock = inputMode == InputMode.HALF_ASCII || inputMode == InputMode.FULL_ASCII || skkState == SkkState.ABBREV
-    val nextShift = when (shiftState) {
-        ShiftState.LOWERCASE -> ShiftState.SHIFTED
-        ShiftState.SHIFTED -> if (timing && isCapsLock) ShiftState.CAPS_LOCK else ShiftState.LOWERCASE
-        ShiftState.CAPS_LOCK -> ShiftState.LOWERCASE
     }
 
-    return copy(lastShiftPressTime = now, shiftState = nextShift)
+    /**
+     * 辞書登録キーの編集
+     */
+    fun updateCandidate(lookupKey: String, candidate: String): KeyboardState {
+        val list = registrationKeyList.dropLast(1)
+        return copy(
+            registrationKeyList = list + RegistrationKey(
+                lookupKey = lookupKey,
+                candidate = candidate,
+            )
+        )
+    }
+
+    /**
+     * 状態の初期化
+     * (辞書登録関係は初期化しない)
+     */
+    fun clear(): KeyboardState {
+        return copy(
+            composingText = "",
+            candidates = emptyList(),
+            selectedIndex = -1,
+            currentSkkState = SkkState(),
+        )
+    }
+
+    /**
+     * 状態と辞書登録モードの一括初期化
+     */
+    fun resetAll(): KeyboardState {
+        return copy(
+            composingText = "",
+            candidates = emptyList(),
+            selectedIndex = -1,
+            currentSkkState = SkkState(),
+            registrationKeyList = emptyList(),
+            savedSkkState = emptyList(),
+        )
+    }
+
+    /**
+     * Shiftキーが押されたときの処理
+     */
+    fun processShift(now: Long = System.currentTimeMillis()): KeyboardState {
+        val timing = now - lastShiftPressTime < 500L
+        val isCapsLock =
+            inputMode == InputMode.HALF_ASCII || inputMode == InputMode.FULL_ASCII || currentSkkState.skkMode == SkkMode.ABBREV
+
+        val nextShift = when (shiftState) {
+            ShiftState.LOWERCASE -> ShiftState.SHIFTED
+            ShiftState.SHIFTED -> if (timing && isCapsLock) ShiftState.CAPS_LOCK else ShiftState.LOWERCASE
+            ShiftState.CAPS_LOCK -> ShiftState.LOWERCASE
+        }
+
+        return copy(lastShiftPressTime = now, shiftState = nextShift)
+    }
 }

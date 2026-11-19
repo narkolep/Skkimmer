@@ -11,28 +11,28 @@ object FlickKanaMap {
             FlickKeyConfig(
                 label = "Q",
                 flickPosition = Position(center = "q", left = "v", up = "/", right = "l", down = "x"),
-                iconResId = R.drawable.lucide_ic_refresh_cw
+                iconResId = R.drawable.lucide_ic_refresh_cw,
             ),
             FlickKeyConfig(
                 label = "あ",
-                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o"),
             ),
             FlickKeyConfig(
                 label = "か",
                 consonant = "k",
-                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o"),
             ),
             FlickKeyConfig(
                 label = "さ",
                 consonant = "s",
-                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o"),
             ),
             FlickKeyConfig(
                 label = "BS",
                 action = KeyboardAction.Backspace,
                 iconResId = R.drawable.lucide_ic_delete,
-                keyRepeat = true
-            )
+                keyRepeat = true,
+            ),
         ),
 
         /* 2段目 */
@@ -41,29 +41,29 @@ object FlickKanaMap {
                 label = "Left arrow",
                 action = KeyboardAction.Left,
                 iconResId = R.drawable.lucide_ic_chevron_left,
-                keyRepeat = true
+                keyRepeat = true,
             ),
             FlickKeyConfig(
                 label = "た",
                 consonant = "t",
-                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o"),
             ),
             FlickKeyConfig(
                 label = "な",
                 consonant = "n",
-                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o"),
             ),
             FlickKeyConfig(
                 label = "は",
                 consonant = "h",
-                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o"),
             ),
             FlickKeyConfig(
                 label = "Right arrow",
                 action = KeyboardAction.Right,
                 iconResId = R.drawable.lucide_ic_chevron_right,
-                keyRepeat = true
-            )
+                keyRepeat = true,
+            ),
         ),
 
         // 3段目
@@ -71,26 +71,26 @@ object FlickKanaMap {
             FlickKeyConfig(
                 label = "Shift",
                 action = KeyboardAction.Shift,
-                iconResId = R.drawable.lucide_ic_arrow_big_up_dash
+                iconResId = R.drawable.lucide_ic_arrow_big_up_dash,
             ),
             FlickKeyConfig(
                 label = "ま",
                 consonant = "m",
-                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o"),
             ),
             FlickKeyConfig(
                 label = "や",
-                flickPosition = Position(center = "ya", left = "「", up = "yu", right = "」", down = "yo")
+                flickPosition = Position(center = "ya", left = "「", up = "yu", right = "」", down = "yo"),
             ),
             FlickKeyConfig(
                 label = "ら",
                 consonant = "r",
-                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o")
+                flickPosition = Position(center = "a", left = "i", up = "u", right = "e", down = "o"),
             ),
             FlickKeyConfig(
                 label = "Space",
-                action = KeyboardAction.Space
-            )
+                action = KeyboardAction.Space,
+            ),
         ),
 
         // 4段目
@@ -98,25 +98,24 @@ object FlickKanaMap {
             FlickKeyConfig(
                 label = "Ctrl",
                 action = KeyboardAction.Ctrl,
-                iconResId = R.drawable.lucide_ic_circle
             ),
             FlickKeyConfig(
                 label = "ﾞﾟ",
-                action = KeyboardAction.Dakuten
+                action = KeyboardAction.Dakuten,
             ),
             FlickKeyConfig(
                 label = "わ",
-                flickPosition = Position(center = "wa", left = "wo", up = "nn", right = "-", down = "z-")
+                flickPosition = Position(center = "wa", left = "wo", up = "nn", right = "-", down = "z-"),
             ),
             FlickKeyConfig(
                 label = "､｡",
-                flickPosition = Position(center = ",", left = ".", up = "？", right = "！", down = "z.")
+                flickPosition = Position(center = ",", left = ".", up = "？", right = "！", down = "z."),
             ),
             FlickKeyConfig(
                 label = "Enter",
                 action = KeyboardAction.Enter,
-                iconResId = R.drawable.lucide_ic_corner_down_left
-            )
+                iconResId = R.drawable.lucide_ic_corner_down_left,
+            ),
         )
     )
 }

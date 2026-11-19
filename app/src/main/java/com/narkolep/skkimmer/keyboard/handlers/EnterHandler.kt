@@ -3,8 +3,9 @@ package com.narkolep.skkimmer.keyboard.handlers
 import android.util.Log
 import android.view.inputmethod.EditorInfo
 import com.narkolep.skkimmer.keyboard.ActionProcessor
+import com.narkolep.skkimmer.keyboard.RegistrationKey
+import com.narkolep.skkimmer.keyboard.SkkMode
 import com.narkolep.skkimmer.keyboard.SkkState
-import com.narkolep.skkimmer.keyboard.resetAll
 import com.narkolep.skkimmer.keyboard.skk_lisp.SkkQuote
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -17,14 +18,9 @@ import kotlinx.coroutines.launch
 internal fun ActionProcessor.handleEnter() {
     val state = stateFlow.value
 
-    if (state.skkState == SkkState.NORMAL) {
+    if (state.currentSkkState.skkMode == SkkMode.NORMAL) {
         if (state.isRegistering) {
             if (state.registrationKey.candidate.isNotEmpty()) {
-                /* 文字列の確定 */
-                inputCommitter.commit(
-                    text = state.registrationKey.candidate + state.oldOkuriganaText
-                )
-
                 val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
                     Log.e("SKK_ERROR", "Error in enterHandler learnWord", throwable)
                 }
@@ -45,12 +41,37 @@ internal fun ActionProcessor.handleEnter() {
                     }
                 }
 
+                /* 完成した文字列（登録単語 + 送り仮名） */
+                val skkState = state.savedSkkState.lastOrNull() ?: SkkState()
+                val completedText = state.registrationKey.candidate + skkState.okuriganaText
+
+                if (state.registrationKeyList.size > 1) {
+                    /* 再帰的な辞書登録の場合：親の登録フォームへ復帰 */
+                    val parentKey = state.registrationKeyList.getOrNull(state.registrationKeyList.size - 2) ?: RegistrationKey()
+
+                    stateFlow.update {
+                        val updatedList = it.registrationKeyList.dropLast(2) + parentKey.copy(
+                            candidate = parentKey.candidate + completedText
+                        )
+
+                        it.clear().copy(
+                            registrationKeyList = updatedList,
+                            savedSkkState = it.savedSkkState.dropLast(1)
+                        )
+                    }
+
+                    return
+                }
+
+                /* トップレベルの辞書登録の場合：エディタにコミットしてリセット */
+                inputCommitter.commit(text = completedText)
                 stateFlow.update { it.resetAll() }
-            } else {
-                /* 登録モードから抜ける */
-                handleBackspace()
+
+                return
             }
 
+            /* 登録モードから抜ける */
+            handleBackspace()
             return
         }
 

@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.collections.lastOrNull
 
 class OutputManager(
     internal val stateFlow: MutableStateFlow<KeyboardState>,
@@ -48,8 +49,14 @@ class OutputManager(
                 return true
             }
             else -> {
-                if (state.skkState == SkkState.ABBREV) {
-                    stateFlow.update { it.copy(midashiText = it.midashiText + outChar) }
+                if (state.currentSkkState.skkMode == SkkMode.ABBREV) {
+                    stateFlow.update {
+                        it.copy(
+                            currentSkkState = it.currentSkkState.copy(
+                                midashiText = it.currentSkkState.midashiText + outChar
+                            )
+                        )
+                    }
                     return true
                 }
             }
@@ -67,62 +74,61 @@ class OutputManager(
         oldState: KeyboardState,
         result: ConvertResult
     ) {
-        when (newState.skkState) {
-            SkkState.NORMAL -> {
+        when (newState.currentSkkState.skkMode) {
+            SkkMode.NORMAL -> {
                 if (newState.isRegistering) {
+                    stateFlow.update { it
+                        .updateCandidate(
+                            lookupKey = it.registrationKey.lookupKey,
+                            candidate = newState.registrationKey.candidate + result.output
+                        ).copy(
+                            composingText = result.composingNext
+                        )
+                    }
+                    return
+                }
+
+                stateFlow.update {
+                    it.copy(
+                        composingText = result.composingNext
+                    )
+                }
+
+                inputCommitter.commit(result.output)
+            }
+
+            SkkMode.MIDASHI -> {
+                stateFlow.update {
+                    it.copy(
+                        composingText = result.composingNext,
+                        currentSkkState = it.currentSkkState.copy(
+                            midashiText = newState.currentSkkState.midashiText + result.output,
+                        )
+                    )
+                }
+            }
+
+            SkkMode.OKURIGANA -> {
+                val skkState = newState.savedSkkState.lastOrNull() ?: SkkState()
+
+                if (result.output.isEmpty() || result.isIgnore) {
+                    /* outputが未確定のとき */
                     stateFlow.update {
                         it.copy(
                             composingText = result.composingNext,
-                            registrationKey = RegistrationKey(
-                                lookupKey = newState.registrationKey.lookupKey,
-                                candidate = newState.registrationKey.candidate + result.output
+                            currentSkkState = it.currentSkkState.copy(
+                                midashiText = newState.currentSkkState.midashiText +
+                                        if (oldState.currentSkkState.skkMode == SkkMode.MIDASHI) result.output else "",
+                                okuriganaText = newState.currentSkkState.okuriganaText +
+                                        if (oldState.currentSkkState.skkMode == SkkMode.OKURIGANA) result.output else ""
                             )
                         )
                     }
                     return
                 }
 
-                stateFlow.update {
-                    it.copy(
-                        composingText = result.composingNext,
-                        oldOkuriganaTrigger = result.okuriganaFlag
-                    )
-                }
-                inputCommitter.commit(result.output)
-
-                if (!newState.isFlick) update()
-            }
-
-            SkkState.MIDASHI -> {
-                stateFlow.update {
-                    it.copy(
-                        composingText = result.composingNext,
-                        midashiText = newState.midashiText + result.output,
-                        oldOkuriganaTrigger =
-                            if (it.registrationKey.lookupKey.isEmpty()) result.okuriganaFlag
-                            else it.oldOkuriganaTrigger
-                    )
-                }
-            }
-
-            SkkState.OKURIGANA -> {
-                if (result.output.isEmpty() || result.isIgnore) {
-                    /* outputが未確定のとき */
-                    stateFlow.update {
-                        it.copy(
-                            composingText = result.composingNext,
-                            midashiText = newState.midashiText + if (oldState.skkState == SkkState.MIDASHI) result.output else "",
-                            okuriganaText = newState.okuriganaText + if (oldState.skkState == SkkState.OKURIGANA) result.output else "",
-                            oldOkuriganaTrigger =
-                                if (it.registrationKey.lookupKey.isEmpty()) result.okuriganaFlag
-                                else it.oldOkuriganaTrigger
-                        )
-                    }
-                    return
-                }
-
                 /* 候補を検索する */
-                val firstOkuri = oldState.okuriganaText.firstOrNull()
+                val firstOkuri = skkState.okuriganaText.firstOrNull()
                 val flag = when (firstOkuri) {
                     'ん', 'ン' -> "n"
                     'っ', 'ッ' -> "t"
@@ -132,36 +138,34 @@ class OutputManager(
                 stateFlow.update {
                     it.copy(
                         composingText = result.composingNext,
-                        okuriganaText = newState.okuriganaText + result.output,
-                        okuriganaTrigger = flag,
-                        oldOkuriganaTrigger =
-                            if (it.registrationKey.lookupKey.isEmpty()) result.okuriganaFlag
-                            else it.oldOkuriganaTrigger
+                        currentSkkState = it.currentSkkState.copy(
+                            okuriganaText = newState.currentSkkState.okuriganaText + result.output,
+                            okuriganaTrigger = flag
+                        )
                     )
                 }
 
                 getCandidatesAndChangeState()
             }
 
-            SkkState.HENKAN -> {
+            SkkMode.HENKAN -> {
                 /* 変換中に文字入力があったら、確定する */
                 stateFlow.update {
                     it.copy(
-                        okuriganaText = newState.okuriganaText + result.output
+                        currentSkkState = it.currentSkkState.copy(
+                            okuriganaText = newState.currentSkkState.okuriganaText + result.output
+                        )
                     )
                 }
                 commit()
                 stateFlow.update {
                     it.copy(
-                        composingText = result.composingNext,
-                        oldOkuriganaTrigger =
-                            if (it.registrationKey.lookupKey.isEmpty()) result.okuriganaFlag
-                            else it.oldOkuriganaTrigger
+                        composingText = result.composingNext
                     )
                 }
             }
 
-            SkkState.ABBREV -> {
+            SkkMode.ABBREV -> {
                 /* abbrevの場合は連結処理がないので、何もしない */
             }
         }
@@ -188,31 +192,34 @@ class OutputManager(
      * @return NORMAL かつ文字列が空の場合は null を返す
      */
     private fun buildDisplayText(state: KeyboardState): String? {
-        return when (state.skkState) {
-            SkkState.NORMAL -> {
+        val registrationText = state.buildText()
+        val skkState = state.currentSkkState
+
+        return when (skkState.skkMode) {
+            SkkMode.NORMAL -> {
                 if (state.composingText.isEmpty() && state.registrationKey.lookupKey.isEmpty()) {
                     return null
                 }
 
-                state.registrationKey.buildText() + state.composingText
+                registrationText + state.composingText
             }
-            SkkState.MIDASHI -> {
-                state.registrationKey.buildText() + state.midashiText + state.composingText
+            SkkMode.MIDASHI -> {
+                registrationText + skkState.midashiText + state.composingText
             }
-            SkkState.OKURIGANA -> {
-                state.registrationKey.buildText() + state.midashiText + OKURI_MARK + state.okuriganaText + state.composingText
+            SkkMode.OKURIGANA -> {
+                registrationText + skkState.midashiText + OKURI_MARK + skkState.okuriganaText + state.composingText
             }
-            SkkState.HENKAN -> {
+            SkkMode.HENKAN -> {
                 val displayOkuri =
-                    if (state.okuriganaText.isNotEmpty()) OKURI_MARK + state.okuriganaText + state.composingText
+                    if (skkState.okuriganaText.isNotEmpty()) OKURI_MARK + skkState.okuriganaText + state.composingText
                     else ""
                 val candidate = state.selectedCandidate
-                val word = candidate?.text ?: state.midashiText
+                val word = candidate?.text ?: skkState.midashiText
 
-                state.registrationKey.buildText() + word + displayOkuri
+                registrationText + word + displayOkuri
             }
-            SkkState.ABBREV -> {
-                state.registrationKey.buildText() + state.midashiText.ifEmpty { state.composingText }
+            SkkMode.ABBREV -> {
+                registrationText + skkState.midashiText.ifEmpty { state.composingText }
             }
         }
     }
@@ -220,8 +227,10 @@ class OutputManager(
     /**
      * 未確定文字列を確定する
      */
-    fun commit() {
-        // stateFlow.update 内でスナップショットの読み取りとクリアを実行
+    fun commit(
+        commitAll: Boolean = false
+    ) {
+        /* stateFlow.update 内でスナップショットの読み取りとクリアを実行 */
         var capturedState: KeyboardState? = null
         var commitText = ""
 
@@ -230,24 +239,22 @@ class OutputManager(
             val text = buildCommitText(current)
             commitText = text
 
-            val cleared = current.clear()
-            if (current.isRegistering) {
-                cleared.copy(
-                    registrationKey = RegistrationKey(
-                        lookupKey = current.registrationKey.lookupKey,
-                        candidate = current.registrationKey.candidate + text
-                    )
+            if (current.isRegistering && !commitAll) {
+                current.clear().updateCandidate(
+                    lookupKey = current.registrationKey.lookupKey,
+                    candidate = current.registrationKey.candidate + text,
+                ).copy(
+                    savedSkkState = current.savedSkkState.dropLast(1)
                 )
             } else {
-                cleared
+                current.resetAll()
             }
         }
 
         val state = capturedState ?: return
 
-        // 履歴の記録
-        // 非同期、状態に影響しない副作用
-        if (state.skkState == SkkState.HENKAN) {
+        /* 履歴の記録 */
+        if (state.currentSkkState.skkMode == SkkMode.HENKAN) {
             val candidate = state.selectedCandidate
 
             if (candidate != null) {
@@ -255,7 +262,9 @@ class OutputManager(
                     Log.e("SKK_ERROR", "Error in OutputManager learnWord", throwable)
                 }
 
-                val key = formatString(state.midashiText + state.okuriganaTrigger)
+                val key = formatString(
+                    text = state.currentSkkState.midashiText + state.currentSkkState.okuriganaTrigger
+                )
 
                 coroutineScope.launch(Dispatchers.IO + exceptionHandler) {
                     dictionaryManager.learnWord(
@@ -267,7 +276,7 @@ class OutputManager(
             }
         }
 
-        if (state.registrationKey.lookupKey.isEmpty()) {
+        if (state.registrationKey.lookupKey.isEmpty() || commitAll) {
             inputCommitter.setComposingText("")
             if (commitText.isNotEmpty()) inputCommitter.commit(commitText)
         }
@@ -277,30 +286,31 @@ class OutputManager(
      * state から確定テキストを構築する純粋関数
      */
     private fun buildCommitText(state: KeyboardState): String {
-        return when (state.skkState) {
-            SkkState.NORMAL -> {
+        val skkState = state.currentSkkState
+
+        return when (skkState.skkMode) {
+            SkkMode.NORMAL -> {
                 state.composingText
             }
-            SkkState.MIDASHI -> {
+            SkkMode.MIDASHI -> {
                 val composing = if (state.composingText == HALF_SPACE) "" else state.composingText
 
-                state.midashiText + composing
+                skkState.midashiText + composing
             }
-            SkkState.OKURIGANA -> {
-                state.midashiText + state.composingText
+            SkkMode.OKURIGANA -> {
+                skkState.midashiText + state.composingText
             }
-            SkkState.HENKAN -> {
+            SkkMode.HENKAN -> {
                 val candidate = state.selectedCandidate
-                val originalText = state.midashiText + state.okuriganaText
 
                 if (candidate != null) {
-                    candidate.text + state.okuriganaText
+                    candidate.text + skkState.okuriganaText
                 } else {
-                    originalText
+                    skkState.midashiText + skkState.okuriganaText
                 }
             }
-            SkkState.ABBREV -> {
-                state.midashiText
+            SkkMode.ABBREV -> {
+                skkState.midashiText
             }
         }
     }

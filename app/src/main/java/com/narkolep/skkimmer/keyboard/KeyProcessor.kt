@@ -3,6 +3,7 @@ package com.narkolep.skkimmer.keyboard
 import com.narkolep.skkimmer.keyboard.handlers.handleCtrl
 import com.narkolep.skkimmer.keyboard.handlers.handleKey
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 
 class KeyProcessor(
@@ -13,20 +14,14 @@ class KeyProcessor(
 ) {
 
     fun handle(key: String) {
-        var oldState: KeyboardState? = null
-        stateFlow.update {
-            /* リセット前の状態をキャプチャ */
-            oldState = it
-
-            /* ShiftとCtrlのリセット */
-            it.copy(
+        val capturedOldState = stateFlow.getAndUpdate { current ->
+            current.copy(
                 shiftState =
-                    if (it.shiftState == ShiftState.SHIFTED) ShiftState.LOWERCASE
-                    else it.shiftState,
+                    if (current.shiftState == ShiftState.SHIFTED) ShiftState.LOWERCASE
+                    else current.shiftState,
                 isCtrlPressed = false
             )
         }
-        val capturedOldState = oldState ?: return
 
         // CTRL押下時のショートカット処理
         val newKey = handleCtrl(
@@ -67,20 +62,26 @@ class KeyProcessor(
         if (state.shiftState == ShiftState.LOWERCASE) return
         if (!key.isAlphabet() && !key.isNumber()) return
 
-        when (state.skkState) {
-            SkkState.NORMAL -> {
-                stateFlow.update { it.copy(skkState = SkkState.MIDASHI) }
-            }
-            SkkState.MIDASHI -> {
-                /* key が数字である場合は何もしない */
-                if (key.isNumber()) return
-                if (state.midashiText.isNotEmpty()) {
-                    stateFlow.update { it.copy(skkState = SkkState.OKURIGANA) }
+        when (state.currentSkkState.skkMode) {
+            SkkMode.NORMAL -> {
+                stateFlow.update {
+                    it.changeMode(SkkMode.MIDASHI)
                 }
             }
-            SkkState.HENKAN -> {
+            SkkMode.MIDASHI -> {
+                /* key が数字である場合は何もしない */
+                if (key.isNumber()) return
+                if (state.currentSkkState.midashiText.isNotEmpty()) {
+                    stateFlow.update {
+                        it.changeMode(SkkMode.OKURIGANA)
+                    }
+                }
+            }
+            SkkMode.HENKAN -> {
                 outputManager.commit()
-                stateFlow.update { it.copy(skkState = SkkState.MIDASHI) }
+                stateFlow.update {
+                    it.changeMode(SkkMode.MIDASHI)
+                }
             }
             else -> { /* OKURIGANA, ABBREV は何もしない */ }
         }

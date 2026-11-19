@@ -1,18 +1,14 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
 import com.narkolep.skkimmer.keyboard.ConvertResult
-import com.narkolep.skkimmer.keyboard.InputCommitter
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyProcessor
-import com.narkolep.skkimmer.keyboard.KeyboardService
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.KeyboardType
-import com.narkolep.skkimmer.keyboard.OutputManager
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
-import com.narkolep.skkimmer.keyboard.SkkState
+import com.narkolep.skkimmer.keyboard.SkkMode
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
@@ -29,9 +25,8 @@ internal fun KeyProcessor.handleCtrl(
     when (firstChar) {
         'j' -> {
             /* Japanese input */
-            stateFlow.update { it.copy(
+            stateFlow.update { it.changeMode(SkkMode.NORMAL).copy(
                 inputMode = InputMode.HIRAGANA,
-                skkState = SkkState.NORMAL,
                 shiftState = ShiftState.LOWERCASE
             ) }
             return null
@@ -42,18 +37,21 @@ internal fun KeyProcessor.handleCtrl(
                 keyboardType = KeyboardType.EMOJI,
                 shiftState = ShiftState.LOWERCASE
             ) }
-            outputManager.commit()
+            outputManager.commit(commitAll = true)
             return null
         }
         'k' -> {
             /* switching Keyboards */
-            stateFlow.update { it.copy(
-                isFlick = !state.isFlick,
-                shiftState = ShiftState.LOWERCASE,
-                inputMode = InputMode.HIRAGANA,
-                skkState =
-                    if (state.skkState == SkkState.ABBREV) SkkState.NORMAL
-                    else state.skkState
+            stateFlow.update { it
+                .changeMode(
+                    mode =
+                        if (state.currentSkkState.skkMode == SkkMode.ABBREV) SkkMode.NORMAL
+                        else state.currentSkkState.skkMode
+                )
+                .copy(
+                    isFlick = !state.isFlick,
+                    inputMode = InputMode.HIRAGANA,
+                    shiftState = ShiftState.LOWERCASE
             ) }
             return null
         }
@@ -64,7 +62,7 @@ internal fun KeyProcessor.handleCtrl(
                 inputMode = InputMode.HALF_ASCII,
                 shiftState = ShiftState.LOWERCASE
             ) }
-            outputManager.commit()
+            outputManager.commit(commitAll = true)
             return null
         }
         'a' -> {
@@ -105,7 +103,7 @@ internal fun KeyProcessor.handleKey(
 
     when (keyChar) {
         'x' -> {
-            if (state.skkState != SkkState.HENKAN) return false
+            if (state.currentSkkState.skkMode != SkkMode.HENKAN) return false
 
             /* 変換中 */
             var index = state.selectedIndex
@@ -115,10 +113,12 @@ internal fun KeyProcessor.handleKey(
         }
         'q' -> {
             /* Shiftキーが押されている、かつNORMALモード中 */
-            if (state.shiftState != ShiftState.LOWERCASE && state.skkState == SkkState.NORMAL) {
-                stateFlow.update {
-                    it.copy(
-                        skkState = SkkState.MIDASHI,
+            if (state.shiftState != ShiftState.LOWERCASE && state.currentSkkState.skkMode == SkkMode.NORMAL) {
+                stateFlow.update { it
+                    .changeMode(
+                        mode = SkkMode.MIDASHI
+                    )
+                    .copy(
                         composingText = HALF_SPACE
                     )
                 }
@@ -126,12 +126,12 @@ internal fun KeyProcessor.handleKey(
             }
 
             val beforeConvert =
-                if (resultList.isIgnore) state.midashiText + resultList.output
-                else state.midashiText
+                if (resultList.isIgnore) state.currentSkkState.midashiText + resultList.output
+                else state.currentSkkState.midashiText
             val afterConvert: String
 
             if (state.isCtrlPressed) {
-                if (state.skkState == SkkState.NORMAL) {
+                if (state.currentSkkState.skkMode == SkkMode.NORMAL) {
                     if (state.inputMode == InputMode.HALF_KATAKANA) {
                         stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
                     } else {
@@ -141,13 +141,15 @@ internal fun KeyProcessor.handleKey(
                     afterConvert = convertString(beforeConvert, KanaMap.hiraToHalfMap)
                     stateFlow.update {
                         it.copy(
-                            midashiText = afterConvert,
-                            composingText = ""
+                            composingText = "",
+                            currentSkkState = it.currentSkkState.copy(
+                                midashiText = afterConvert
+                            )
                         )
                     }
                 }
             } else {
-                if (state.skkState == SkkState.NORMAL) {
+                if (state.currentSkkState.skkMode == SkkMode.NORMAL) {
                     if (state.inputMode == InputMode.KATAKANA) {
                         stateFlow.update { it.copy(inputMode = InputMode.HIRAGANA) }
                     } else {
@@ -161,8 +163,10 @@ internal fun KeyProcessor.handleKey(
                     }
                     stateFlow.update {
                         it.copy(
-                            midashiText = afterConvert,
-                            composingText = ""
+                            composingText = "",
+                            currentSkkState = it.currentSkkState.copy(
+                                midashiText = afterConvert
+                            )
                         )
                     }
                 }
@@ -188,16 +192,18 @@ internal fun KeyProcessor.handleKey(
                 }
             }
 
-            outputManager.commit()
+            outputManager.commit(commitAll = true)
             return true
         }
         '/' -> {
-            if (state.skkState != SkkState.NORMAL) return false
+            if (state.currentSkkState.skkMode != SkkMode.NORMAL) return false
 
             /* NORMALモード中 */
-            stateFlow.update {
-                it.copy(
-                    skkState = SkkState.ABBREV,
+            stateFlow.update { it
+                .changeMode(
+                    mode = SkkMode.ABBREV
+                )
+                .copy(
                     isFlick = false,
                     composingText = HALF_SPACE
                 )

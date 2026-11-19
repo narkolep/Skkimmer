@@ -1,7 +1,5 @@
 package com.narkolep.skkimmer.keyboard.ui.components
 
-import android.content.Context
-import android.media.AudioManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -27,15 +25,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -43,13 +37,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import com.narkolep.skkimmer.HAPTIC_ENABLED_KEY
-import com.narkolep.skkimmer.SOUND_ENABLED_KEY
-import com.narkolep.skkimmer.dataStore
 import com.narkolep.skkimmer.keyboard.ui.layouts.KeySpacerPosition
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 
 @Composable
 fun SkkKey(
@@ -68,36 +57,9 @@ fun SkkKey(
     cornerShape: Dp = 10.dp,
     keyRepeat: Boolean = false,
     onFlick: () -> Unit = {},
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onFeedback: () -> Unit,
 ) {
-    val context = LocalContext.current
-    val hapticFeedback = LocalHapticFeedback.current
-    val audioManager = remember {
-        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    }
-
-    val hapticEnabled by remember(context) {
-        context.dataStore.data.map { prefs ->
-            prefs[HAPTIC_ENABLED_KEY] ?: true
-        }.distinctUntilChanged()
-    }.collectAsState(initial = true)
-
-    val soundEnabled by remember(context) {
-        context.dataStore.data.map { prefs ->
-            prefs[SOUND_ENABLED_KEY] ?: false
-        }.distinctUntilChanged()
-    }.collectAsState(initial = false)
-
-    // フィードバック発火関数
-    fun performFeedback() {
-        if (hapticEnabled) {
-            hapticFeedback.performHapticFeedback(HapticFeedbackType.KeyboardTap)
-        }
-        if (soundEnabled) {
-            audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_STANDARD)
-        }
-    }
-
     var isPressed by remember { mutableStateOf(false) }
     var currentPopupText by remember { mutableStateOf(mainText) }
 
@@ -117,7 +79,7 @@ fun SkkKey(
                 awaitEachGesture {
                     val downEvent = awaitFirstDown(requireUnconsumed = false)
 
-                    performFeedback()
+                    onFeedback()
 
                     downEvent.consume()
                     isPressed = true
@@ -134,9 +96,7 @@ fun SkkKey(
                                 repeatJob = scope.launch {
                                     delay(initialDelay.milliseconds)
                                     // 触覚フィードバック
-                                    if (hapticEnabled) {
-                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    }
+                                    onFeedback()
 
                                     while (isActive) {
                                         // アクションを実行

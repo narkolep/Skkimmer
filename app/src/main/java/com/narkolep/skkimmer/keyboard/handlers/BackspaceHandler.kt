@@ -1,12 +1,9 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
 import com.narkolep.skkimmer.keyboard.ActionProcessor
-import com.narkolep.skkimmer.keyboard.RegistrationKey
-import com.narkolep.skkimmer.keyboard.SkkState
+import com.narkolep.skkimmer.keyboard.SkkMode
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
-import com.narkolep.skkimmer.keyboard.clear
-import com.narkolep.skkimmer.keyboard.resetAll
-import com.narkolep.skkimmer.keyboard.tourokuClear
+import com.narkolep.skkimmer.keyboard.SkkState
 import kotlinx.coroutines.flow.update
 
 /**
@@ -23,8 +20,10 @@ internal fun ActionProcessor.handleBackspace() {
         return
     }
 
-    when (state.skkState) {
-        SkkState.NORMAL -> {
+    when (state.currentSkkState.skkMode) {
+        SkkMode.NORMAL -> {
+            val skkState = state.savedSkkState.lastOrNull() ?: SkkState()
+
             if (state.composingText.isNotEmpty()) {
                 /* composingTextが存在するとき */
                 stateFlow.update {
@@ -44,57 +43,26 @@ internal fun ActionProcessor.handleBackspace() {
             if (state.registrationKey.candidate.isNotEmpty()) {
                 /* 登録する文字列が存在するとき */
                 stateFlow.update {
-                    it.copy(
-                        registrationKey = RegistrationKey(
-                            lookupKey = it.registrationKey.lookupKey,
-                            candidate = it.registrationKey.candidate.dropLast(1)
-                        )
+                    it.updateCandidate(
+                        lookupKey = state.registrationKey.lookupKey,
+                        candidate = state.registrationKey.candidate.dropLast(1)
                     )
                 }
                 return
             }
 
-            if (state.oldSkkState == SkkState.OKURIGANA) {
-                /* 登録する文字列が空で、送り仮名があるとき */
-                stateFlow.update {
-                    it.tourokuClear().copy(
-                        skkState = SkkState.OKURIGANA,
-                        composingText = "",
-                        midashiText = it.oldMidashiText,
-                        okuriganaText = it.oldOkuriganaText,
-                        okuriganaTrigger = it.oldOkuriganaTrigger,
-                    )
-                }
-                return
-            }
-
-            if (state.oldSkkState == SkkState.ABBREV) {
-                /* 登録する文字列が空で、ABBREVモードから変換したとき */
-                stateFlow.update {
-                    it.tourokuClear().copy(
-                        skkState = SkkState.ABBREV,
-                        composingText = HALF_SPACE,
-                        midashiText = it.oldMidashiText,
-                        okuriganaText = "",
-                        okuriganaTrigger = ""
-                    )
-                }
-                return
-            }
-
-            /* OKURIGANAでもABBREVでもないとき */
+            /* 変換前の状態を復元する */
             stateFlow.update {
-                it.tourokuClear().copy(
-                    skkState = SkkState.MIDASHI,
-                    composingText = "",
-                    midashiText = it.oldMidashiText,
-                    okuriganaText = "",
-                    okuriganaTrigger = ""
+                it.copy(
+                    composingText = if (skkState.skkMode == SkkMode.ABBREV) HALF_SPACE else "",
+                    currentSkkState = skkState,
+                    savedSkkState = it.savedSkkState.dropLast(1),
+                    registrationKeyList = it.registrationKeyList.dropLast(1)
                 )
             }
         }
 
-        SkkState.MIDASHI -> {
+        SkkMode.MIDASHI -> {
             /* " "のとき */
             if (state.composingText == HALF_SPACE) {
                 stateFlow.update { it.clear() }
@@ -108,7 +76,7 @@ internal fun ActionProcessor.handleBackspace() {
 
                     it.copy(
                         composingText =
-                            if (newComposingText.isEmpty() && it.midashiText.isEmpty()) HALF_SPACE
+                            if (newComposingText.isEmpty() && it.currentSkkState.midashiText.isEmpty()) HALF_SPACE
                             else newComposingText
                     )
                 }
@@ -116,15 +84,15 @@ internal fun ActionProcessor.handleBackspace() {
             }
 
             /* 見出し文字列が存在するとき */
-            if (state.midashiText.isNotEmpty()) {
+            if (state.currentSkkState.midashiText.isNotEmpty()) {
                 stateFlow.update {
-                    val newMidashiText = it.midashiText.dropLast(1)
-
                     it.copy(
-                        midashiText = newMidashiText,
                         composingText =
-                            if (newMidashiText.isEmpty()) HALF_SPACE
-                            else it.composingText
+                            if (it.currentSkkState.midashiText.dropLast(1).isEmpty()) HALF_SPACE
+                            else it.composingText,
+                        currentSkkState = it.currentSkkState.copy(
+                            midashiText = it.currentSkkState.midashiText.dropLast(1)
+                        )
                     )
                 }
                 return
@@ -134,7 +102,7 @@ internal fun ActionProcessor.handleBackspace() {
             stateFlow.update { it.clear() }
         }
 
-        SkkState.OKURIGANA -> {
+        SkkMode.OKURIGANA -> {
             /* composingTextが存在するとき */
             if (state.composingText.isNotEmpty()) {
                 stateFlow.update {
@@ -146,10 +114,12 @@ internal fun ActionProcessor.handleBackspace() {
             }
 
             /* 送り仮名が存在するとき */
-            if (state.okuriganaText.isNotEmpty()) {
+            if (state.currentSkkState.okuriganaText.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
-                        okuriganaText = it.okuriganaText.dropLast(1)
+                        currentSkkState = it.currentSkkState.copy(
+                            okuriganaText = it.currentSkkState.okuriganaText.dropLast(1)
+                        )
                     )
                 }
                 return
@@ -158,58 +128,45 @@ internal fun ActionProcessor.handleBackspace() {
             /* 送り仮名が存在しないとき */
             stateFlow.update {
                 it.copy(
-                    skkState = SkkState.MIDASHI,
-                    okuriganaTrigger = "",
                     candidates = emptyList(),
-                    selectedIndex = -1
+                    selectedIndex = -1,
+                    currentSkkState = it.currentSkkState.copy(
+                        skkMode = SkkMode.MIDASHI,
+                        okuriganaTrigger = ""
+                    )
                 )
             }
         }
 
-        SkkState.HENKAN -> {
-            /* 送り仮名があるとき */
-            if (state.previousSkkState == SkkState.OKURIGANA) {
-                stateFlow.update {
-                    it.copy(
-                        skkState = SkkState.OKURIGANA,
-                        okuriganaText = it.okuriganaText.dropLast(1),
-                        composingText = "",
-                        candidates = emptyList(),
-                        selectedIndex = -1
-                    )
-                }
-                return
-            }
+        SkkMode.HENKAN -> {
+            val skkState = state.savedSkkState.lastOrNull() ?: SkkState()
 
-            /* 見出し文字列が半角英数字のみのとき */
-            if (state.previousSkkState == SkkState.ABBREV) {
-                stateFlow.update {
-                    it.copy(
-                        skkState = SkkState.ABBREV,
-                        composingText = HALF_SPACE,
-                        candidates = emptyList(),
-                        selectedIndex = -1
-                    )
-                }
-                return
-            }
-
-            /* OKURIGANAでもABBREVでもないとき */
+            /* 変換前の状態を復元する */
             stateFlow.update {
                 it.copy(
-                    skkState = SkkState.MIDASHI,
+                    composingText = if (skkState.skkMode == SkkMode.ABBREV) HALF_SPACE else "",
                     candidates = emptyList(),
-                    selectedIndex = -1
+                    selectedIndex = -1,
+                    currentSkkState = if (skkState.skkMode == SkkMode.OKURIGANA) {
+                        skkState.copy(
+                            okuriganaText = skkState.okuriganaText.dropLast(1)
+                        )
+                    } else {
+                        skkState
+                    },
+                    savedSkkState = it.savedSkkState.dropLast(1)
                 )
             }
         }
 
-        SkkState.ABBREV -> {
+        SkkMode.ABBREV -> {
             /* 見出し文字列が存在するとき */
-            if (state.midashiText.isNotEmpty()) {
+            if (state.currentSkkState.midashiText.isNotEmpty()) {
                 stateFlow.update {
                     it.copy(
-                        midashiText = it.midashiText.dropLast(1)
+                        currentSkkState = it.currentSkkState.copy(
+                            midashiText = it.currentSkkState.midashiText.dropLast(1)
+                        )
                     )
                 }
                 return

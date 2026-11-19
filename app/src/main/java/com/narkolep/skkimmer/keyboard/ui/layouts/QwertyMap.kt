@@ -16,7 +16,7 @@ object QwertyMap {
         QwertyKeyConfig("7"),
         QwertyKeyConfig("8"),
         QwertyKeyConfig("9"),
-        QwertyKeyConfig("0")
+        QwertyKeyConfig("0"),
     )
 
     val qwertyKeyLayout = listOf(
@@ -31,7 +31,7 @@ object QwertyMap {
             QwertyKeyConfig("u", "〔", "‘’"),
             QwertyKeyConfig("i", "〕", "°"),
             QwertyKeyConfig("o", "・", "‥"),
-            QwertyKeyConfig("p", "…", "…")
+            QwertyKeyConfig("p", "…", "…"),
         ),
 
         // 3段目
@@ -44,7 +44,7 @@ object QwertyMap {
             QwertyKeyConfig("h", "&", "^"),
             QwertyKeyConfig("j", "-", "~"),
             QwertyKeyConfig("k", ":", ";"),
-            QwertyKeyConfig("l", "@", "@", weight = 1.5f, padding = KeySpacerPosition.RIGHT)
+            QwertyKeyConfig("l", "@", "@", weight = 1.5f, padding = KeySpacerPosition.RIGHT),
         ),
 
         // 4段目
@@ -52,7 +52,7 @@ object QwertyMap {
             QwertyKeyConfig(
                 "Shift",
                 action = KeyboardAction.Shift,
-                weight = 1.5f
+                weight = 1.5f,
             ),
             QwertyKeyConfig("z", "<", "{"),
             QwertyKeyConfig("x", ">", "}"),
@@ -66,7 +66,7 @@ object QwertyMap {
                 action = KeyboardAction.Backspace,
                 weight = 1.5f,
                 keyRepeat = true,
-                iconResId = R.drawable.lucide_ic_delete
+                iconResId = R.drawable.lucide_ic_delete,
             ),
         ),
 
@@ -76,33 +76,32 @@ object QwertyMap {
                 "Ctrl",
                 action = KeyboardAction.Ctrl,
                 weight = 1.5f,
-                iconResId = R.drawable.lucide_ic_circle
             ),
             QwertyKeyConfig(
                 "Space",
                 action = KeyboardAction.Space,
-                weight = 5f
+                weight = 5f,
             ),
             QwertyKeyConfig(
                 "Left arrow",
                 action = KeyboardAction.Left,
                 weight = 1f,
                 keyRepeat = true,
-                iconResId = R.drawable.lucide_ic_chevron_left
+                iconResId = R.drawable.lucide_ic_chevron_left,
             ),
             QwertyKeyConfig(
                 "Right arrow",
                 action = KeyboardAction.Right,
                 weight = 1f,
                 keyRepeat = true,
-                iconResId = R.drawable.lucide_ic_chevron_right
+                iconResId = R.drawable.lucide_ic_chevron_right,
             ),
             QwertyKeyConfig(
                 "Enter",
                 action = KeyboardAction.Enter,
                 weight = 1.5f,
-                iconResId = R.drawable.lucide_ic_corner_down_left
-            )
+                iconResId = R.drawable.lucide_ic_corner_down_left,
+            ),
         )
     )
 }

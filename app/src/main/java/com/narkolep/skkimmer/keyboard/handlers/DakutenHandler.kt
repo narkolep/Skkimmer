@@ -1,6 +1,5 @@
 package com.narkolep.skkimmer.keyboard.handlers
 
-import android.util.Log
 import com.narkolep.skkimmer.keyboard.ActionProcessor
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.mappings.DakutenMap
@@ -21,7 +20,7 @@ internal fun ActionProcessor.handleDakuten() {
     /* 登録する文字列がないとき、辞書登録モードを解除する */
     if (capturedState.isRegistering) {
         val displayText =
-            capturedState.registrationKey.candidate + capturedState.midashiText + capturedState.composingText
+            capturedState.registrationKey.candidate + capturedState.currentSkkState.midashiText + capturedState.composingText
 
         if (displayText.isEmpty()) handleBackspace()
     }
@@ -48,11 +47,7 @@ internal fun ActionProcessor.handleDakuten() {
     val consonant = if (vowel.isNotEmpty()) info.romaji.dropLast(1) else info.romaji
 
     /* 子音を変換 */
-    val convertedConsonant = DakutenMap.flickConvertMap[consonant]
-    if (convertedConsonant == null) {
-        Log.d("DAKUTEN", "match: 一致なし")
-        return
-    }
+    val convertedConsonant = DakutenMap.flickConvertMap[consonant] ?: return
     val newConsonant = when {
         /* 例外(ヴ、っ、ヵ、ヶ、など) */
         info.type != KanaMap.KanaType.HIRAGANA && consonant == "x" && vowel == "u" -> "v"

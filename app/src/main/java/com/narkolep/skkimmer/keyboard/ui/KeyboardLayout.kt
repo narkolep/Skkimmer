@@ -28,7 +28,7 @@ import com.narkolep.skkimmer.KEYBOARD_PADDING_KEY
 import com.narkolep.skkimmer.keyboard.InputMode
 import com.narkolep.skkimmer.keyboard.KeyboardAction
 import com.narkolep.skkimmer.keyboard.ShiftState
-import com.narkolep.skkimmer.keyboard.SkkState
+import com.narkolep.skkimmer.keyboard.SkkMode
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.KeyboardType
 import com.narkolep.skkimmer.keyboard.ui.layouts.QwertyMap.qwertyKeyLayout
@@ -42,6 +42,7 @@ import com.composables.icons.lucide.R.drawable.lucide_ic_square_library
 import com.narkolep.skkimmer.keyboard.getOutputString
 import com.narkolep.skkimmer.keyboard.isNumber
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
+import com.narkolep.skkimmer.keyboard.ui.components.rememberFeedback
 import com.narkolep.skkimmer.keyboard.ui.theme.LocalKeyboardColors
 
 @Composable
@@ -52,6 +53,7 @@ fun KeyboardLayout(
     onActionClick: (KeyboardAction) -> Unit
 ) {
     val context = LocalContext.current
+    val performFeedback = rememberFeedback()
 
     /* 端末の向きを取得 */
     val configuration = LocalConfiguration.current
@@ -122,7 +124,8 @@ fun KeyboardLayout(
                                 keyColor = Color.Transparent,
                                 textColor = colors.keyText.copy(alpha = 0.8f),
                                 keyboardHeight = keyboardHeight,
-                                onClick = { onKeyClick(config.main) }
+                                onClick = { onKeyClick(config.main) },
+                                onFeedback = performFeedback,
                             )
                         }
                     }
@@ -160,7 +163,8 @@ fun KeyboardLayout(
                                     keyboardHeight = keyboardHeight,
                                     cornerShape = if (config.action == KeyboardAction.Enter) (keyboardHeight*0.5).dp else 8.dp,
                                     keyRepeat = config.keyRepeat,
-                                    onClick = { onActionClick(config.action) }
+                                    onClick = { onActionClick(config.action) },
+                                    onFeedback = performFeedback,
                                 )
                             } else {
                                 FlickKey(
@@ -173,7 +177,8 @@ fun KeyboardLayout(
                                     isNumberKeyboard = config.label.isNumber(),
                                     onInput = { text ->
                                         onKeyClick(text)
-                                    }
+                                    },
+                                    onFeedback = performFeedback,
                                 )
                             }
                         }
@@ -198,10 +203,10 @@ fun KeyboardLayout(
 
                                 val actionIcon = when (config.action) {
                                     KeyboardAction.Space -> {
-                                        when (uiState.skkState) {
-                                            SkkState.MIDASHI -> lucide_ic_square_dashed
-                                            SkkState.OKURIGANA -> lucide_ic_square_asterisk
-                                            SkkState.HENKAN -> lucide_ic_square_library
+                                        when (uiState.currentSkkState.skkMode) {
+                                            SkkMode.MIDASHI -> lucide_ic_square_dashed
+                                            SkkMode.OKURIGANA -> lucide_ic_square_asterisk
+                                            SkkMode.HENKAN -> lucide_ic_square_library
                                             else -> lucide_ic_space
                                         }
                                     }
@@ -211,6 +216,10 @@ fun KeyboardLayout(
                                             ShiftState.SHIFTED -> R.drawable.lucide_ic_arrow_up_from_dot
                                             ShiftState.CAPS_LOCK -> R.drawable.lucide_ic_arrow_up_from_line
                                         }
+                                    }
+                                    KeyboardAction.Ctrl -> {
+                                        if (uiState.isCtrlPressed) R.drawable.lucide_ic_circle_dot
+                                        else R.drawable.lucide_ic_circle
                                     }
                                     else -> config.iconResId
                                 }
@@ -224,7 +233,8 @@ fun KeyboardLayout(
                                     keyboardHeight = keyboardHeight,
                                     cornerShape = if (config.action == KeyboardAction.Enter) (keyboardHeight*0.5).dp else 8.dp,
                                     keyRepeat = config.keyRepeat,
-                                    onClick = { onActionClick(config.action) }
+                                    onClick = { onActionClick(config.action) },
+                                    onFeedback = performFeedback,
                                 )
                             } else {
                                 fun convert(value: String): String {
@@ -249,7 +259,8 @@ fun KeyboardLayout(
                                     iconResId = config.iconResId,
                                     onInput = { text ->
                                         onKeyClick(text)
-                                    }
+                                    },
+                                    onFeedback = performFeedback,
                                 )
                             }
                         }
@@ -268,15 +279,15 @@ fun KeyboardLayout(
                                 when (uiState.inputMode) {
                                     InputMode.HALF_ASCII -> "半角英数"
                                     InputMode.FULL_ASCII -> "全角英数"
-                                    InputMode.HIRAGANA -> when (uiState.skkState) {
-                                        SkkState.NORMAL -> dictKey + "NORMAL"
-                                        SkkState.MIDASHI -> dictKey + "見出し語"
-                                        SkkState.OKURIGANA -> dictKey + "送り仮名"
-                                        SkkState.HENKAN -> dictKey + "変換"
-                                        SkkState.ABBREV -> dictKey + "abbrev"
+                                    InputMode.HIRAGANA, InputMode.KATAKANA -> when (uiState.currentSkkState.skkMode) {
+                                        SkkMode.NORMAL -> {
+                                            dictKey + if (uiState.inputMode == InputMode.HIRAGANA) "NORMAL" else "カタカナ"
+                                        }
+                                        SkkMode.MIDASHI -> dictKey + "見出し"
+                                        SkkMode.OKURIGANA -> dictKey + "送り仮名"
+                                        SkkMode.HENKAN -> dictKey + "変換"
+                                        SkkMode.ABBREV -> dictKey + "abbrev"
                                     }
-
-                                    InputMode.KATAKANA -> "カタカナ"
                                     InputMode.HALF_KATAKANA -> "ｶﾀｶﾅ"
                                 }
                             } else config.main
@@ -287,7 +298,12 @@ fun KeyboardLayout(
                                     ShiftState.SHIFTED -> R.drawable.lucide_ic_arrow_up_from_dot
                                     ShiftState.CAPS_LOCK -> R.drawable.lucide_ic_arrow_up_from_line
                                 }
-                            } else config.iconResId
+                            } else if (config.action == KeyboardAction.Ctrl) {
+                                if (uiState.isCtrlPressed) R.drawable.lucide_ic_circle_dot
+                                else R.drawable.lucide_ic_circle
+                            } else {
+                                config.iconResId
+                            }
 
                             val keyColor = when (config.action) {
                                 KeyboardAction.Shift -> if (isShifted) colors.specialKeyBackground else Color.Transparent
@@ -305,8 +321,10 @@ fun KeyboardLayout(
                                 textColor = if (keyColor == colors.specialKeyBackground) colors.specialKeyText else colors.keyText,
                                 keyboardHeight = keyboardHeight,
                                 cornerShape = if (config.action == KeyboardAction.Enter) (keyboardHeight*0.5).dp else 8.dp,
-                                keyRepeat = config.keyRepeat
-                            ) { onActionClick(config.action) }
+                                keyRepeat = config.keyRepeat,
+                                onClick = { onActionClick(config.action) },
+                                onFeedback = performFeedback,
+                            )
                         } else {
                             SkkKey(
                                 mainText = if (isShifted) config.main.uppercase() else config.main,
@@ -319,7 +337,8 @@ fun KeyboardLayout(
                                 spaceLeftRight = config.padding,
                                 weight = config.weight,
                                 onFlick = { onKeyClick(if (isShifted) config.shiftFlick else config.flick) },
-                                onClick = { onKeyClick(config.main) }
+                                onClick = { onKeyClick(config.main) },
+                                onFeedback = performFeedback,
                             )
                         }
                     }
