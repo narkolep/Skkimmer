@@ -175,7 +175,25 @@ fun ThemeColorScreen() {
                         onClick = { showColorPickerDialog = true }
                     )
                 }
+            }
 
+            item { SectionHeader("その他") }
+            item {
+                SwitchSettingItem(
+                    title = "背景の透過・ぼかし",
+                    subtitle = "キーボードの背景を透過・ぼかすことができます",
+                    checked = isBlurEnabled,
+                    onCheckedChange = { enabled ->
+                        scope.launch {
+                            context.dataStore.edit { preferences ->
+                                preferences[BLUR_ENABLED_KEY] = enabled
+                            }
+                        }
+                    }
+                )
+            }
+
+            if (isBlurEnabled) {
                 item {
                     InlineSliderItem(
                         title = "背景の不透明度",
@@ -192,25 +210,7 @@ fun ThemeColorScreen() {
                         valueRange = 0f..1f
                     )
                 }
-            }
 
-            item { SectionHeader("その他") }
-            item {
-                SwitchSettingItem(
-                    title = "背景のぼかし",
-                    subtitle = "キーボードの背景をぼかします",
-                    checked = isBlurEnabled,
-                    onCheckedChange = { enabled ->
-                        scope.launch {
-                            context.dataStore.edit { preferences ->
-                                preferences[BLUR_ENABLED_KEY] = enabled
-                            }
-                        }
-                    }
-                )
-            }
-
-            if (isBlurEnabled) {
                 item {
                     InlineSliderItem(
                         title = "ぼかしの強さ (Blur Radius)",

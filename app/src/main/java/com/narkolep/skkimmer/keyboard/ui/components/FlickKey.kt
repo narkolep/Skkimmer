@@ -136,7 +136,7 @@ fun FlickKey(
                 offset = with(LocalDensity.current) {
                     IntOffset(
                         x = 0,
-                        y = (maxHeight.value * -1.5f).dp.roundToPx()
+                        y = (((maxHeight.value * -0.5f) - 60f)).dp.roundToPx()
                     )
                 }
             ) {

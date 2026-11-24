@@ -22,29 +22,29 @@ object QwertyMap {
     val qwertyKeyLayout = listOf(
         // 2段目
         listOf(
-            QwertyKeyConfig("q", "'", "'"),
-            QwertyKeyConfig("w", """"""", """""""),
+            QwertyKeyConfig("q", "'", "‘’"),
+            QwertyKeyConfig("w", """"""", "“”"),
             QwertyKeyConfig("e", "「", "『"),
             QwertyKeyConfig("r", "」", "』"),
-            QwertyKeyConfig("t", "【", "《"),
-            QwertyKeyConfig("y", "】", "》"),
-            QwertyKeyConfig("u", "〔", "‘’"),
-            QwertyKeyConfig("i", "〕", "°"),
-            QwertyKeyConfig("o", "・", "‥"),
-            QwertyKeyConfig("p", "…", "…"),
+            QwertyKeyConfig("t", "【", "〖"),
+            QwertyKeyConfig("y", "】", "〗"),
+            QwertyKeyConfig("u", "〔", "《"),
+            QwertyKeyConfig("i", "〕", "》"),
+            QwertyKeyConfig("o", "^", "~"),
+            QwertyKeyConfig("p", "|", "*"),
         ),
 
         // 3段目
         listOf(
-            QwertyKeyConfig("a", "!", "|", weight = 1.5f, padding = KeySpacerPosition.LEFT),
-            QwertyKeyConfig("s", "?", "*"),
+            QwertyKeyConfig("a", "!", "¡", weight = 1.5f, padding = KeySpacerPosition.LEFT),
+            QwertyKeyConfig("s", "?", "¿"),
             QwertyKeyConfig("d", "#", "_"),
             QwertyKeyConfig("f", "$", "+"),
-            QwertyKeyConfig("g", "%", "="),
-            QwertyKeyConfig("h", "&", "^"),
-            QwertyKeyConfig("j", "-", "~"),
+            QwertyKeyConfig("g", "%", "・"),
+            QwertyKeyConfig("h", "&", "—"),
+            QwertyKeyConfig("j", "-", "="),
             QwertyKeyConfig("k", ":", ";"),
-            QwertyKeyConfig("l", "@", "@", weight = 1.5f, padding = KeySpacerPosition.RIGHT),
+            QwertyKeyConfig("l", "@", "`", weight = 1.5f, padding = KeySpacerPosition.RIGHT),
         ),
 
         // 4段目
@@ -58,8 +58,8 @@ object QwertyMap {
             QwertyKeyConfig("x", ">", "}"),
             QwertyKeyConfig("c", "(", "["),
             QwertyKeyConfig("v", ")", "]"),
-            QwertyKeyConfig("b", ",", ","),
-            QwertyKeyConfig("n", ".", "."),
+            QwertyKeyConfig("b", ",", "‥"),
+            QwertyKeyConfig("n", ".", "…"),
             QwertyKeyConfig("m", "/", """\"""),
             QwertyKeyConfig(
                 "BS",
