@@ -12,7 +12,9 @@ import kotlinx.coroutines.launch
 /**
  * 辞書の検索、モード切り換え
  */
-internal fun OutputManager.getCandidatesAndChangeState() {
+internal fun OutputManager.getCandidatesAndChangeState(
+    isIgnore: Boolean = false
+) {
     val state = stateFlow.value
 
     val result = formatString(
@@ -36,7 +38,7 @@ internal fun OutputManager.getCandidatesAndChangeState() {
 
                 stateFlow.update { it
                     .changeMode(
-                        mode = SkkMode.HENKAN
+                        mode = if (isIgnore) it.currentSkkState.skkMode else SkkMode.HENKAN
                     )
                     .copy(
                         /* 変換候補 */

@@ -2,6 +2,7 @@ package com.narkolep.skkimmer.keyboard.handlers
 
 import com.narkolep.skkimmer.keyboard.ConvertResult
 import com.narkolep.skkimmer.keyboard.InputMode
+import com.narkolep.skkimmer.keyboard.IsIgnore
 import com.narkolep.skkimmer.keyboard.KeyProcessor
 import com.narkolep.skkimmer.keyboard.KeyboardState
 import com.narkolep.skkimmer.keyboard.KeyboardType
@@ -126,7 +127,7 @@ internal fun KeyProcessor.handleKey(
             }
 
             val beforeConvert =
-                if (resultList.isIgnore) state.currentSkkState.midashiText + resultList.output
+                if (resultList.isIgnore != IsIgnore.FALSE) state.currentSkkState.midashiText + resultList.output
                 else state.currentSkkState.midashiText
             val afterConvert: String
 

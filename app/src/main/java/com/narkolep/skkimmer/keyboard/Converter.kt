@@ -3,11 +3,17 @@ package com.narkolep.skkimmer.keyboard
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap.KanaDefinition
 
+enum class IsIgnore {
+    FALSE,
+    XTU,
+    TT_OR_N,
+}
+
 data class ConvertResult(
     val composingNext: String,
     val output: String,
     val okuriganaFlag: String,
-    val isIgnore: Boolean
+    val isIgnore: IsIgnore = IsIgnore.FALSE,
 )
 
 /**
@@ -20,6 +26,7 @@ private val ROMAJI_VOWELS = setOf('a', 'i', 'u', 'e', 'o', 'y')
 
 /**
  * ローマ字入力の連結処理
+ * @return isIgnore:
  */
 fun romajiConverter(
     composing: String,
@@ -38,15 +45,21 @@ fun romajiConverter(
                 matchedKana,
                 inputMode
             )
-            val flag =
-                if (kana == "っ" || kana == "ッ") "t"
-                else composingNow.firstOrNull().toString()
+            /* xtu のとき */
+            if (kana == "っ" || kana == "ッ") {
+                return ConvertResult(
+                    composingNext = "",
+                    output = kana,
+                    okuriganaFlag = "t",
+                    isIgnore = IsIgnore.XTU,
+                )
+            }
 
             return ConvertResult(
                 composingNext = "",
                 output = kana,
-                okuriganaFlag = flag,
-                isIgnore = false
+                okuriganaFlag = composingNow.firstOrNull().toString(),
+                isIgnore = IsIgnore.FALSE,
             )
         }
 
@@ -56,7 +69,7 @@ fun romajiConverter(
                 composingNext = composingNow,
                 output = "",
                 okuriganaFlag = composingNow.firstOrNull().toString(),
-                isIgnore = false
+                isIgnore = IsIgnore.FALSE,
             )
         }
 
@@ -71,7 +84,7 @@ fun romajiConverter(
                 composingNext = key,
                 output = kana,
                 okuriganaFlag = "t",
-                isIgnore = true
+                isIgnore = IsIgnore.TT_OR_N,
             )
         }
 
@@ -86,7 +99,7 @@ fun romajiConverter(
                 composingNext = key,
                 output = kana,
                 okuriganaFlag = "n",
-                isIgnore = true
+                isIgnore = IsIgnore.TT_OR_N,
             )
         }
 
@@ -100,7 +113,7 @@ fun romajiConverter(
         composingNext = "",
         output = key,
         okuriganaFlag = "",
-        isIgnore = false
+        isIgnore = IsIgnore.FALSE,
     )
 }
 

@@ -19,7 +19,7 @@ class OutputManager(
     internal val stateFlow: MutableStateFlow<KeyboardState>,
     internal val inputCommitter: InputCommitter,
     internal val dictionaryManager: DictionaryManager,
-    internal val coroutineScope: CoroutineScope
+    internal val coroutineScope: CoroutineScope,
 ) {
     /**
      * 確定入力
@@ -27,7 +27,7 @@ class OutputManager(
      */
     fun asciiOutput(
         key: String,
-        state: KeyboardState
+        state: KeyboardState,
     ): Boolean {
         val outChar = if (state.shiftState == ShiftState.LOWERCASE) key else key.uppercase()
 
@@ -72,7 +72,7 @@ class OutputManager(
     fun kanaOutput(
         newState: KeyboardState,
         oldState: KeyboardState,
-        result: ConvertResult
+        result: ConvertResult,
     ) {
         when (newState.currentSkkState.skkMode) {
             SkkMode.NORMAL -> {
@@ -80,7 +80,7 @@ class OutputManager(
                     stateFlow.update { it
                         .updateCandidate(
                             lookupKey = it.registrationKey.lookupKey,
-                            candidate = newState.registrationKey.candidate + result.output
+                            candidate = newState.registrationKey.candidate + result.output,
                         ).copy(
                             composingText = result.composingNext
                         )
@@ -95,6 +95,8 @@ class OutputManager(
                 }
 
                 inputCommitter.commit(result.output)
+                /* 表示を更新する */
+                update()
             }
 
             SkkMode.MIDASHI -> {
@@ -109,9 +111,7 @@ class OutputManager(
             }
 
             SkkMode.OKURIGANA -> {
-                val skkState = newState.savedSkkState.lastOrNull() ?: SkkState()
-
-                if (result.output.isEmpty() || result.isIgnore) {
+                if (result.output.isEmpty() || result.isIgnore == IsIgnore.TT_OR_N) {
                     /* outputが未確定のとき */
                     stateFlow.update {
                         it.copy(
@@ -120,19 +120,11 @@ class OutputManager(
                                 midashiText = newState.currentSkkState.midashiText +
                                         if (oldState.currentSkkState.skkMode == SkkMode.MIDASHI) result.output else "",
                                 okuriganaText = newState.currentSkkState.okuriganaText +
-                                        if (oldState.currentSkkState.skkMode == SkkMode.OKURIGANA) result.output else ""
+                                        if (oldState.currentSkkState.skkMode == SkkMode.OKURIGANA) result.output else "",
                             )
                         )
                     }
                     return
-                }
-
-                /* 候補を検索する */
-                val firstOkuri = skkState.okuriganaText.firstOrNull()
-                val flag = when (firstOkuri) {
-                    'ん', 'ン' -> "n"
-                    'っ', 'ッ' -> "t"
-                    else -> result.okuriganaFlag
                 }
 
                 stateFlow.update {
@@ -140,12 +132,12 @@ class OutputManager(
                         composingText = result.composingNext,
                         currentSkkState = it.currentSkkState.copy(
                             okuriganaText = newState.currentSkkState.okuriganaText + result.output,
-                            okuriganaTrigger = flag
+                            okuriganaTrigger = result.okuriganaFlag,
                         )
                     )
                 }
 
-                getCandidatesAndChangeState()
+                getCandidatesAndChangeState(result.isIgnore == IsIgnore.XTU)
             }
 
             SkkMode.HENKAN -> {
@@ -207,16 +199,18 @@ class OutputManager(
                 registrationText + skkState.midashiText + state.composingText
             }
             SkkMode.OKURIGANA -> {
-                registrationText + skkState.midashiText + OKURI_MARK + skkState.okuriganaText + state.composingText
+                val word = state.selectedCandidate?.text ?: skkState.midashiText
+
+                registrationText + word + OKURI_MARK + skkState.okuriganaText + state.composingText
             }
             SkkMode.HENKAN -> {
+                val isFromOkurigana = state.savedSkkState.lastOrNull()?.skkMode == SkkMode.OKURIGANA
                 val displayOkuri =
-                    if (skkState.okuriganaText.isNotEmpty()) OKURI_MARK + skkState.okuriganaText + state.composingText
+                    if (isFromOkurigana) OKURI_MARK + skkState.okuriganaText
                     else ""
-                val candidate = state.selectedCandidate
-                val word = candidate?.text ?: skkState.midashiText
+                val word = state.selectedCandidate?.text ?: skkState.midashiText
 
-                registrationText + word + displayOkuri
+                registrationText + word + displayOkuri + state.composingText
             }
             SkkMode.ABBREV -> {
                 registrationText + skkState.midashiText.ifEmpty { state.composingText }
@@ -270,7 +264,7 @@ class OutputManager(
                     dictionaryManager.learnWord(
                         lookupKey = key.lookupKey,
                         candidate = candidate.raw,
-                        isFromSystem = true
+                        isFromSystem = true,
                     )
                 }
             }
@@ -297,17 +291,10 @@ class OutputManager(
 
                 skkState.midashiText + composing
             }
-            SkkMode.OKURIGANA -> {
-                skkState.midashiText + state.composingText
-            }
-            SkkMode.HENKAN -> {
-                val candidate = state.selectedCandidate
+            SkkMode.HENKAN, SkkMode.OKURIGANA -> {
+                val word = state.selectedCandidate?.text ?: skkState.midashiText
 
-                if (candidate != null) {
-                    candidate.text + skkState.okuriganaText
-                } else {
-                    skkState.midashiText + skkState.okuriganaText
-                }
+                word + skkState.okuriganaText + state.composingText
             }
             SkkMode.ABBREV -> {
                 skkState.midashiText
