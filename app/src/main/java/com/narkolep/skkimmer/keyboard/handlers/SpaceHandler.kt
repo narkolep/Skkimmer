@@ -5,6 +5,7 @@ import com.narkolep.skkimmer.keyboard.SkkMode
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
+import com.narkolep.skkimmer.keyboard.formatString
 import kotlinx.coroutines.flow.update
 
 /**
@@ -32,12 +33,32 @@ internal fun ActionProcessor.handleSpace() {
 
         SkkMode.OKURIGANA -> {
             if (state.currentSkkState.okuriganaText.isEmpty()) return
+            if (state.candidates.isEmpty()) {
+                outputManager.getCandidatesAndChangeState()
+                return
+            }
 
-            outputManager.getCandidatesAndChangeState()
+            if (state.selectedIndex < state.candidates.size - 1) {
+                stateFlow.update { it
+                    .changeMode(
+                        mode = SkkMode.HENKAN
+                    )
+                    .copy(
+                        savedSkkState = it.savedSkkState + it.currentSkkState,
+                        selectedIndex = it.selectedIndex + 1,
+                    )
+                }
+                return
+            }
+
+            initRegistration()
         }
 
         SkkMode.HENKAN -> {
-            if (state.candidates.isEmpty()) return
+            if (state.candidates.isEmpty()) {
+                outputManager.getCandidatesAndChangeState()
+                return
+            }
 
             if (state.selectedIndex < state.candidates.size - 1) {
                 stateFlow.update {
@@ -48,16 +69,7 @@ internal fun ActionProcessor.handleSpace() {
                 return
             }
 
-//            /* 既に登録モードになっているとき(再帰的な辞書登録はしない) */
-//            if (state.isRegistering) return
-
-            /* 登録モードではないとき、登録モードに入る */
-            val key = formatString(
-                text = state.currentSkkState.midashiText + state.currentSkkState.okuriganaTrigger
-            )
-            stateFlow.update {
-                it.initRegistration(key.lookupKey)
-            }
+            initRegistration()
         }
 
         SkkMode.ABBREV -> {
@@ -65,5 +77,18 @@ internal fun ActionProcessor.handleSpace() {
 
             outputManager.getCandidatesAndChangeState()
         }
+    }
+}
+
+private fun ActionProcessor.initRegistration() {
+    /* 既に登録モードになっているとき(再帰的な辞書登録はしない) */
+    if (stateFlow.value.isRegistering) return
+
+    /* 登録モードではないとき、登録モードに入る */
+    val key = formatString(
+        text = stateFlow.value.currentSkkState.midashiText + stateFlow.value.currentSkkState.okuriganaKey
+    )
+    stateFlow.update {
+        it.initRegistration(key.lookupKey)
     }
 }

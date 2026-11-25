@@ -52,7 +52,8 @@ class ActionProcessor(
                 stateFlow.update { it.copy(keyboardType = KeyboardType.EMOJI) }
             }
             KeyboardAction.Left -> {
-                if (stateFlow.value.currentSkkState.skkMode == SkkMode.HENKAN) {
+                if (stateFlow.value.candidates.isNotEmpty()) {
+                    /* 候補が存在するとき */
                     keyProcessor.handle("x")
                     return
                 }
@@ -60,7 +61,8 @@ class ActionProcessor(
                 inputCommitter.moveCursor(-1)
             }
             KeyboardAction.Right -> {
-                if (stateFlow.value.currentSkkState.skkMode == SkkMode.HENKAN) {
+                if (stateFlow.value.candidates.isNotEmpty()) {
+                    /* 候補が存在するとき */
                     handleSpace()
                     return
                 }

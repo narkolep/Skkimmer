@@ -6,13 +6,21 @@ import com.narkolep.skkimmer.keyboard.skk_lisp.Evaluator
 import com.narkolep.skkimmer.keyboard.skk_lisp.SkkText
 import java.time.Clock
 
-
+/**
+ * 辞書から得られた候補
+ * @param raw 辞書に書かれていた文字列 (学習・保存用)
+ * @param text 変換後の文字列 (表示・入力用)
+ * @param annotation 辞書の注釈
+ */
 data class Candidate(
-    val raw: String, // 辞書に書かれていた文字列 (学習・保存用)
-    val text: String, // 変換後の文字列 (表示・入力用)
-    val annotation: String? = null, // 辞書の注釈
+    val raw: String,
+    val text: String,
+    val annotation: String? = null,
 )
 
+/**
+ * 候補のリストを変換する
+ */
 class CandidateResolver(
     private val clockProvider: () -> Clock = { Clock.systemDefaultZone() },
     private val onFailure: (expr: String, cause: Throwable) -> Unit = { _, _ -> },

@@ -5,22 +5,16 @@ import com.narkolep.skkimmer.keyboard.mappings.KanaMap.KanaDefinition
 
 enum class IsIgnore {
     FALSE,
-    XTU,
-    TT_OR_N,
+    EXPLICIT, // 明示的な「っ」
+    IMPLICIT, // 暗黙的な「っ」と「ん」
 }
 
 data class ConvertResult(
     val composingNext: String,
     val output: String,
-    val okuriganaFlag: String,
+    val okuriganaKey: String,
     val isIgnore: IsIgnore = IsIgnore.FALSE,
 )
-
-/**
- * 拡張
- */
-fun String.isAlphabet(): Boolean = isNotEmpty() && all { it in 'a'..'z' }
-fun String.isNumber(): Boolean = isNotEmpty() && all { it in '0'..'9' }
 
 private val ROMAJI_VOWELS = setOf('a', 'i', 'u', 'e', 'o', 'y')
 
@@ -50,15 +44,15 @@ fun romajiConverter(
                 return ConvertResult(
                     composingNext = "",
                     output = kana,
-                    okuriganaFlag = "t",
-                    isIgnore = IsIgnore.XTU,
+                    okuriganaKey = "t",
+                    isIgnore = IsIgnore.EXPLICIT,
                 )
             }
 
             return ConvertResult(
                 composingNext = "",
                 output = kana,
-                okuriganaFlag = composingNow.firstOrNull().toString(),
+                okuriganaKey = composingNow.firstOrNull().toString(),
                 isIgnore = IsIgnore.FALSE,
             )
         }
@@ -68,7 +62,7 @@ fun romajiConverter(
             return ConvertResult(
                 composingNext = composingNow,
                 output = "",
-                okuriganaFlag = composingNow.firstOrNull().toString(),
+                okuriganaKey = composingNow.firstOrNull().toString(),
                 isIgnore = IsIgnore.FALSE,
             )
         }
@@ -83,8 +77,8 @@ fun romajiConverter(
             return ConvertResult(
                 composingNext = key,
                 output = kana,
-                okuriganaFlag = "t",
-                isIgnore = IsIgnore.TT_OR_N,
+                okuriganaKey = "t",
+                isIgnore = IsIgnore.IMPLICIT,
             )
         }
 
@@ -98,8 +92,8 @@ fun romajiConverter(
             return ConvertResult(
                 composingNext = key,
                 output = kana,
-                okuriganaFlag = "n",
-                isIgnore = IsIgnore.TT_OR_N,
+                okuriganaKey = "n",
+                isIgnore = IsIgnore.IMPLICIT,
             )
         }
 
@@ -112,18 +106,7 @@ fun romajiConverter(
     return ConvertResult(
         composingNext = "",
         output = key,
-        okuriganaFlag = "",
+        okuriganaKey = "",
         isIgnore = IsIgnore.FALSE,
     )
-}
-
-/**
- * inputModeに合わせた仮名を返す
- */
-fun getOutputString(definition: KanaDefinition, inputMode: InputMode): String {
-    return when (inputMode) {
-        InputMode.KATAKANA -> definition.kata
-        InputMode.HALF_KATAKANA -> definition.halfKata
-        else -> definition.hira
-    }
 }

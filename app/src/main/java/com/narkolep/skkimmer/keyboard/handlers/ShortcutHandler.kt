@@ -9,6 +9,7 @@ import com.narkolep.skkimmer.keyboard.KeyboardType
 import com.narkolep.skkimmer.keyboard.ShiftState
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.SkkMode
+import com.narkolep.skkimmer.keyboard.convertString
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
 import kotlinx.coroutines.flow.update
 

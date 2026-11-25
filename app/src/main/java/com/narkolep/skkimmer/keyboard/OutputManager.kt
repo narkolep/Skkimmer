@@ -2,10 +2,8 @@ package com.narkolep.skkimmer.keyboard
 
 import android.util.Log
 import com.narkolep.skkimmer.data.DictionaryManager
-import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.HALF_SPACE
 import com.narkolep.skkimmer.keyboard.SkkConstants.OKURI_MARK
-import com.narkolep.skkimmer.keyboard.handlers.formatString
 import com.narkolep.skkimmer.keyboard.handlers.getCandidatesAndChangeState
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -21,66 +19,24 @@ class OutputManager(
     internal val dictionaryManager: DictionaryManager,
     internal val coroutineScope: CoroutineScope,
 ) {
-    /**
-     * 確定入力
-     * テンキー/英数/abbrevモード
-     */
-    fun asciiOutput(
-        key: String,
-        state: KeyboardState,
-    ): Boolean {
-        val outChar = if (state.shiftState == ShiftState.LOWERCASE) key else key.uppercase()
-
-        val firstChar = outChar.firstOrNull() ?: return false
-        when (state.inputMode) {
-            InputMode.HALF_ASCII -> {
-                inputCommitter.commit(outChar)
-                return true
-            }
-            InputMode.FULL_ASCII -> {
-                val fullChar = when (val code = firstChar.code) {
-                    /* Space */
-                    0x20 -> FULL_SPACE
-                    /* !から~までの半角英数字 */
-                    in 0x21..0x7E -> (code + 0xFEE0).toChar().toString()
-                    else -> outChar
-                }
-                inputCommitter.commit(fullChar)
-                return true
-            }
-            else -> {
-                if (state.currentSkkState.skkMode == SkkMode.ABBREV) {
-                    stateFlow.update {
-                        it.copy(
-                            currentSkkState = it.currentSkkState.copy(
-                                midashiText = it.currentSkkState.midashiText + outChar
-                            )
-                        )
-                    }
-                    return true
-                }
-            }
-        }
-
-        return false
-    }
 
     /**
      * ConvertResultの値をstateに保存
      * 仮名を出力
      */
     fun kanaOutput(
-        newState: KeyboardState,
         oldState: KeyboardState,
         result: ConvertResult,
     ) {
+        val newState = stateFlow.value
+
         when (newState.currentSkkState.skkMode) {
             SkkMode.NORMAL -> {
                 if (newState.isRegistering) {
                     stateFlow.update { it
                         .updateCandidate(
                             lookupKey = it.registrationKey.lookupKey,
-                            candidate = newState.registrationKey.candidate + result.output,
+                            candidate = it.registrationKey.candidate + result.output,
                         ).copy(
                             composingText = result.composingNext
                         )
@@ -104,40 +60,48 @@ class OutputManager(
                     it.copy(
                         composingText = result.composingNext,
                         currentSkkState = it.currentSkkState.copy(
-                            midashiText = newState.currentSkkState.midashiText + result.output,
+                            midashiText = it.currentSkkState.midashiText + result.output,
                         )
                     )
                 }
             }
 
             SkkMode.OKURIGANA -> {
-                if (result.output.isEmpty() || result.isIgnore == IsIgnore.TT_OR_N) {
-                    /* outputが未確定のとき */
+                if (result.output.isEmpty() || result.isIgnore == IsIgnore.IMPLICIT) {
+                    /* 送り仮名が未確定のとき */
                     stateFlow.update {
+                        val midashiText = it.currentSkkState.midashiText +
+                                if (oldState.currentSkkState.skkMode == SkkMode.MIDASHI) result.output else ""
+                        val okuriganaText = it.currentSkkState.okuriganaText +
+                                if (oldState.currentSkkState.skkMode == SkkMode.OKURIGANA) result.output else ""
+                        val okuriganaKey = if (okuriganaText.isNotEmpty()) result.okuriganaKey else ""
+
                         it.copy(
                             composingText = result.composingNext,
                             currentSkkState = it.currentSkkState.copy(
-                                midashiText = newState.currentSkkState.midashiText +
-                                        if (oldState.currentSkkState.skkMode == SkkMode.MIDASHI) result.output else "",
-                                okuriganaText = newState.currentSkkState.okuriganaText +
-                                        if (oldState.currentSkkState.skkMode == SkkMode.OKURIGANA) result.output else "",
+                                midashiText = midashiText,
+                                okuriganaText = okuriganaText,
+                                okuriganaKey = okuriganaKey,
                             )
                         )
                     }
                     return
                 }
 
+                val okuriganaKey =
+                    if (newState.currentSkkState.okuriganaKey == "n") "n"
+                    else result.okuriganaKey
                 stateFlow.update {
                     it.copy(
                         composingText = result.composingNext,
                         currentSkkState = it.currentSkkState.copy(
-                            okuriganaText = newState.currentSkkState.okuriganaText + result.output,
-                            okuriganaTrigger = result.okuriganaFlag,
+                            okuriganaText = it.currentSkkState.okuriganaText + result.output,
+                            okuriganaKey = okuriganaKey,
                         )
                     )
                 }
 
-                getCandidatesAndChangeState(result.isIgnore == IsIgnore.XTU)
+                getCandidatesAndChangeState(result.isIgnore == IsIgnore.EXPLICIT)
             }
 
             SkkMode.HENKAN -> {
@@ -145,7 +109,7 @@ class OutputManager(
                 stateFlow.update {
                     it.copy(
                         currentSkkState = it.currentSkkState.copy(
-                            okuriganaText = newState.currentSkkState.okuriganaText + result.output
+                            okuriganaText = it.currentSkkState.okuriganaText + result.output
                         )
                     )
                 }
@@ -257,7 +221,7 @@ class OutputManager(
                 }
 
                 val key = formatString(
-                    text = state.currentSkkState.midashiText + state.currentSkkState.okuriganaTrigger
+                    text = state.currentSkkState.midashiText + state.currentSkkState.okuriganaKey
                 )
 
                 coroutineScope.launch(Dispatchers.IO + exceptionHandler) {

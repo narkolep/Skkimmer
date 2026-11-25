@@ -1,5 +1,6 @@
 package com.narkolep.skkimmer.keyboard
 
+import com.narkolep.skkimmer.keyboard.SkkConstants.FULL_SPACE
 import com.narkolep.skkimmer.keyboard.handlers.handleCtrl
 import com.narkolep.skkimmer.keyboard.handlers.handleKey
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,8 +30,8 @@ class KeyProcessor(
             capturedOldState,
         ) ?: return
 
-        // 英数字(直接出力)
-        if (outputManager.asciiOutput(newKey, capturedOldState)) return
+        // 英数字
+        if (asciiOutput(newKey, capturedOldState)) return
 
         // ローマ字変換
         val result = romajiConverter(
@@ -46,8 +47,7 @@ class KeyProcessor(
         changeState(newKey, capturedOldState)
 
         // resultの出力処理
-        val newState = stateFlow.value
-        outputManager.kanaOutput(newState, capturedOldState, result)
+        outputManager.kanaOutput(capturedOldState, result)
     }
 
     /**
@@ -85,5 +85,49 @@ class KeyProcessor(
             }
             else -> { /* OKURIGANA, ABBREV は何もしない */ }
         }
+    }
+
+    /**
+     * テンキー/英数/abbrevモード
+     * @return 処理した場合は true
+     */
+    private fun asciiOutput(
+        key: String,
+        state: KeyboardState,
+    ): Boolean {
+        val outChar = if (state.shiftState == ShiftState.LOWERCASE) key else key.uppercase()
+        val firstChar = outChar.firstOrNull() ?: return false
+
+        when (state.inputMode) {
+            InputMode.HALF_ASCII -> {
+                inputCommitter.commit(outChar)
+                return true
+            }
+            InputMode.FULL_ASCII -> {
+                val fullChar = when (val code = firstChar.code) {
+                    /* Space */
+                    0x20 -> FULL_SPACE
+                    /* !から~までの半角英数字 */
+                    in 0x21..0x7E -> (code + 0xFEE0).toChar().toString()
+                    else -> outChar
+                }
+                inputCommitter.commit(fullChar)
+                return true
+            }
+            else -> {
+                if (state.currentSkkState.skkMode == SkkMode.ABBREV) {
+                    stateFlow.update {
+                        it.copy(
+                            currentSkkState = it.currentSkkState.copy(
+                                midashiText = it.currentSkkState.midashiText + outChar
+                            )
+                        )
+                    }
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 }

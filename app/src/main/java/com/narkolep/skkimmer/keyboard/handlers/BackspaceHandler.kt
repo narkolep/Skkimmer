@@ -132,7 +132,7 @@ internal fun ActionProcessor.handleBackspace() {
                     selectedIndex = -1,
                     currentSkkState = it.currentSkkState.copy(
                         skkMode = SkkMode.MIDASHI,
-                        okuriganaTrigger = ""
+                        okuriganaKey = ""
                     )
                 )
             }

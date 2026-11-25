@@ -40,7 +40,7 @@ data class SkkState(
     val skkMode: SkkMode = SkkMode.NORMAL,
     val midashiText: String = "",
     val okuriganaText: String = "",
-    val okuriganaTrigger: String = ""
+    val okuriganaKey: String = "",
 )
 
 /**
