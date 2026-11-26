@@ -42,6 +42,7 @@ import com.composables.icons.lucide.R.drawable.lucide_ic_square_library
 import com.narkolep.skkimmer.keyboard.getOutputString
 import com.narkolep.skkimmer.keyboard.isNumber
 import com.narkolep.skkimmer.keyboard.mappings.KanaMap
+import com.narkolep.skkimmer.keyboard.ui.components.CandidateScreen
 import com.narkolep.skkimmer.keyboard.ui.components.rememberFeedback
 import com.narkolep.skkimmer.keyboard.ui.theme.LocalKeyboardColors
 
@@ -90,11 +91,12 @@ fun KeyboardLayout(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .height((keyboardHeight * 4.8f + bottomPadding).dp)
             .background(colors.background) // キーボード全体の背景色
             .padding(
                 start = sidePadding.dp,
                 end = sidePadding.dp,
-                bottom = bottomPadding.dp
+                bottom = bottomPadding.dp,
             )
     ) {
         /* 絵文字入力画面 */
@@ -103,7 +105,6 @@ fun KeyboardLayout(
                 textColor = colors.keyText,
                 actionColor = colors.specialKeyBackground,
                 actionTextColor = colors.specialKeyText,
-                height = (keyboardHeight * 4.8f),
                 categories = categories,
                 onBackToKeyboard = { onActionClick(KeyboardAction.ToggleKeyboard) },
                 onEmojiSelected = { emoji -> onKeyClick(emoji) }
@@ -111,10 +112,30 @@ fun KeyboardLayout(
             return
         }
 
+        /* 候補一覧画面 */
+        if (uiState.keyboardType == KeyboardType.CANDIDATE) {
+            CandidateScreen(
+                backgroundColor = colors.keyBackground,
+                textColor = colors.keyText,
+                candidates = uiState.candidates,
+                keyHeight = keyboardHeight,
+                onCandidateClick = { index ->
+                    onActionClick(KeyboardAction.CandidateIndex(index))
+                    onActionClick(KeyboardAction.ToggleCandidate)
+                },
+                onToggleClick = { onActionClick(KeyboardAction.ToggleCandidate) },
+            )
+            return
+        }
+
         /* キーボード */
         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
             /* 候補/数字バー */
-            Box(modifier = Modifier.fillMaxWidth().height((keyboardHeight * 0.8f).dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height((keyboardHeight * 0.8f).dp)
+            ) {
                 if (!uiState.isFlick && uiState.candidates.isEmpty() && uiState.keyboardType != KeyboardType.NUMERIC) {
                     Row(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
                         numericQwertyKeyLayout.forEach { config ->
@@ -136,7 +157,8 @@ fun KeyboardLayout(
                         candidates = uiState.candidates,
                         selectedIndex = uiState.selectedIndex,
                         keyHeight = keyboardHeight,
-                        onCandidateClick = { index -> onActionClick(KeyboardAction.CandidateIndex(index)) }
+                        onCandidateClick = { index -> onActionClick(KeyboardAction.CandidateIndex(index)) },
+                        onToggleClick = { onActionClick(KeyboardAction.ToggleCandidate) },
                     )
                 }
             }
@@ -279,16 +301,19 @@ fun KeyboardLayout(
                                 when (uiState.inputMode) {
                                     InputMode.HALF_ASCII -> "半角英数"
                                     InputMode.FULL_ASCII -> "全角英数"
-                                    InputMode.HIRAGANA, InputMode.KATAKANA -> when (uiState.currentSkkState.skkMode) {
+                                    InputMode.HIRAGANA, InputMode.KATAKANA, InputMode.HALF_KATAKANA -> when (uiState.currentSkkState.skkMode) {
                                         SkkMode.NORMAL -> {
-                                            dictKey + if (uiState.inputMode == InputMode.HIRAGANA) "NORMAL" else "カタカナ"
+                                            dictKey + when (uiState.inputMode) {
+                                                InputMode.KATAKANA -> "カタカナ"
+                                                InputMode.HALF_KATAKANA -> "ｶﾀｶﾅ"
+                                                else -> "NORMAL"
+                                            }
                                         }
                                         SkkMode.MIDASHI -> dictKey + "見出し"
                                         SkkMode.OKURIGANA -> dictKey + "送り仮名"
                                         SkkMode.HENKAN -> dictKey + "変換"
                                         SkkMode.ABBREV -> dictKey + "abbrev"
                                     }
-                                    InputMode.HALF_KATAKANA -> "ｶﾀｶﾅ"
                                 }
                             } else config.main
 

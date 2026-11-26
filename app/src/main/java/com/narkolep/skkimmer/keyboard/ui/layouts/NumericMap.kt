@@ -18,7 +18,7 @@ object NumericMap {
             ),
             FlickKeyConfig(
                 label = "2",
-                flickPosition = Position(center = "2", left = "¥", up = "€", right = "$", down = "")
+                flickPosition = Position(center = "2", left = "\u00A5", up = "€", right = "$", down = "")
             ),
             FlickKeyConfig(
                 label = "3",

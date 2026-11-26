@@ -27,7 +27,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.narkolep.skkimmer.keyboard.ui.theme.KeyboardColors
-import kotlin.math.roundToInt
 
 /**
  * キーボード外観のプレビューカード
@@ -224,7 +223,7 @@ fun ColorPreviewCard(
 }
 
 /**
- * 透明度を視覚化するための市松模様パターン
+ * 市松模様のパターン
  */
 @Composable
 private fun CheckerboardPattern(modifier: Modifier = Modifier) {

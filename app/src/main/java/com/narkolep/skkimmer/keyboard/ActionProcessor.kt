@@ -48,6 +48,13 @@ class ActionProcessor(
                         else InputMode.FULL_ASCII
                 ) }
             }
+            KeyboardAction.ToggleCandidate -> {
+                stateFlow.update { it.copy(
+                    keyboardType =
+                        if (it.keyboardType == KeyboardType.CANDIDATE) KeyboardType.NORMAL
+                        else KeyboardType.CANDIDATE
+                ) }
+            }
             KeyboardAction.Emoji -> {
                 stateFlow.update { it.copy(keyboardType = KeyboardType.EMOJI) }
             }

@@ -11,6 +11,7 @@ sealed interface KeyboardAction {
     data object Enter : KeyboardAction
     data object ToggleKeyboard : KeyboardAction
     data object ToggleWidth : KeyboardAction
+    data object ToggleCandidate : KeyboardAction
     data object Emoji : KeyboardAction
     data object Left : KeyboardAction
     data object Right : KeyboardAction

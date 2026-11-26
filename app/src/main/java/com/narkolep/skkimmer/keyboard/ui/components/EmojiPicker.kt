@@ -13,19 +13,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.narkolep.skkimmer.data.EmojiManager
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import com.composables.icons.lucide.R
 
 @Composable
 fun EmojiPicker(
     textColor: Color,
     actionColor: Color,
     actionTextColor: Color,
-    height: Float = 300f,
     categories: List<EmojiManager.Category>,
     onBackToKeyboard: () -> Unit,
     onEmojiSelected: (String) -> Unit
@@ -53,9 +55,7 @@ fun EmojiPicker(
     val columns = 8
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             /* 上部カテゴリータブ */
@@ -151,18 +151,22 @@ fun EmojiPicker(
                 }
             }
         }
+
         /* 戻るボタン */
-        Button(
-            onClick = onBackToKeyboard,
+        IconButton(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = actionColor)
+                .padding(horizontal = 8.dp)
+                .background(
+                    color = actionColor,
+                    shape = CircleShape,
+                ),
+            onClick = { onBackToKeyboard() },
         ) {
-            Text(
-                text = "ABC",
-                fontSize = 18.sp,
-                color = actionTextColor
+            Icon(
+                painter = painterResource(id = R.drawable.lucide_ic_earth),
+                contentDescription = "Toggle candidate screen",
+                tint = actionTextColor,
             )
         }
     }

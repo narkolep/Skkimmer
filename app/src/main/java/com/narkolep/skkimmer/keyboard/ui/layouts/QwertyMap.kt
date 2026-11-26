@@ -44,7 +44,7 @@ object QwertyMap {
             QwertyKeyConfig("h", "&", "—"),
             QwertyKeyConfig("j", "-", "="),
             QwertyKeyConfig("k", ":", ";"),
-            QwertyKeyConfig("l", "@", "`", weight = 1.5f, padding = KeySpacerPosition.RIGHT),
+            QwertyKeyConfig("l", "@", "\u00A5", weight = 1.5f, padding = KeySpacerPosition.RIGHT),
         ),
 
         // 4段目
@@ -60,7 +60,7 @@ object QwertyMap {
             QwertyKeyConfig("v", ")", "]"),
             QwertyKeyConfig("b", ",", "‥"),
             QwertyKeyConfig("n", ".", "…"),
-            QwertyKeyConfig("m", "/", """\"""),
+            QwertyKeyConfig("m", "/", "\u005C"),
             QwertyKeyConfig(
                 "BS",
                 action = KeyboardAction.Backspace,

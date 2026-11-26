@@ -12,7 +12,8 @@ enum class ShiftState {
 enum class KeyboardType {
     NORMAL,
     EMOJI,
-    NUMERIC
+    NUMERIC,
+    CANDIDATE,
 }
 
 enum class InputMode {
